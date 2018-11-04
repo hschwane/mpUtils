@@ -12,13 +12,13 @@
 #define MPUTILS_MPUTILS_H
 
 // general stuff
-#include "stringUtils.h"
-#include "timeUtils.h"
-#include "type_traitUtils.h"
-#include "templateUtils.h"
-#include "Range.h"
+#include "Misc/stringUtils.h"
+#include "Misc/timeUtils.h"
+#include "Misc/type_traitUtils.h"
+#include "Misc/templateUtils.h"
+#include "Misc/Range.h"
 #if !defined(MPU_NO_PREPROCESSOR_UTILS)
-    #include "preprocessorUtils.h"
+    #include "Misc/preprocessorUtils.h"
 #endif
 
 // configuration util

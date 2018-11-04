@@ -18,7 +18,7 @@
 //--------------------
 #include <sstream>
 #include <stdexcept>
-#include "stringUtils.h"
+#include "Misc/stringUtils.h"
 #include "Log.h"
 //--------------------
 

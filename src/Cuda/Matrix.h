@@ -16,7 +16,7 @@
 #include <iostream>
 #include <type_traits>
 #include <sstream>
-#include "../type_traitUtils.h"
+#include "Misc/type_traitUtils.h"
 #ifdef USE_GLM
     #include <glm/glm.hpp>
 #endif

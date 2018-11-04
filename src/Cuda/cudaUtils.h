@@ -16,7 +16,7 @@
 #include "clionCudaHelper.h"
 #include "../../external/cuda/helper_math.h"
 #include "../Log/Log.h"
-#include "../Range.h"
+#include "Misc/Range.h"
 //--------------------
 
 // some defines
