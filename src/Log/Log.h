@@ -68,7 +68,7 @@
     #define assert_true(TEST,MODULE,MESSAGE) if(!( TEST )){ logERROR(MODULE) << "Assert failed: " << (MESSAGE) ; \
                         if(!mpu::Log::noGlobal()) mpu::Log::getGlobal().flush(); \
                         throw std::runtime_error(MESSAGE);}
-    #define debugMark() logDebug("mark")
+    #define debugMark() logDEBUG("mark")
 #endif
 //--------------------
 
