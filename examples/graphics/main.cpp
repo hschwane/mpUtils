@@ -36,8 +36,7 @@ int main()
     glClearColor(1, 1, 1, 1);
     glClearDepth(1.f);
     glEnable(GL_DEPTH_TEST);
-    //mpu::gph::enableVsync(true);
-    glfwSwapInterval(0);
+    mpu::gph::enableVsync(true);
 
     // create a shader
     mpu::gph::addShaderIncludePath(LIB_SHADER_PATH);
@@ -60,17 +59,17 @@ int main()
         camera.update(dt);
 
         shader.uniform4f("color",{1,0,0,1});
-        mvp[0].setModel(glm::translate(glm::mat4(),{0,0,0}));
+        mvp[0].setModel(glm::translate(glm::mat4(1.0f),{0,0,0}));
         glDrawArrays(GL_TRIANGLES,0,mpu::gph::Geometry::Cube::vertexCount);
         glFinish();
 
         shader.uniform4f("color",{0,1,0,1});
-        mvp[0].setModel(glm::translate(glm::mat4(),{2,0,0}));
+        mvp[0].setModel(glm::translate(glm::mat4(1.0f),{2,0,0}));
         glDrawArrays(GL_TRIANGLES,0,mpu::gph::Geometry::Cube::vertexCount);
         glFinish();
 
         shader.uniform4f("color",{0,0,1,1});
-        mvp[0].setModel(glm::translate(glm::mat4(),{-2,0,0}));
+        mvp[0].setModel(glm::translate(glm::mat4(1.0f),{-2,0,0}));
         glDrawArrays(GL_TRIANGLES,0,mpu::gph::Geometry::Cube::vertexCount);
 
 
