@@ -1,5 +1,5 @@
 include(GetGitRevisionDescription)
-git_describe(VERSION --tags)
+git_describe(VERSION --tags --match [vV][0-9]*)
 
 #parse the version information into pieces.
 string(REGEX REPLACE "^v([0-9]+)\\..*" "\\1" VERSION_MAJOR "${VERSION}")
