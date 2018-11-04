@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 
 # create project
-project(oglTest)
+project(graphicsExample)
 
 # set src files
 set(SOURCE_FILES

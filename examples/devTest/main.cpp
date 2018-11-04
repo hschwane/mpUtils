@@ -12,10 +12,12 @@
  *
  */
 
+/*
+ * This project is used by the developers to play with and test new features
+ */
+
 #include <mpUtils.h>
 #include <mpGraphics.h>
-#include <chrono>
-#include <Cuda/Matrix.h>
 
 using namespace mpu;
 using namespace std;
@@ -23,11 +25,14 @@ using namespace std::chrono;
 
 int main()
 {
+    Log myLog( LogLvl::ALL, ConsoleSink());
 
-    Mat<float,3,3> m(5);
-    Mat<float,3,3> m2(m);
-
-    auto m3 = 2.0f * m * m2;
+    for(int i = 0; i < 10; ++i)
+    {
+        logINFO("Test") << "Testing log things";
+        debugMark();
+        sleep(1);
+    }
 
     return 0;
 }

@@ -9,7 +9,6 @@ constexpr int WIDTH = 800;
 
 int main()
 {
-
     // initialise log
     mpu::Log mainLog(mpu::ALL, mpu::ConsoleSink());
 
