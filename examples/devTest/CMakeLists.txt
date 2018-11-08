@@ -1,11 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
-# set src files
-set(SOURCE_FILES main.cpp)
-
 # create target
-add_executable(devTest ${SOURCE_FILES})
+add_executable(devTest main.cpp)
 
 # link libraries
-target_link_libraries(devTest mpUtils)
+target_link_libraries(devTest mpUtils::mpUtils)
 

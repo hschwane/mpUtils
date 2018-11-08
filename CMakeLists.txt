@@ -1,193 +1,241 @@
+# -------------------------------------------------------------
+# general setup
+# -------------------------------------------------------------
 cmake_minimum_required(VERSION 3.8)
-
-# -----------------
-# general settings
-# -----------------
 
 # Appends the cmake/ path to MAKE_MODULE_PATH variable.
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-# include some useful stuff
-include(GNUInstallDirs)
+# create project
 include(GetVersionFromGit)
+project(mpUtils VERSION "${VERSION_SHORT}" LANGUAGES CXX)
+
+
+# -------------------------------------------------------------
+# try to find dependencies
+# -------------------------------------------------------------
+
+# find required packages
+find_package(Threads REQUIRED)
+
+# find optional packages
+find_package(glm QUIET)
+set(OpenGL_GL_PREFERENCE "GLVND")
+find_package(OpenGL QUIET)
+find_package(GLEW QUIET)
+find_package(glfw3 QUIET)
+
+# check if cuda is availible
+include(CheckLanguage)
+check_language(CUDA)
+
+
+# -------------------------------------------------------------
+# user settings and optional features
+# -------------------------------------------------------------
 
 # possibility to turn of features with special dependencies
-option(USE_CUDA "Compile with cuda features." ON)
-option(USE_OPENGL "Compile with openGL features." ON)
-option(USE_GLM "Include and link GLM. This is required for openGL." ON)
-option(USE_OPENMP "Activate openMP support." ON)
-option(ADD_ADDITIONAL_X11_LIBS "On some linux systems additional Librarys are needed for linking of opengl." OFF)
+include(CMakeDependentOption)
+
+# make cache entries for optional features
+cmake_dependent_option(USE_CUDA "Compile with cuda features." ON "CMAKE_CUDA_COMPILER" OFF)
+cmake_dependent_option(USE_GLM "Compile with GLM. This is required for openGL." ON "glm_FOUND" OFF)
+cmake_dependent_option(USE_OPENGL "Compile with openGL/graphics features." ON "OPENGL_FOUND; glm_FOUND; GLEW_FOUND; glfw3_FOUND" OFF)
 
 # dependencies between features
-if(USE_OPENGL)
-    set(USE_GLM ON)
-endif()
-if(USE_OPENGL AND NOT USE_GLM)
-    message(SEND_ERROR "GLM is required for openGL support!")
+if(USE_OPENGL AND (NOT USE_GLM))
+    set(USE_GLM ON FORCE)
+    message(WARNING "GLM is required for openGL support! Enabling GLM...")
 endif()
 
-# enable languages
-enable_language(CXX)
+# check again to make sure nothing went wrong
+if(NOT CMAKE_CUDA_COMPILER)
+    if(USE_CUDA)
+        message(SEND_ERROR "Cuda option was selected but cuda could not be found!")
+    else()
+        message(STATUS "Cuda was not found on found on your system. Cuda support is disabled.")
+    endif()
+endif()
+
+if(NOT glm_FOUND)
+    if(USE_GLM)
+        message(SEND_ERROR "GLM option was selected but glm could not be found!")
+    else()
+        message(STATUS "GLM was not found on found on your system. GLM support is disabled.")
+    endif()
+endif()
+
+if(NOT OPENGL_FOUND)
+    if(USE_OPENGL)
+        message(SEND_ERROR "OpenGL option was selected but OpenGL could not be found!")
+    else()
+        message(STATUS "OpenGL was not found on found on your system. OpenGL / graphics support is disabled.")
+    endif()
+endif()
+
+if(NOT GLEW_FOUND)
+    if(USE_OPENGL)
+        message(SEND_ERROR "OpenGL option was selected but GLEW could not be found!")
+    else()
+        message(STATUS "GLEW was not found on found on your system. OpenGL / graphics support is disabled.")
+    endif()
+endif()
+
+if(NOT glfw3_FOUND)
+    if(USE_OPENGL)
+        message(SEND_ERROR "OpenGL option was selected but glfw3 could not be found!")
+    else()
+        message(STATUS "GLFW3 was not found on found on your system. OpenGL / graphics support is disabled.")
+    endif()
+endif()
+
+
+# -------------------------------------------------------------
+# enable cuda
+# -------------------------------------------------------------
+
 if (USE_CUDA)
     enable_language(CUDA)
-#    set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
+
+    include(selectComputeArch)
+    set(CUDA_ARCH "Auto" CACHE STRING
+            "Select cuda arches for which code is produced. Auto | Common | All | list of names | number")
+    CUDA_SELECT_NVCC_ARCH_FLAGS(CUDA_ARCH_FLAGS "${CUDA_ARCH}")
 endif()
 
-# create project
-project(mpUtils VERSION "${VERSION_SHORT}")
-
-# set some defines for library directories
-set(LIB_SHADER_PATH ${CMAKE_SOURCE_DIR}/shader CACHE PATH "Library Shader Path. Set manually if it was not found.")
-set(LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources CACHE PATH "Library Resource path. Set manually if it was not found.")
-
-# set compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-if (USE_CUDA)
-    set(CUDA_CODE_GEN "-gencode arch=compute_61,code=sm_61" CACHE STRING "Cuda arch for which code should be generated.")
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${CUDA_CODE_GEN} -std=c++14")
-    set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -g -G")
-    set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP")
-endif ()
-
-# set defines
-add_definitions(-DLIB_SHADER_PATH="${LIB_SHADER_PATH}/")
-add_definitions(-DLIB_RESOURCE_PATH="${LIB_RESOURCE_PATH}/")
-add_definitions(-DMPU_LIB_VERSION="${VERSION_SHORT}")
-if(USE_GLM)
-    add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
-    add_definitions(-DUSE_GLM)
-endif()
-if(USE_OPENMP)
-    add_definitions(-DUSE_OPENMP)
-endif()
-if (USE_OPENGL)
-    add_definitions(-DGLFW_INCLUDE_GLCOREARB)
-    add_definitions(-DGLEW_NO_GLU)
-    add_definitions(-DUSE_OPENGL)
-endif ()
-if (USE_CUDA)
-    add_definitions(-DUSE_CUDA)
-endif ()
 
 # -------------------------------------------------------------
-# find packages, load libraris include pathes and source files
+# create targets and add sources
 # -------------------------------------------------------------
 
-# general
-list(APPEND LIBRARIES "stdc++fs")
-list(APPEND SOURCE_FILES
-        "src/Misc/stringUtils.cpp"
-        "src/Log/LogStream.cpp"
-        "src/Log/FileSink.cpp"
-        "src/Log/ConsoleSink.cpp"
-        "src/Log/SyslogSink.cpp"
-        "src/Log/Log.cpp"
-        "src/Cfg/CfgFile.cpp"
-        "external/stb_image_impl.cpp")
+# create target and add general cpp files
+add_library(mpUtils SHARED "")
+add_library(mpCudaSettings INTERFACE)
 
-# mutithreading
-find_package(Threads REQUIRED) # the systems thread lib
-if(Threads_FOUND)
-    message("SYSTEM LIBRARY 'Thread' FOUND.")
-    list(APPEND LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
-else()
-    message(SEND_ERROR "System Thread library was not found.")
-endif()
+# add an alias so that library can be used inside the build tree, e.g. when testing
+add_library(mpUtils::mpUtils ALIAS mpUtils)
+add_library(mpUtils::mpCudaSettings ALIAS mpCudaSettings)
 
-# glm
-if(USE_GLM)
-    find_package(GLM REQUIRED)
-    list(APPEND INCLUDE_PATHES
-            "${GLM_INCLUDE_PATH}")
-endif()
+# add required source files
+target_sources(mpUtils PRIVATE
+                "../src/Misc/stringUtils.cpp"
+                "../src/Log/LogStream.cpp"
+                "../src/Log/FileSink.cpp"
+                "../src/Log/ConsoleSink.cpp"
+                "../src/Log/SyslogSink.cpp"
+                "../src/Log/Log.cpp"
+                "../src/Cfg/CfgFile.cpp"
+                "../external/stb_image_impl.cpp"
+              )
 
-# openGL and window managing
+# add optional source files
 if (USE_OPENGL)
-    set(OpenGL_GL_PREFERENCE "GLVND")
-
-    find_package(OpenGL REQUIRED)
-    find_package(GLEW REQUIRED)
-    find_package(GLFW3 REQUIRED)
-
-    list(APPEND LIBRARIES   "${GLFW3_LIBRARIES}"
-                            "${GLEW_LIBRARIES}"
-                            "${OPENGL_LIBRARY}")
-
-    list(APPEND INCLUDE_PATHES
-            "${OPENGL_INCLUDE_DIRS}"
-            "${GLEW_INCLUDE_PATH}"
-            "${GLFW3_INCLUDE_PATH}")
-
-    list(APPEND SOURCE_FILES
-            "src/Graphics/Rendering/Camera.cpp"
-            "src/Graphics/Opengl/Framebuffer.cpp"
-            "src/Graphics/Opengl/Shader.cpp"
-            "src/Graphics/Opengl/Texture.cpp"
-            "src/Graphics/Opengl/glsl/Preprocessor.cpp"
-            "src/Graphics/Utils/Transform.cpp"
-            "src/Graphics/Utils/ModelViewProjection.cpp"
-            "src/Graphics/Window.cpp")
-
-    # x11 is required on some linux systems
-    find_package(X11)
-    if(X11_FOUND)
-        message("EXTERNAL LIBRARY 'X11' FOUND.")
-        list(APPEND LIBRARIES   "${X11_LIBRARIES}")
-        list(APPEND INCLUDE_PATHES ${X11_INCLUDE_DIR})
-    else()
-        message("X11 was not found, but it might not be needed.")
-    endif()
-
-    if(ADD_ADDITIONAL_X11_LIBS)
-        message("Additional X11 libraries added.")
-        list(APPEND LIBRARIES "Xrandr" "Xinerama" "Xcursor" "Xxf86vm")
-    else()
-        message("Additional X11 libraries were NOT added. If you get crazy linker errors try to enable ADD_ADDITIONAL_X11_LIBS.")
-    endif()
-endif ()
-
-# openMP
-if(USE_OPENMP)
-    find_package(OpenMP REQUIRED) # openmp
-    if(OPENMP_FOUND)
-        message("OpenMP support enabled.")
-        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-    else()
-        message(SEND_ERROR "OpenMP support could not be enabled.")
-    endif()
+    target_sources(mpUtils PRIVATE
+                    "../src/Graphics/Rendering/Camera.cpp"
+                    "../src/Graphics/Opengl/Framebuffer.cpp"
+                    "../src/Graphics/Opengl/Shader.cpp"
+                    "../src/Graphics/Opengl/Texture.cpp"
+                    "../src/Graphics/Opengl/glsl/Preprocessor.cpp"
+                    "../src/Graphics/Utils/Transform.cpp"
+                    "../src/Graphics/Utils/ModelViewProjection.cpp"
+                    "../src/Graphics/Window.cpp"
+                  )
 endif()
 
-# cuda
-if (USE_CUDA)
-#    list(APPEND SOURCE_FILES
-#            "src/Cuda/...")
-    if ($ENV{CLION_IDE})
-        list(APPEND INCLUDE_PATHES ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
-    endif ()
-    # enable openmp for the cuda compiler
-    if(USE_OPENMP)
-        set (CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -fopenmp")
-    endif()
-endif ()
+# -------------------------------------------------------------
+# set include dirs
+# -------------------------------------------------------------
 
-# create target
-add_library(mpUtils SHARED ${SOURCE_FILES})
+target_include_directories(mpUtils
+                            PUBLIC
+                                $<INSTALL_INTERFACE:include>
+                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                            PRIVATE
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src
+                        )
 
-# link libraries
-target_link_libraries( mpUtils  ${LIBRARIES})
 
-# set properties
-set_target_properties(mpUtils PROPERTIES VERSION ${VERSION_SHORT} SOVERSION ${VERSION_MAJOR})
+# -------------------------------------------------------------
+# set target properties
+# -------------------------------------------------------------
+
+# set version
+set_target_properties(mpUtils PROPERTIES
+                        VERSION     ${VERSION_SHORT}
+                        SOVERSION   ${VERSION_MAJOR}
+                     )
+
+# set required language standard
+target_compile_features(mpUtils PUBLIC cxx_std_14)
+set_target_properties(mpUtils PROPERTIES
+                        CXX_STANDARD_REQUIRED YES
+                        CUDA_STANDARD 14
+                        CUDA_STANDARD_REQUIRED YES
+                     )
+
+# force c++17 if using opengl
+if(USE_OPENGL)
+    target_compile_features(mpUtils PUBLIC cxx_std_17)
+endif()
+
+# set cuda specific properties and compile options
 if (USE_CUDA)
     set_target_properties( mpUtils PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+    target_compile_options( mpUtils PRIVATE
+                                $<$<COMPILE_LANGUAGE:CUDA>: ${CUDA_ARCH_FLAGS}>
+                                $<$<CONFIG:DEBUG>:$<$<COMPILE_LANGUAGE:CUDA>: -g -G>>
+                            )
+    target_compile_options( mpCudaSettings INTERFACE
+                                $<$<COMPILE_LANGUAGE:CUDA>: ${CUDA_ARCH_FLAGS}>
+                                $<$<CONFIG:DEBUG>:$<$<COMPILE_LANGUAGE:CUDA>: -g -G>>
+                            )
 endif ()
 
-# set include dir (in this case also the src)
-target_include_directories(mpUtils PUBLIC src ${INCLUDE_PATHES})
-        #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/>
-        #$<INSTALL_INTERFACE:src/>)
+# set options for glm and opengl
+if(USE_GLM)
+    target_compile_definitions(mpUtils PUBLIC GLM_ENABLE_EXPERIMENTAL)
+endif()
+
+if (USE_OPENGL)
+    target_compile_definitions(mpUtils PUBLIC GLFW_INCLUDE_GLCOREARB)
+    target_compile_definitions(mpUtils PUBLIC GLEW_NO_GLU)
+endif()
+
+# set definitions for pathes and library version
+target_compile_definitions( mpUtils PUBLIC MPU_LIB_VERSION="${VERSION_SHORT}")
+
+# TODO: make this compatible with installing
+set(LIB_SHADER_PATH ${CMAKE_SOURCE_DIR}/shader CACHE PATH "Library Shader Path. Set manually if it was not found.")
+set(LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources CACHE PATH "Library Resource path. Set manually if it was not found.")
+add_definitions(-DLIB_SHADER_PATH="${LIB_SHADER_PATH}/")
+add_definitions(-DLIB_RESOURCE_PATH="${LIB_RESOURCE_PATH}/")
+
+# -------------------------------------------------------------
+# link dependencies (this will also link the dependencies of dependencies and set required compiler flags)
+# -------------------------------------------------------------
+
+# make imported targets cuda safe
+if(USE_CUDA)
+    include(cudaConvertFlags)
+    cuda_convert_flags(Threads::Threads)
+    cuda_convert_flags(glm)
+    cuda_convert_flags(OpenGL::GL)
+    cuda_convert_flags(glfw)
+    cuda_convert_flags(GLEW::GLEW)
+endif()
+
+# link required external libs
+target_link_libraries(mpUtils PUBLIC stdc++fs Threads::Threads)
+
+# link optional external libs
+if(USE_GLM)
+    target_link_libraries(mpUtils PUBLIC glm)
+endif()
+
+if(USE_OPENGL)
+    target_link_libraries(mpUtils PUBLIC OpenGL::GL glfw GLEW::GLEW)
+endif()
 
 
 # ---------------------
@@ -207,6 +255,7 @@ target_include_directories(mpUtils PUBLIC src ${INCLUDE_PATHES})
 # --------------------------------------------------------
 # see if there are executables and add the subdirectories
 # --------------------------------------------------------
+
 file(GLOB children RELATIVE ${CMAKE_SOURCE_DIR}/examples ${CMAKE_SOURCE_DIR}/examples/*)
 set(subdirs "")
 foreach(child ${children})
