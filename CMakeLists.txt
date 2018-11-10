@@ -41,6 +41,7 @@ include(CMakeDependentOption)
 cmake_dependent_option(USE_CUDA "Compile with cuda features." ON "CMAKE_CUDA_COMPILER" OFF)
 cmake_dependent_option(USE_GLM "Compile with GLM. This is required for openGL." ON "glm_FOUND" OFF)
 cmake_dependent_option(USE_OPENGL "Compile with openGL/graphics features." ON "OPENGL_FOUND; glm_FOUND; GLEW_FOUND; glfw3_FOUND" OFF)
+option(DISABLE_PPUTILS "Disable inclusion of preprocessor utils. (Note: this is also possible on a per project bases by defining MPU_NO_PREPROCESSOR_UTILS before including mpUtils.h)" OFF)
 
 # dependencies between features
 if(USE_OPENGL AND (NOT USE_GLM))
@@ -192,7 +193,7 @@ if (USE_CUDA)
                             )
 endif ()
 
-# set options for glm and opengl
+# set options for optional stuff
 if(USE_GLM)
     target_compile_definitions(mpUtils PUBLIC GLM_ENABLE_EXPERIMENTAL)
 endif()
@@ -200,6 +201,10 @@ endif()
 if (USE_OPENGL)
     target_compile_definitions(mpUtils PUBLIC GLFW_INCLUDE_GLCOREARB)
     target_compile_definitions(mpUtils PUBLIC GLEW_NO_GLU)
+endif()
+
+if(DISABLE_PPUTILS)
+    target_compile_definitions(mpUtils PUBLIC MPU_NO_PREPROCESSOR_UTILS)
 endif()
 
 # set definitions for pathes and library version
