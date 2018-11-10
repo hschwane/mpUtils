@@ -23,8 +23,8 @@
 #include <condition_variable>
 #include "Stopwatch.h"
 #include "Cpu_Clock.h"
-#include "../Log/Log.h"
-#include "Misc/timeUtils.h"
+#include "mpUtils/Log/Log.h"
+#include "mpUtils/Misc/timeUtils.h"
 //--------------------
 
 // namespace

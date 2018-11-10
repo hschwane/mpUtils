@@ -18,8 +18,8 @@
 //--------------------
 #include <sstream>
 #include <stdexcept>
-#include "Misc/stringUtils.h"
-#include "Log.h"
+#include "mpUtils/Misc/stringUtils.h"
+#include "mpUtils/Log/Log.h"
 //--------------------
 
 // namespace

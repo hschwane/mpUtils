@@ -13,7 +13,7 @@
 
 // includes
 //--------------------
-#include "CfgFile.h"
+#include "mpUtils/Cfg/CfgFile.h"
 //--------------------
 
 // namespace

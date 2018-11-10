@@ -13,8 +13,8 @@
 
 // includes
 //--------------------
-#include <Log/Log.h>
-#include "Window.h"
+#include "mpUtils/Log/Log.h"
+#include "mpUtils/Graphics/Window.h"
 //--------------------
 
 // namespace

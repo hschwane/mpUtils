@@ -16,8 +16,7 @@
  * This project is used by the developers to play with and test new features
  */
 
-#include <mpUtils.h>
-#include <mpGraphics.h>
+#include <mpUtils/mpUtils.h>
 
 using namespace mpu;
 using namespace std;

@@ -1,8 +1,6 @@
-#include <Log/Log.h>
-#include <Log/ConsoleSink.h>
-#include <Timer/DeltaTimer.h>
-#include <mpGraphics.h>
-#include "Graphics/Geometry/Cube.h"
+#include <mpUtils/mpUtils.h>
+#include <mpUtils/mpGraphics.h>
+#include <mpUtils/Graphics/Geometry/Cube.h>
 
 constexpr int HEIGHT = 800;
 constexpr int WIDTH = 800;

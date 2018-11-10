@@ -15,9 +15,9 @@
 
 // includes
 //--------------------
-#include "Camera.h"
+#include "mpUtils/Graphics/Rendering/Camera.h"
+#include "mpUtils/Log/Log.h"
 #include <GL/glew.h>
-#include <Log/Log.h>
 //--------------------
 
 // namespace

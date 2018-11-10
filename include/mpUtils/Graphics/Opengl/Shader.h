@@ -24,7 +24,7 @@
 #include <glm/glm.hpp>
 
 #include "Handle.h"
-#include "Graphics/Opengl/glsl/Preprocessor.h"
+#include "mpUtils/Graphics/Opengl/glsl/Preprocessor.h"
 
 namespace mpu {
 namespace gph {

@@ -12,7 +12,7 @@
 
 // includes
 //--------------------
-#include "stringUtils.h"
+#include "mpUtils/Misc/stringUtils.h"
 //--------------------
 
 // namespace

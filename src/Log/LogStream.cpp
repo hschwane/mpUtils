@@ -14,7 +14,7 @@
 
 // includes
 //--------------------
-#include "LogStream.h"
+#include "mpUtils/Log/LogStream.h"
 //--------------------
 
 // namespace

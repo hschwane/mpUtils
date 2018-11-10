@@ -13,7 +13,7 @@
  *
  */
 
-#include "Shader.h"
+#include "mpUtils/Graphics/Opengl/Shader.h"
 #include "glm/ext.hpp"
 
 namespace mpu {

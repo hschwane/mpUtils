@@ -25,7 +25,7 @@
 #include <atomic>
 #include <iostream>
 #include <functional>
-#include "Misc/stringUtils.h"
+#include "mpUtils/Misc/stringUtils.h"
 
 //--------------------
 
@@ -280,7 +280,7 @@ void Log::addSinks(FIRST_SINK&& sink, OTHER_SINKS&&... tail)
 
 // include forward declared classes
 //--------------------
-#include "LogStream.h"
+#include "mpUtils/Log/LogStream.h"
 //--------------------
 
 #endif //MPUTILS_MPLOG_H

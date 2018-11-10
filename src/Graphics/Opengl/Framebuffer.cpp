@@ -13,8 +13,8 @@
 
 // includes
 //--------------------
-#include <Log/Log.h>
-#include "Framebuffer.h"
+#include "mpUtils/Log/Log.h"
+#include "mpUtils/Graphics/Opengl/Framebuffer.h"
 //--------------------
 
 // namespace

@@ -15,7 +15,7 @@
 //--------------------
 #include <syslog.h>
 #include <sstream>
-#include "SyslogSink.h"
+#include "mpUtils/Log/SyslogSink.h"
 //--------------------
 
 // namespace

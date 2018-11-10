@@ -26,7 +26,7 @@
 #include <cstring>
 
 #include <GL/glew.h>
-#include <Log/Log.h>
+#include <mpUtils/Log/Log.h>
 
 namespace mpu {
 namespace gph {

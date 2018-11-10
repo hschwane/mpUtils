@@ -13,10 +13,10 @@
 
 // includes
 //--------------------
-#include "Texture.h"
+#include "mpUtils/Graphics/Opengl/Texture.h"
 #include "../../../external/stb_image.h"
+#include "mpUtils/Log/Log.h"
 #include <assert.h>
-#include <Log/Log.h>
 
 //--------------------
 
