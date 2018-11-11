@@ -55,6 +55,8 @@ cmake_dependent_option(USE_CUDA "Compile with cuda features." ON "CMAKE_CUDA_COM
 cmake_dependent_option(USE_GLM "Compile with GLM. This is required for openGL." ON "glm_FOUND" OFF)
 cmake_dependent_option(USE_OPENGL "Compile with openGL/graphics features." ON "OPENGL_FOUND; glm_FOUND; GLEW_FOUND; glfw3_FOUND" OFF)
 option(DISABLE_PPUTILS "Disable inclusion of preprocessor utils. (Note: this is also possible on a per project bases by defining MPU_NO_PREPROCESSOR_UTILS before including mpUtils.h)" OFF)
+option(DISABLE_VERSION "Disable automatic inclusion of version.h. (Note: this is also possible on a per project bases by defining MPU_NO_VERSION before including mpUtils.h)" OFF)
+option(DISABLE_PATHS "Disable automatic inclusion of paths.h. (Note: this is also possible on a per project bases by defining MPU_NO_PATHS before including mpUtils.h)" OFF)
 option(BUILD_EXAMPLES "Whether or not examples should be build." OFF)
 
 # dependencies between features
@@ -132,27 +134,27 @@ add_library(mpUtils::mpCudaSettings ALIAS mpCudaSettings)
 
 # add required source files
 target_sources(mpUtils PRIVATE
-                "../src/Misc/stringUtils.cpp"
-                "../src/Log/LogStream.cpp"
-                "../src/Log/FileSink.cpp"
-                "../src/Log/ConsoleSink.cpp"
-                "../src/Log/SyslogSink.cpp"
-                "../src/Log/Log.cpp"
-                "../src/Cfg/CfgFile.cpp"
-                "../external/stb_image_impl.cpp"
+                "src/Misc/stringUtils.cpp"
+                "src/Log/LogStream.cpp"
+                "src/Log/FileSink.cpp"
+                "src/Log/ConsoleSink.cpp"
+                "src/Log/SyslogSink.cpp"
+                "src/Log/Log.cpp"
+                "src/Cfg/CfgFile.cpp"
+                "external/src/stb_image_impl.cpp"
               )
 
 # add optional source files
 if (USE_OPENGL)
     target_sources(mpUtils PRIVATE
-                    "../src/Graphics/Rendering/Camera.cpp"
-                    "../src/Graphics/Opengl/Framebuffer.cpp"
-                    "../src/Graphics/Opengl/Shader.cpp"
-                    "../src/Graphics/Opengl/Texture.cpp"
-                    "../src/Graphics/Opengl/glsl/Preprocessor.cpp"
-                    "../src/Graphics/Utils/Transform.cpp"
-                    "../src/Graphics/Utils/ModelViewProjection.cpp"
-                    "../src/Graphics/Window.cpp"
+                    "src/Graphics/Rendering/Camera.cpp"
+                    "src/Graphics/Opengl/Framebuffer.cpp"
+                    "src/Graphics/Opengl/Shader.cpp"
+                    "src/Graphics/Opengl/Texture.cpp"
+                    "src/Graphics/Opengl/glsl/Preprocessor.cpp"
+                    "src/Graphics/Utils/Transform.cpp"
+                    "src/Graphics/Utils/ModelViewProjection.cpp"
+                    "src/Graphics/Window.cpp"
                   )
 endif()
 
@@ -165,6 +167,7 @@ target_include_directories(mpUtils
                                 $<INSTALL_INTERFACE:include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/include>
                             PRIVATE
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src
                         )
@@ -212,17 +215,21 @@ endif ()
 if(USE_GLM)
     target_compile_definitions(mpUtils PUBLIC GLM_ENABLE_EXPERIMENTAL)
 endif()
-
 if (USE_OPENGL)
     target_compile_definitions(mpUtils PUBLIC GLFW_INCLUDE_GLCOREARB)
     target_compile_definitions(mpUtils PUBLIC GLEW_NO_GLU)
 endif()
-
 if(DISABLE_PPUTILS)
     target_compile_definitions(mpUtils PUBLIC MPU_NO_PREPROCESSOR_UTILS)
 endif()
+if(DISABLE_VERSION)
+    target_compile_definitions(mpUtils PUBLIC MPU_NO_VERSION)
+endif()
+if(DISABLE_PATHS)
+    target_compile_definitions(mpUtils PUBLIC MPU_NO_PATHS)
+endif()
 
-# generate include files
+# generate include files for version and paths
 set(MPU_CUDA_AVAILIBLE ${USE_CUDA})
 set(MPU_GLM_AVAILIBLE ${USE_GLM})
 set(MPU_OPENGL_AVAILIBLE ${USE_OPENGL})
@@ -231,6 +238,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/version.h
 set(MPU_LIB_SHADER_PATH ${CMAKE_SOURCE_DIR}/shader)
 set(MPU_LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/paths.h)
+
 
 # -------------------------------------------------------------
 # link dependencies (this will also link the dependencies of dependencies and set required compiler flags)
@@ -269,6 +277,14 @@ set_target_properties(mpCudaSettings PROPERTIES EXPORT_NAME mpCudaSettings)
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/mpUtils)
 
+# configure the paths.h file to point to the installes shaders and resources
+install(CODE "
+        set(MPU_LIB_SHADER_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/mpUtils/shader)
+        set(MPU_LIB_RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/mpUtils/resources)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.in
+                        ${CMAKE_CURRENT_BINARY_DIR}/include/installedPaths.h)
+        ")
+
 # install binaries
 install(TARGETS mpUtils mpCudaSettings
         EXPORT mpUtils-targets
@@ -278,16 +294,9 @@ install(TARGETS mpUtils mpCudaSettings
 
 # install headers
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/version.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-# configure the paths.h file to point to the installes shaders and resources
-install(CODE "
-        set(MPU_LIB_SHADER_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/mpUtils/shader)
-        set(MPU_LIB_RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/mpUtils/resources)
-        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.in
-                        ${CMAKE_CURRENT_BINARY_DIR}/include/installedPaths.h)
-        ")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/installedPaths.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} RENAME paths.h)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/version.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mpUtils/)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/installedPaths.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mpUtils/ RENAME paths.h)
 
 # install usefull cmake scripts
 install(FILES
@@ -366,5 +375,5 @@ if(BUILD_EXAMPLES)
         add_subdirectory(${CMAKE_SOURCE_DIR}/examples/${n})
     endforeach()
 else()
-    message(STATUS "Not building examples. Set BUILD_EXAMPLES true to build examples.")
+    message(STATUS "Not building examples. Set BUILD_EXAMPLES to build examples.")
 endif()
