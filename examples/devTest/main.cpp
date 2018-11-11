@@ -25,6 +25,7 @@ using namespace std::chrono;
 int main()
 {
     Log myLog( LogLvl::ALL, ConsoleSink());
+    myLog.printHeader("devTest", MPU_VERISON_STRING, MPU_VERISON_COMMIT);
 
     for(int i = 0; i < 10; ++i)
     {

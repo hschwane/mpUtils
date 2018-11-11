@@ -11,6 +11,14 @@
 #ifndef MPUTILS_MPUTILS_H
 #define MPUTILS_MPUTILS_H
 
+// version and path
+#if !defined(MPU_NO_VERSION)
+    #include "mpUtils/version.h"
+#endif
+#if !defined(MPU_NO_PATHS)
+    #include "mpUtils/paths.h"
+#endif
+
 // general stuff
 #include "Misc/stringUtils.h"
 #include "Misc/timeUtils.h"
@@ -39,7 +47,7 @@
 #include "Timer/Timer.h"
 
 // image processing
-#include "../external/stb_image.h"
+#include "mpUtils/external/stb_image.h"
 
 // matrix type might be useful without cuda
 #include "Cuda/Matrix.h"

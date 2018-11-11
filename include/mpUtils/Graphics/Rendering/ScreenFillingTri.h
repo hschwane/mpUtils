@@ -16,6 +16,7 @@
 #include <GL/glew.h>
 #include "../Opengl/Shader.h"
 #include "../Opengl/VertexArray.h"
+#include "mpUtils/paths.h"
 //--------------------
 
 // namespace
@@ -42,7 +43,7 @@ public:
 
     void setScreenFillShader(std::string file)
     {
-        screenFillShader.rebuild({ {LIB_SHADER_PATH"screenFillingTri.vert"},
+        screenFillShader.rebuild({ {MPU_LIB_SHADER_PATH"screenFillingTri.vert"},
                                                 {file} });
     }
 

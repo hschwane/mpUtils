@@ -37,9 +37,9 @@ int main()
     mpu::gph::enableVsync(true);
 
     // create a shader
-    mpu::gph::addShaderIncludePath(LIB_SHADER_PATH);
-    mpu::gph::ShaderProgram shader({ {LIB_SHADER_PATH"simple.frag"},
-                                     {LIB_SHADER_PATH"simple.vert"} });
+    mpu::gph::addShaderIncludePath(MPU_LIB_SHADER_PATH);
+    mpu::gph::ShaderProgram shader({ {MPU_LIB_SHADER_PATH"simple.frag"},
+                                     {MPU_LIB_SHADER_PATH"simple.vert"} });
     shader.use();
 
     // timing

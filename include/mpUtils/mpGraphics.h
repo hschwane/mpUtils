@@ -19,6 +19,13 @@
 #include <glm/ext.hpp>
 //--------------------
 
+// path for shader and resources
+//--------------------
+#if !defined(MPU_NO_PATHS)
+    #include "mpUtils/paths.h"
+#endif
+//--------------------
+
 // framework graphics stuff
 //--------------------
 #include "Graphics/Window.h"
@@ -31,7 +38,7 @@
 #include "Graphics/Opengl/Texture.h"
 #include "Graphics/Opengl/Framebuffer.h"
 #include "Graphics/Rendering/Camera.h"
-#include "Graphics/Rendering/screenFillingTri.h"
+#include "mpUtils/Graphics/Rendering/ScreenFillingTri.h"
 //--------------------
 
 #endif //MPUTILS_MPGRAPHICS_H

@@ -14,7 +14,7 @@
 // includes
 //--------------------
 #include "mpUtils/Graphics/Opengl/Texture.h"
-#include "../../../external/stb_image.h"
+#include "mpUtils/external/stb_image.h"
 #include "mpUtils/Log/Log.h"
 #include <assert.h>
 

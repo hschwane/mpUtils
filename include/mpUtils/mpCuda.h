@@ -28,7 +28,7 @@
 
 // cuda stuff from the framework
 #include "Cuda/cudaUtils.h"
-#include "../external/cuda/helper_math.h"
+#include "mpUtils/external/cuda/helper_math.h"
 #include "Cuda/helper_math_missing.h"
 #include "Cuda/Matrix.h"
 #include "Cuda/clionCudaHelper.h"
