@@ -15,6 +15,12 @@ else()
     set_and_check(mpUtils_CMAKE_SCRIPTS_PATH "${MPU_CMAKE_DIR}/modules")
 endif()
 
+# set vars to show which features are availible
+set(mpUtils_CUDA_AVAILIBLE @USE_CUDA@)
+set(mpUtils_GLM_AVAILIBLE @USE_GLM@)
+set(mpUtils_OPENGL_AVAILIBLE @USE_OPENGL@)
+set(mpUtils_PPUTILS_AVAILIBLE @DISABLE_PPUTILS@)
+
 # find required dependencies
 include(CMakeFindDependencyMacro)
 find_dependency(Threads REQUIRED)

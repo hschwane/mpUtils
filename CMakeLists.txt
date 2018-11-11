@@ -164,6 +164,7 @@ target_include_directories(mpUtils
                             PUBLIC
                                 $<INSTALL_INTERFACE:include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
                             PRIVATE
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src
                         )
@@ -221,15 +222,15 @@ if(DISABLE_PPUTILS)
     target_compile_definitions(mpUtils PUBLIC MPU_NO_PREPROCESSOR_UTILS)
 endif()
 
-# set definitions for pathes and library version
-target_compile_definitions( mpUtils PUBLIC MPU_LIB_VERSION="${VERSION_SHORT}")
+# generate include files
+set(MPU_CUDA_AVAILIBLE ${USE_CUDA})
+set(MPU_GLM_AVAILIBLE ${USE_GLM})
+set(MPU_OPENGL_AVAILIBLE ${USE_OPENGL})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/version.h)
 
-# TODO: make this compatible with installing
-set(LIB_SHADER_PATH ${CMAKE_SOURCE_DIR}/shader CACHE PATH "Library Shader Path. Set manually if it was not found.")
-set(LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources CACHE PATH "Library Resource path. Set manually if it was not found.")
-add_definitions(-DLIB_SHADER_PATH="${LIB_SHADER_PATH}/")
-add_definitions(-DLIB_RESOURCE_PATH="${LIB_RESOURCE_PATH}/")
-
+set(MPU_LIB_SHADER_PATH ${CMAKE_SOURCE_DIR}/shader)
+set(MPU_LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/paths.h)
 
 # -------------------------------------------------------------
 # link dependencies (this will also link the dependencies of dependencies and set required compiler flags)
@@ -277,6 +278,16 @@ install(TARGETS mpUtils mpCudaSettings
 
 # install headers
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/version.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# configure the paths.h file to point to the installes shaders and resources
+install(CODE "
+        set(MPU_LIB_SHADER_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/mpUtils/shader)
+        set(MPU_LIB_RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/mpUtils/resources)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.in
+                        ${CMAKE_CURRENT_BINARY_DIR}/include/installedPaths.h)
+        ")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/installedPaths.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} RENAME paths.h)
 
 # install usefull cmake scripts
 install(FILES
