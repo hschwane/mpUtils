@@ -35,12 +35,13 @@ namespace mpu {
  * usage:
  * create an instance of file sink and pass it to the log class to log messages to a file.
  * Use maxFileSize and numLogsToKeep to enable logrotation. If maxFileSize is 0 Logs will not be rotated.
+ * set printPlaintexts = false to ignore log messages that print plain text
  *
  */
 class FileSink
 {
 public:
-    FileSink(std::string sFilename, std:: size_t maxFileSize = 0, int numLogsToKeep = 1); // filesize in bytes
+    FileSink(std::string sFilename, std:: size_t maxFileSize = 0, int numLogsToKeep = 1, bool printPlaintexts=true); // filesize in bytes
     void operator()(const LogMessage &msg);
 
 private:
@@ -50,6 +51,7 @@ private:
     std::size_t maxFileSize; // max file size before log is rotated
     int iNumLogsToKeep; // number of old logs to keep
     std::string sLogfileName; // save the filename to manage old logfiles
+    bool m_printPlaintexts; // whether or not plaintext messages should be printed to the file
 };
 
 

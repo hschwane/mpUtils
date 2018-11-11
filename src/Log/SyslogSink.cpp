@@ -38,6 +38,9 @@ SyslogSink::~SyslogSink()
 
 void SyslogSink::operator()(const LogMessage &msg)
 {
+    if(msg.plaintext)
+        return;
+
     // translate the log lvl
     int iPriority;
     switch (msg.lvl)

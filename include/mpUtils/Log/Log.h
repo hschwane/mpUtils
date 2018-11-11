@@ -115,6 +115,7 @@ struct LogMessage
     LogLvl lvl;
     time_t timepoint;
     std::thread::id threadId;
+    bool plaintext{false};
 };
 
 //-------------------------------------------------------------------
@@ -165,8 +166,6 @@ public:
     void close(); //!< removes all sinks and closes the logger thread (queue is flushed), is called automatically before open and on destruction
     void flush(); //!< flush the log without closing it. Quite costly. Mainly used before throwing an exception.
 
-    void logMessage(LogMessage* lm); //!< logs a message to the log
-
     // getter and setter
     void setLogLevel(LogLvl lvl) {logLvl = lvl;} //!< set the current log level
     LogLvl getLogLevel() const {return logLvl;} //!< get the current log level
@@ -176,6 +175,11 @@ public:
 
     // operators
     LogStream operator()(LogLvl lvl, std::string&& sFilepos ="", std::string&& sModule="");
+
+    // actual logging functions
+    LogStream print(const LogLvl lvl); //!< prints unformatted text to the log
+    void printHeader(std::string appName, std::string appVersion, std::string appSha, std::string appBuildType); //!< prints a nice header to the log
+    void logMessage(LogMessage* lm); //!< logs a message to the log
 
     // make noncopyable and nonmoveable
     Log(const Log& that) = delete;
@@ -199,7 +203,7 @@ private:
     std::thread loggerMainThread; //!< the logger main thread
     void loggerMainfunc(); //!< the mainfunc of the second thread
 
-    std::vector<std::function<void(const LogMessage& msg)>> printFunctions; // the funtion used to print a message to the log
+    std::vector<std::function<void(const LogMessage& msg)>> printFunctions; //! the funtion used to print a message to the log
 };
 
 // global functions

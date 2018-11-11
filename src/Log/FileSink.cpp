@@ -23,7 +23,7 @@ namespace mpu{
 
 // function definitions of the FileSink class
 //-------------------------------------------------------------------
-FileSink::FileSink(std::string sFilename, std:: size_t maxFileSize, int numLogsToKeep) : sLogfileName(sFilename), maxFileSize(maxFileSize), iNumLogsToKeep(numLogsToKeep)
+FileSink::FileSink(std::string sFilename, std:: size_t maxFileSize, int numLogsToKeep, bool printPlaintexts) : sLogfileName(sFilename), maxFileSize(maxFileSize), iNumLogsToKeep(numLogsToKeep), m_printPlaintexts(printPlaintexts)
 {
     rotateLog();
 
@@ -45,19 +45,27 @@ void FileSink::operator()(const LogMessage &msg)
 #error please implement this for your operating system
 #endif
 
-    file <<  "[" << toString(msg.lvl) << "]"
-        << " [" << std::put_time( &timeStruct, "%c") << "]";
+    if(msg.plaintext)
+    {
+        if(m_printPlaintexts)
+            file << msg.sMessage << std::endl;
+    }
+    else
+    {
+        file <<  "[" << toString(msg.lvl) << "]"
+             << " [" << std::put_time( &timeStruct, "%c") << "]";
 
-    if(!msg.sModue.empty())
-        file << " (" << msg.sModue << "):";
+        if(!msg.sModue.empty())
+            file << " (" << msg.sModue << "):";
 
-    file << "\t" << msg.sMessage
-        << "\tThread: " << std::setbase(16) << msg.threadId << std::setbase(10);
+        file << "\t" << msg.sMessage
+             << "\tThread: " << std::setbase(16) << msg.threadId << std::setbase(10);
 
-    if(!msg.sFilePosition.empty())
-        file << "\t@File: " << msg.sFilePosition;
+        if(!msg.sFilePosition.empty())
+            file << "\t@File: " << msg.sFilePosition;
 
-    file << std::endl;
+        file << std::endl;
+    }
 }
 
 void FileSink::rotateLog()

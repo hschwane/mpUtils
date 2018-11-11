@@ -36,23 +36,30 @@ void ConsoleSink::operator()(const LogMessage &msg)
 #ifdef __linux__
     localtime_r(&msg.timepoint, &timeStruct);
 #else
-#error please implement this for your operating system
+#error "please implement this for your operating system"
 #endif
 
-    *os << "\033[1;" << levelToColor(msg.lvl) << "m"
-        << "[" << toString(msg.lvl) << "]" << "\033[m "
-        << " [" << std::put_time( &timeStruct, "%x %X") << "]";
+    if(msg.plaintext)
+    {
+        *os << msg.sMessage << std::endl;
+    }
+    else
+    {
+        *os << "\033[1;" << levelToColor(msg.lvl) << "m"
+            << "[" << toString(msg.lvl) << "]" << "\033[m "
+            << " [" << std::put_time(&timeStruct, "%x %X") << "]";
 
-    if(!msg.sModue.empty())
-        *os << " (" << msg.sModue << "):";
+        if(!msg.sModue.empty())
+            *os << " (" << msg.sModue << "):";
 
-    *os << "\t" << msg.sMessage
-        << "\tThread: " << std::setbase(16) << msg.threadId << std::setbase(10);
+        *os << "\t" << msg.sMessage
+            << "\tThread: " << std::setbase(16) << msg.threadId << std::setbase(10);
 
-    if(!msg.sFilePosition.empty())
-        *os << "\t@File: " << msg.sFilePosition;
+        if(!msg.sFilePosition.empty())
+            *os << "\t@File: " << msg.sFilePosition;
 
-    *os << std::endl;
+        *os << std::endl;
+    }
 }
 
 constexpr int ConsoleSink::levelToColor(LogLvl lvl)

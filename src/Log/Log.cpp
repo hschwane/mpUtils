@@ -14,7 +14,8 @@
 // includes
 //--------------------
 #include <aliases.h>
-#include "mpUtils/Log/Log.h"
+#include <mpUtils/Log/Log.h>
+#include "mpUtils/version.h"
 //--------------------
 
 // namespace
@@ -91,6 +92,31 @@ void Log::flush()
         bShouldLoggerRun = true;
         loggerMainThread = std::thread(&Log::loggerMainfunc, this);
     }
+}
+
+LogStream Log::print(const LogLvl lvl)
+{
+    LogMessage* lm = new LogMessage;
+    lm->lvl = lvl;
+    lm->plaintext=true;
+    return LogStream( (*this), lm);
+}
+
+void Log::printHeader(std::string appName, std::string appVersion, std::string appSha, std::string appBuildType)
+{
+    // use error log level so this is written almost always
+    print(LogLvl::INFO)     << "*===================================================\n"
+                            << "*             -- " << appName << " --\n"
+                            << "*          version: " << appVersion << "\n"
+                            << "*          commit: " << appSha << "\n"
+                            << "*          buil-type: " << appBuildType << "\n"
+                            << "* using mpUtils version " << MPU_VERSION_STRING << " " << MPU_VERSION_COMMIT
+#if defined(NDEBUG)
+                            << " Release\n"
+#else
+                            << " Debug\n"
+#endif
+                            << "*===================================================";
 }
 
 void Log::logMessage(LogMessage* lm)
