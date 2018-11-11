@@ -1,7 +1,17 @@
 # -------------------------------------------------------------
 # general setup
 # -------------------------------------------------------------
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.8...3.12)
+
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif()
+
+# Require out-of-source builds
+file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
+if(EXISTS "${LOC_PATH}")
+    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
+endif()
 
 # Appends the cmake/ path to MAKE_MODULE_PATH variable.
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
@@ -9,6 +19,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 # create project
 include(GetVersionFromGit)
 project(mpUtils VERSION "${VERSION_SHORT}" LANGUAGES CXX)
+
+# default build configuration
+include(setDefaultTypeRelease)
 
 
 # -------------------------------------------------------------
@@ -42,6 +55,7 @@ cmake_dependent_option(USE_CUDA "Compile with cuda features." ON "CMAKE_CUDA_COM
 cmake_dependent_option(USE_GLM "Compile with GLM. This is required for openGL." ON "glm_FOUND" OFF)
 cmake_dependent_option(USE_OPENGL "Compile with openGL/graphics features." ON "OPENGL_FOUND; glm_FOUND; GLEW_FOUND; glfw3_FOUND" OFF)
 option(DISABLE_PPUTILS "Disable inclusion of preprocessor utils. (Note: this is also possible on a per project bases by defining MPU_NO_PREPROCESSOR_UTILS before including mpUtils.h)" OFF)
+option(BUILD_EXAMPLES "Whether or not examples should be build." OFF)
 
 # dependencies between features
 if(USE_OPENGL AND (NOT USE_GLM))
@@ -94,7 +108,6 @@ endif()
 # -------------------------------------------------------------
 # enable cuda
 # -------------------------------------------------------------
-
 if (USE_CUDA)
     enable_language(CUDA)
 
@@ -143,10 +156,10 @@ if (USE_OPENGL)
                   )
 endif()
 
+
 # -------------------------------------------------------------
 # set include dirs
 # -------------------------------------------------------------
-
 target_include_directories(mpUtils
                             PUBLIC
                                 $<INSTALL_INTERFACE:include>
@@ -160,10 +173,11 @@ target_include_directories(mpUtils
 # set target properties
 # -------------------------------------------------------------
 
-# set version
+# set version and debug postfix
 set_target_properties(mpUtils PROPERTIES
                         VERSION     ${VERSION_SHORT}
                         SOVERSION   ${VERSION_MAJOR}
+                        DEBUG_POSTFIX "d"
                      )
 
 # set required language standard
@@ -216,6 +230,7 @@ set(LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources CACHE PATH "Library Resource
 add_definitions(-DLIB_SHADER_PATH="${LIB_SHADER_PATH}/")
 add_definitions(-DLIB_RESOURCE_PATH="${LIB_RESOURCE_PATH}/")
 
+
 # -------------------------------------------------------------
 # link dependencies (this will also link the dependencies of dependencies and set required compiler flags)
 # -------------------------------------------------------------
@@ -243,37 +258,102 @@ if(USE_OPENGL)
 endif()
 
 
-# ---------------------
-# set install options
-# ---------------------
-# currently not supportet
-# install(TARGETS mpUtils
-#        ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#        LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#        RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})
-#
-#install(
-#        DIRECTORY ${CMAKE_SOURCE_DIR}/src/
-#        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mpUtils
-#        FILES_MATCHING PATTERN "*.h*")
+# --------------------------------------------------------
+# installing and exporting
+# --------------------------------------------------------
+set_target_properties(mpUtils PROPERTIES EXPORT_NAME mpUtils)
+set_target_properties(mpCudaSettings PROPERTIES EXPORT_NAME mpCudaSettings)
+
+# set install dirs
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/mpUtils)
+
+# install binaries
+install(TARGETS mpUtils mpCudaSettings
+        EXPORT mpUtils-targets
+        ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# install headers
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# install usefull cmake scripts
+install(FILES
+        ${CMAKE_CURRENT_LIST_DIR}/cmake/selectComputeArch.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/cmake/cudaConvertFlags.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/cmake/GetGitRevisionDescription.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/cmake/GetGitRevisionDescription.cmake.in
+        ${CMAKE_CURRENT_LIST_DIR}/cmake/GetVersionFromGit.cmake
+        ${CMAKE_CURRENT_LIST_DIR}/cmake/setDefaultTypeRelease.cmake
+        DESTINATION ${INSTALL_CONFIGDIR}/modules
+        )
+
+# install shader and resources
+install(DIRECTORY shader DESTINATION ${CMAKE_INSTALL_DATADIR}/mpUtils/)
+install(DIRECTORY resources DESTINATION ${CMAKE_INSTALL_DATADIR}/mpUtils/)
+
+# install the Targets.cmake file
+install(EXPORT mpUtils-targets
+        FILE mpUtilsTargets.cmake
+        NAMESPACE mpUtils::
+        DESTINATION ${INSTALL_CONFIGDIR}
+        )
+
+# Create a ConfigVersion.cmake file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/mpUtilsConfigVersion.cmake
+                                 VERSION ${PROJECT_VERSION}
+                                 COMPATIBILITY ExactVersion
+                                )
+
+# configure the mpUtilsConfig.cmake
+set(ORIGINAL_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(ORIGINAL_SRC_DIR ${CMAKE_CURRENT_LIST_DIR})
+configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/mpUtilsConfig.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsConfig.cmake
+        INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+        )
+
+# Install the config and configversion
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsConfigVersion.cmake
+        DESTINATION ${INSTALL_CONFIGDIR}
+        )
+
 
 # --------------------------------------------------------
-# see if there are executables and add the subdirectories
+# export to build tree to allow instant use
 # --------------------------------------------------------
 
-file(GLOB children RELATIVE ${CMAKE_SOURCE_DIR}/examples ${CMAKE_SOURCE_DIR}/examples/*)
-set(subdirs "")
-foreach(child ${children})
-    if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/examples/${child})
-        if (NOT ${child} MATCHES "\\..*")
-            if(EXISTS ${CMAKE_SOURCE_DIR}/examples/${child}/CMakeLists.txt)
-                string(REPLACE " " "_" child ${child})
-                set(subdirs ${subdirs} ${child})
-                message("Found Executable in folder '${child}'.")
+# export targets from build tree
+export(EXPORT mpUtils-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsTargets.cmake NAMESPACE mpUtils::)
+
+# register package in users package registry
+export(PACKAGE mpUtils)
+
+
+# --------------------------------------------------------
+# see if there are executables in the examples folder and add the subdirectories
+# --------------------------------------------------------
+if(BUILD_EXAMPLES)
+    file(GLOB children RELATIVE ${CMAKE_SOURCE_DIR}/examples ${CMAKE_SOURCE_DIR}/examples/*)
+    set(subdirs "")
+    foreach(child ${children})
+        if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/examples/${child})
+            if (NOT ${child} MATCHES "\\..*")
+                if(EXISTS ${CMAKE_SOURCE_DIR}/examples/${child}/CMakeLists.txt)
+                    string(REPLACE " " "_" child ${child})
+                    set(subdirs ${subdirs} ${child})
+                    message("Found Executable in folder '${child}'.")
+                endif()
             endif()
         endif()
-    endif()
-endforeach()
-foreach(n ${subdirs})
-    add_subdirectory(${CMAKE_SOURCE_DIR}/examples/${n})
-endforeach()
+    endforeach()
+    foreach(n ${subdirs})
+        add_subdirectory(${CMAKE_SOURCE_DIR}/examples/${n})
+    endforeach()
+else()
+    message(STATUS "Not building examples. Set BUILD_EXAMPLES true to build examples.")
+endif()

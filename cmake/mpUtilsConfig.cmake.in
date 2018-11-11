@@ -1,0 +1,35 @@
+# for use with configure_package_config_file
+@PACKAGE_INIT@
+get_filename_component(MPU_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}" ABSOLUTE)
+
+# set a version variable
+set(mpUtils_VERSION @VERSION_SHORT@)
+
+# set mpUtils_CMAKE_SCRIPTS_PATH so users can make use of useful cmake scripts,
+# by appending this to the module path. Be careful, if this file is in the
+# build tree and was not installed, set the path to the source tree.
+# If it is in an installation directory, set the relative path to the modules.
+if( "@ORIGINAL_BUILD_DIR@" STREQUAL ${MPU_CMAKE_DIR})
+    set_and_check(mpUtils_CMAKE_SCRIPTS_PATH "@ORIGINAL_SRC_DIR@/cmake")
+else()
+    set_and_check(mpUtils_CMAKE_SCRIPTS_PATH "${MPU_CMAKE_DIR}/modules")
+endif()
+
+# find required dependencies
+include(CMakeFindDependencyMacro)
+find_dependency(Threads REQUIRED)
+
+# find optional dependencies
+find_dependency(glm QUIET)
+set(OpenGL_GL_PREFERENCE "GLVND")
+find_dependency(OpenGL QUIET)
+find_dependency(GLEW QUIET)
+find_dependency(glfw3 QUIET)
+
+# include the targets
+if(NOT (TARGET mpUtils::mpUtils AND TARGET mpUtils::mpCudaSettings))
+    include("${MPU_CMAKE_DIR}/mpUtilsTargets.cmake")
+endif()
+
+# check if everything was found
+check_required_components(mpUtils)
