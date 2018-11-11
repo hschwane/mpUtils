@@ -17,6 +17,7 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # create project
+option(FORCE_NEW_VERSION "Increase the version number from git by one patach. Enable during development to not mix up versions." OFF)
 include(GetVersionFromGit)
 project(mpUtils VERSION "${VERSION_SHORT}" LANGUAGES CXX)
 
@@ -58,6 +59,7 @@ option(DISABLE_PPUTILS "Disable inclusion of preprocessor utils. (Note: this is 
 option(DISABLE_VERSION "Disable automatic inclusion of version.h. (Note: this is also possible on a per project bases by defining MPU_NO_VERSION before including mpUtils.h)" OFF)
 option(DISABLE_PATHS "Disable automatic inclusion of paths.h. (Note: this is also possible on a per project bases by defining MPU_NO_PATHS before including mpUtils.h)" OFF)
 option(BUILD_EXAMPLES "Whether or not examples should be build." OFF)
+option(EXPORT_BUILD_TREE "Enable, to export the targets from the build tree to your cmake registry. Useful for development. Use Together with FORCE_NEW_VERSION" OFF)
 
 # dependencies between features
 if(USE_OPENGL AND (NOT USE_GLM))
@@ -350,8 +352,10 @@ install(FILES
 # export targets from build tree
 export(EXPORT mpUtils-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsTargets.cmake NAMESPACE mpUtils::)
 
-# register package in users package registry
-export(PACKAGE mpUtils)
+if(EXPORT_BUILD_TREE)
+    # register package in users package registry
+    export(PACKAGE mpUtils)
+endif()
 
 
 # --------------------------------------------------------
