@@ -166,7 +166,7 @@ CUDAHOSTDEV vT operator*(Mat<T, 4, 4> lhs, vT &rhs);
  * @brief convert a matrix to string for debugging
  */
 template<typename T, size_t rows, size_t cols>
-std::string toString(Mat<T,rows,cols>& mat);
+std::string toString(const Mat<T,rows,cols>& mat);
 
 // define all the template functions of the matrix class
 //-------------------------------------------------------------------
@@ -541,17 +541,17 @@ CUDAHOSTDEV vT operator*(Mat<T, 4, 4> lhs, vT &rhs)
 }
 
 template<typename T, size_t rows, size_t cols>
-std::string toString(Mat<T,rows,cols>& mat)
+std::string toString(const Mat<T,rows,cols>& mat)
 {
     std::ostringstream ss;
     for(int i = 0; i < rows; ++i)
     {
-        ss << "|\t" << mat[i][0];
+        ss << "| " << mat[i][0];
         for(int j = 1; j < cols; ++j)
         {
-            ss << ",\t" << mat[i][j];
+            ss << ",  " << mat[i][j];
         }
-        ss << "\t|\n";
+        ss << " |\n";
     }
     return ss.str();
 }
