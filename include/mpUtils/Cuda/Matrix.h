@@ -17,7 +17,7 @@
 #include <type_traits>
 #include <sstream>
 #include "mpUtils/Misc/type_traitUtils.h"
-#ifdef USE_GLM
+#ifdef MPU_USE_GLM
     #include <glm/glm.hpp>
 #endif
 //--------------------
@@ -43,10 +43,10 @@ namespace mpu {
  * This is a class template for small matrices to be used with cuda on host or device.
  * On host, glm matrix will be faster due to vectorization.
  * @tparam T the internal data type needs to be an arithmetic type
- * @tparam rows number of rows
- * @tparam cols number of columns
+ * @tparam numRows number of rows
+ * @tparam numCols number of columns
  */
-template<typename T, size_t rows, size_t cols>
+template<typename T, size_t numRows, size_t numCols>
 class Mat
 {
     static_assert(std::is_arithmetic<T>::value, "Non arithmetic type used for matrix.");
@@ -57,21 +57,21 @@ public:
     // additional construction
     CUDAHOSTDEV explicit Mat(const T v); //!< constructor fills the diagonal with v
 
-    template <typename... cArgs, std::enable_if_t< (sizeof...(cArgs) > 1) && (sizeof...(cArgs) == rows*cols), int> = 0>
+    template <typename... cArgs, std::enable_if_t< (sizeof...(cArgs) > 1) && (sizeof...(cArgs) == numRows*numCols), int> = 0>
     CUDAHOSTDEV explicit Mat(const cArgs... v) : m_data{static_cast<T>(v)...} {} //!< constructs matrix with a value for each element
 
 
-#ifdef USE_GLM
+#ifdef MPU_USE_GLM
     // conversion to glm
     template<glm::qualifier Q>
-    explicit Mat(glm::mat<rows, cols, T, Q> &glmat); //!< constructs this from glm matrix
+    explicit Mat(glm::mat<numRows, numCols, T, Q> &glmat); //!< constructs this from glm matrix
     template<glm::qualifier Q>
-    explicit operator glm::mat<rows, cols, T, Q>(); //!< convert to glm matrix
+    explicit operator glm::mat<numRows, numCols, T, Q>(); //!< convert to glm matrix
 #endif
 
     // data access
-    CUDAHOSTDEV T *operator[](size_t row) { return &m_data[cols * row]; } //!< access a row
-    CUDAHOSTDEV const T *operator[](size_t row) const { return &m_data[cols * row]; } //!< access a row
+    CUDAHOSTDEV T *operator[](size_t row) { return &m_data[numCols * row]; } //!< access a row
+    CUDAHOSTDEV const T *operator[](size_t row) const { return &m_data[numCols * row]; } //!< access a row
 
     CUDAHOSTDEV T &operator()(size_t idx) { return m_data[idx]; } //!< access value
     CUDAHOSTDEV const T &operator()(size_t idx) const { return m_data[idx]; } //!< access value
@@ -93,9 +93,11 @@ public:
 
     CUDAHOSTDEV Mat &operator*=(const Mat &rhs); //!< matrix multiplication
     template<size_t rhsRows, size_t rhsCols>
-    CUDAHOSTDEV Mat<T, rows, rhsCols> operator*(const Mat<T, rhsRows, rhsCols> &rhs) const; //!< matrix multiplication
+    CUDAHOSTDEV Mat<T, numRows, rhsCols> operator*(const Mat<T, rhsRows, rhsCols> &rhs) const; //!< matrix multiplication
 
-    static constexpr size_t size = rows * cols;
+    static constexpr size_t size = numRows * numCols;
+    static constexpr size_t cols = numCols;
+    static constexpr size_t rows = numRows;
 private:
     T m_data[size];
 };
@@ -182,26 +184,26 @@ CUDAHOSTDEV Mat<T, rows, cols>::Mat(const T v)
         }
 }
 
-#ifdef USE_GLM
-template<typename T, size_t rows, size_t cols>
+#ifdef MPU_USE_GLM
+template<typename T, size_t numRows, size_t numCols>
 template<glm::qualifier Q>
-Mat<T, rows, cols>::Mat(glm::mat<rows, cols, T, Q> &glmat)
+Mat<T, numRows, numCols>::Mat(glm::mat<numRows, numCols, T, Q> &glmat)
 {
-    for(int i = 0; i < rows; i++)
-        for(int j = 0; j < cols; j++)
+    for(int i = 0; i < numRows; i++)
+        for(int j = 0; j < numCols; j++)
         {
             (*this)[i][j] = glmat[i][j];
         }
 }
 
-template<typename T, size_t rows, size_t cols>
+template<typename T, size_t numRows, size_t numCols>
 template<glm::qualifier Q>
-Mat<T, rows, cols>::operator glm::mat<rows, cols, T, Q>()
+Mat<T, numRows, numCols>::operator glm::mat<numRows, numCols, T, Q>()
 {
-    glm::mat<rows, cols, T, Q> r;
+    glm::mat<numRows, numCols, T, Q> r;
 
-    for(int i = 0; i < rows; i++)
-        for(int j = 0; j < cols; j++)
+    for(int i = 0; i < numRows; i++)
+        for(int j = 0; j < numCols; j++)
         {
             r[i][j] = (*this)[i][j];
         }
@@ -544,12 +546,12 @@ std::string toString(Mat<T,rows,cols>& mat)
     std::ostringstream ss;
     for(int i = 0; i < rows; ++i)
     {
-        ss << "| " << mat[i][0];
+        ss << "|\t" << mat[i][0];
         for(int j = 1; j < cols; ++j)
         {
-            ss << ",  " << mat[i][j];
+            ss << ",\t" << mat[i][j];
         }
-        ss << " |\n";
+        ss << "\t|\n";
     }
     return ss.str();
 }
