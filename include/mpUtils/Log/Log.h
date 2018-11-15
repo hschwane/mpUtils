@@ -178,7 +178,7 @@ public:
 
     // actual logging functions
     LogStream print(const LogLvl lvl); //!< prints unformatted text to the log
-    void printHeader(std::string appName, std::string appVersion, std::string appSha, std::string appBuildType); //!< prints a nice header to the log
+    void printHeader(std::string appName, std::string appVersion="", std::string appSha="", std::string appBuildType=""); //!< prints a nice header to the log
     void logMessage(LogMessage* lm); //!< logs a message to the log
 
     // make noncopyable and nonmoveable
