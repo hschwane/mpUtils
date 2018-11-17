@@ -536,10 +536,10 @@ CUDAHOSTDEV vT operator*(Mat<T, 3, 3> lhs, vT &rhs)
 template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int>>
 CUDAHOSTDEV vT operator*(Mat<T, 4, 4> lhs, vT &rhs)
 {
-    return vT{lhs(0) * rhs.x + lhs(1) * rhs.y + lhs(2) * rhs.z + lhs(3) * rhs.z,
-              lhs(4) * rhs.x + lhs(5) * rhs.y + lhs(6) * rhs.z + lhs(7) * rhs.z,
-              lhs(8) * rhs.x + lhs(9) * rhs.y + lhs(10) * rhs.z + lhs(11) * rhs.z,
-              lhs(12) * rhs.x + lhs(13) * rhs.y + lhs(14) * rhs.z + lhs(15) * rhs.z};
+    return vT{lhs(0) * rhs.x + lhs(1) * rhs.y + lhs(2) * rhs.z + lhs(3) * rhs.w,
+              lhs(4) * rhs.x + lhs(5) * rhs.y + lhs(6) * rhs.z + lhs(7) * rhs.w,
+              lhs(8) * rhs.x + lhs(9) * rhs.y + lhs(10) * rhs.z + lhs(11) * rhs.w,
+              lhs(12) * rhs.x + lhs(13) * rhs.y + lhs(14) * rhs.z + lhs(15) * rhs.w};
 }
 
 template<typename T, size_t rows, size_t cols>
