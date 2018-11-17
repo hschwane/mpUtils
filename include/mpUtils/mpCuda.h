@@ -31,6 +31,7 @@
 #include "mpUtils/external/cuda/helper_math.h"
 #include "Cuda/helper_math_missing.h"
 #include "Cuda/Matrix.h"
+#include "Cuda/MatrixMath.h"
 #include "Cuda/clionCudaHelper.h"
 //--------------------
 

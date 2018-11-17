@@ -106,65 +106,11 @@ private:
 };
 
 /**
- * @brief calculate the transpose of matrix m
- *          actually transposes in memory by hard copy
- */
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, cols, rows> transpose(Mat<T, rows, cols> &m);
-
-/**
- * @brief performes component wise multiplication of two matrices of same size
- */
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> compWiseMult(Mat<T, rows, cols> &first, Mat<T, rows, cols> &second);
-
-/**
- * @brief calculates the inverse matrix undefined if determinant is zero
- */
-template <typename T>
-CUDAHOSTDEV Mat<T,2,2> invert(const Mat<T,2,2> &m);
-
-// /**
-//  * @brief calculates the inverse matrix undefined if determinant is zero
-//  */
-//template <typename TYPE>
-//Mat<TYPE,3,3> invert(Mat<TYPE,3,3> &m);
-
-/**
- * @brief calculates the inverse matrix undefined if determinant is zero
- */
-template <typename T>
-CUDAHOSTDEV Mat<T,4,4> invert(const Mat<T,4,4> &m);
-
-// helper to check if TYPE has a x attribute
-namespace detail {
-    template<class T>
-    using hasx_t = decltype(std::declval<T>().x);
-}
-
-/**
  * @brief scalar multiplication is order independent
  */
 template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> operator*(const T& lhs, const Mat<T,rows,cols>& rhs);
+CUDAHOSTDEV Mat<T, rows, cols> operator*(const T &lhs, const Mat<T, rows, cols> &rhs);
 
-/**
- * @brief multiply a 2D vector with a 2x2 matrix
- */
-template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int> = 0>
-CUDAHOSTDEV vT operator*(Mat<T, 2, 2> lhs, vT &rhs);
-
-/**
- * @brief multiply a 3D vector with a 3x3 matrix
- */
-template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int> = 0>
-CUDAHOSTDEV vT operator*(Mat<T, 3, 3> lhs, vT &rhs);
-
-/**
- * @brief multiply a 4D vector with a 4x4 matrix
- */
-template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int> = 0>
-CUDAHOSTDEV vT operator*(Mat<T, 4, 4> lhs, vT &rhs);
 
 /**
  * @brief convert a matrix to string for debugging
@@ -175,8 +121,8 @@ std::string toString(const Mat<T,rows,cols>& mat);
 // define all the template functions of the matrix class
 //-------------------------------------------------------------------
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols>::Mat(const T v)
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols>::Mat(const TYPE v)
 {
     for(int i = 0; i < rows; i++)
         for(int j = 0; j < cols; j++)
@@ -189,9 +135,9 @@ CUDAHOSTDEV Mat<T, rows, cols>::Mat(const T v)
 }
 
 #ifdef MPU_USE_GLM
-template<typename T, size_t numRows, size_t numCols>
+template<typename TYPE, size_t numRows, size_t numCols>
 template<glm::qualifier Q>
-Mat<T, numRows, numCols>::Mat(glm::mat<numRows, numCols, T, Q> &glmat)
+Mat<TYPE, numRows, numCols>::Mat(glm::mat<numRows, numCols, TYPE, Q> &glmat)
 {
     for(int i = 0; i < numRows; i++)
         for(int j = 0; j < numCols; j++)
@@ -217,8 +163,8 @@ Mat<TYPE, numRows, numCols>::operator glm::mat<numRows, numCols, TYPE, Q>()
 
 #endif
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV bool Mat<T, rows, cols>::operator==(const Mat &other) const
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV bool Mat<TYPE, rows, cols>::operator==(const Mat &other) const
 {
     for(int i = 0; i < size; ++i)
     {
@@ -228,14 +174,14 @@ CUDAHOSTDEV bool Mat<T, rows, cols>::operator==(const Mat &other) const
     return true;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV bool Mat<T, rows, cols>::operator!=(const Mat &other) const
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV bool Mat<TYPE, rows, cols>::operator!=(const Mat &other) const
 {
     return !((*this) == other);
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator+=(const Mat &other)
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> &Mat<TYPE, rows, cols>::operator+=(const Mat &other)
 {
     for(int i = 0; i < size; ++i)
     {
@@ -244,8 +190,8 @@ CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator+=(const Mat &other)
     return *this;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator-=(const Mat &other)
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> &Mat<TYPE, rows, cols>::operator-=(const Mat &other)
 {
     for(int i = 0; i < size; ++i)
     {
@@ -254,24 +200,24 @@ CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator-=(const Mat &other)
     return *this;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> Mat<T, rows, cols>::operator+(const Mat &other) const
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> Mat<TYPE, rows, cols>::operator+(const Mat &other) const
 {
-    Mat<T, rows, cols> temp(*this);
+    Mat<TYPE, rows, cols> temp(*this);
     temp += other;
     return temp;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> Mat<T, rows, cols>::operator-(const Mat &other) const
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> Mat<TYPE, rows, cols>::operator-(const Mat &other) const
 {
-    Mat<T, rows, cols> temp(*this);
+    Mat<TYPE, rows, cols> temp(*this);
     temp -= other;
     return temp;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator*=(const T &v)
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> &Mat<TYPE, rows, cols>::operator*=(const TYPE &v)
 {
     for(int i = 0; i < size; ++i)
     {
@@ -280,8 +226,8 @@ CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator*=(const T &v)
     return *this;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator/=(const T &v)
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> &Mat<TYPE, rows, cols>::operator/=(const TYPE &v)
 {
     for(int i = 0; i < size; ++i)
     {
@@ -290,24 +236,24 @@ CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator/=(const T &v)
     return *this;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> Mat<T, rows, cols>::operator*(const T &v) const
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> Mat<TYPE, rows, cols>::operator*(const TYPE &v) const
 {
-    Mat<T, rows, cols> temp(*this);
+    Mat<TYPE, rows, cols> temp(*this);
     temp *= v;
     return temp;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> Mat<T, rows, cols>::operator/(const T &v) const
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> Mat<TYPE, rows, cols>::operator/(const TYPE &v) const
 {
-    Mat<T, rows, cols> temp(*this);
+    Mat<TYPE, rows, cols> temp(*this);
     temp /= v;
     return temp;
 }
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator*=(const Mat &rhs)
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> &Mat<TYPE, rows, cols>::operator*=(const Mat &rhs)
 {
     Mat tmp(*this);
 
@@ -324,12 +270,12 @@ CUDAHOSTDEV Mat<T, rows, cols> &Mat<T, rows, cols>::operator*=(const Mat &rhs)
     return *this;
 }
 
-template<typename T, size_t rows, size_t cols>
+template<typename TYPE, size_t rows, size_t cols>
 template<size_t rhsRows, size_t rhsCols>
-CUDAHOSTDEV Mat<T, rows, rhsCols> Mat<T, rows, cols>::operator*(const Mat<T, rhsRows, rhsCols> &rhs) const
+CUDAHOSTDEV Mat<TYPE, rows, rhsCols> Mat<TYPE, rows, cols>::operator*(const Mat<TYPE, rhsRows, rhsCols> &rhs) const
 {
     static_assert(cols == rhsRows, "Matrices of these sizes can not be multiplied.");
-    Mat<T, rows, rhsCols> result(0);
+    Mat<TYPE, rows, rhsCols> result(0);
 
     for(int i = 0; i < rows; ++i)
         for(int k = 0; k < rhsCols; ++k)
@@ -344,209 +290,17 @@ CUDAHOSTDEV Mat<T, rows, rhsCols> Mat<T, rows, cols>::operator*(const Mat<T, rhs
     return result;
 }
 
-// define all the helper functions
+// define the helper functions
 //-------------------------------------------------------------------
 
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, cols, rows> transpose(Mat<T, rows, cols> &m)
-{
-    Mat<T, cols, rows> result;
-    for(int i = 0; i < rows; i++)
-        for(int j = 0; j < cols; j++)
-            result[j][i] = m[i][j];
-    return result;
-}
-
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> compWiseMult(Mat<T, rows, cols> &first, Mat<T, rows, cols> &second)
-{
-    Mat<T,rows,cols> r;
-
-    for(int i = 0; i < r.size; ++i)
-        r(i) = first(i)*second(i);
-
-    return r;
-}
-
-template<typename T>
-CUDAHOSTDEV Mat<T, 2, 2> invert(Mat<T, 2, 2> &m)
-{
-    Mat<T,2,2> r;
-
-    r(0) = m(3);
-    r(1) = -m(1);
-    r(2) = -m(2);
-    r(3) = m(0);
-
-    T det = m(0)*m(3) - m(1)*m(2);
-    det = 1.0/det;
-
-    r(0) *= det;
-    r(1) *= det;
-    r(2) *= det;
-    r(3) *= det;
-
-    return r;
-}
-
-template<typename T>
-CUDAHOSTDEV Mat<T, 4, 4> invert(Mat<T, 4, 4> &m)
-{
-    Mat<T, 4, 4> inv;
-
-    inv(0) = m(5)  * m(10) * m(15) -
-             m(5)  * m(11) * m(14) -
-             m(9)  * m(6)  * m(15) +
-             m(9)  * m(7)  * m(14) +
-             m(13) * m(6)  * m(11) -
-             m(13) * m(7)  * m(10);
-
-    inv(4) = -m(4)  * m(10) * m(15) +
-             m(4)  * m(11) * m(14) +
-             m(8)  * m(6)  * m(15) -
-             m(8)  * m(7)  * m(14) -
-             m(12) * m(6)  * m(11) +
-             m(12) * m(7)  * m(10);
-
-    inv(8) = m(4)  * m(9) * m(15) -
-             m(4)  * m(11) * m(13) -
-             m(8)  * m(5) * m(15) +
-             m(8)  * m(7) * m(13) +
-             m(12) * m(5) * m(11) -
-             m(12) * m(7) * m(9);
-
-    inv(12) = -m(4)  * m(9) * m(14) +
-              m(4)  * m(10) * m(13) +
-              m(8)  * m(5) * m(14) -
-              m(8)  * m(6) * m(13) -
-              m(12) * m(5) * m(10) +
-              m(12) * m(6) * m(9);
-
-    inv(1) = -m(1)  * m(10) * m(15) +
-             m(1)  * m(11) * m(14) +
-             m(9)  * m(2) * m(15) -
-             m(9)  * m(3) * m(14) -
-             m(13) * m(2) * m(11) +
-             m(13) * m(3) * m(10);
-
-    inv(5) = m(0)  * m(10) * m(15) -
-             m(0)  * m(11) * m(14) -
-             m(8)  * m(2) * m(15) +
-             m(8)  * m(3) * m(14) +
-             m(12) * m(2) * m(11) -
-             m(12) * m(3) * m(10);
-
-    inv(9) = -m(0)  * m(9) * m(15) +
-             m(0)  * m(11) * m(13) +
-             m(8)  * m(1) * m(15) -
-             m(8)  * m(3) * m(13) -
-             m(12) * m(1) * m(11) +
-             m(12) * m(3) * m(9);
-
-    inv(13) = m(0)  * m(9) * m(14) -
-              m(0)  * m(10) * m(13) -
-              m(8)  * m(1) * m(14) +
-              m(8)  * m(2) * m(13) +
-              m(12) * m(1) * m(10) -
-              m(12) * m(2) * m(9);
-
-    inv(2) = m(1)  * m(6) * m(15) -
-             m(1)  * m(7) * m(14) -
-             m(5)  * m(2) * m(15) +
-             m(5)  * m(3) * m(14) +
-             m(13) * m(2) * m(7) -
-             m(13) * m(3) * m(6);
-
-    inv(6) = -m(0)  * m(6) * m(15) +
-             m(0)  * m(7) * m(14) +
-             m(4)  * m(2) * m(15) -
-             m(4)  * m(3) * m(14) -
-             m(12) * m(2) * m(7) +
-             m(12) * m(3) * m(6);
-
-    inv(10) = m(0)  * m(5) * m(15) -
-              m(0)  * m(7) * m(13) -
-              m(4)  * m(1) * m(15) +
-              m(4)  * m(3) * m(13) +
-              m(12) * m(1) * m(7) -
-              m(12) * m(3) * m(5);
-
-    inv(14) = -m(0)  * m(5) * m(14) +
-              m(0)  * m(6) * m(13) +
-              m(4)  * m(1) * m(14) -
-              m(4)  * m(2) * m(13) -
-              m(12) * m(1) * m(6) +
-              m(12) * m(2) * m(5);
-
-    inv(3) = -m(1) * m(6) * m(11) +
-             m(1) * m(7) * m(10) +
-             m(5) * m(2) * m(11) -
-             m(5) * m(3) * m(10) -
-             m(9) * m(2) * m(7) +
-             m(9) * m(3) * m(6);
-
-    inv(7) = m(0) * m(6) * m(11) -
-             m(0) * m(7) * m(10) -
-             m(4) * m(2) * m(11) +
-             m(4) * m(3) * m(10) +
-             m(8) * m(2) * m(7) -
-             m(8) * m(3) * m(6);
-
-    inv(11) = -m(0) * m(5) * m(11) +
-              m(0) * m(7) * m(9) +
-              m(4) * m(1) * m(11) -
-              m(4) * m(3) * m(9) -
-              m(8) * m(1) * m(7) +
-              m(8) * m(3) * m(5);
-
-    inv(15) = m(0) * m(5) * m(10) -
-              m(0) * m(6) * m(9) -
-              m(4) * m(1) * m(10) +
-              m(4) * m(2) * m(9) +
-              m(8) * m(1) * m(6) -
-              m(8) * m(2) * m(5);
-
-    T det = m(0) * inv(0) + m(1) * inv(4) + m(2) * inv(8) + m(3) * inv(12);
-    det = 1.0 / det;
-
-    for (int i = 0; i < 16; i++)
-        inv(i) = inv(i) * det;
-
-    return inv;
-}
-
-template<typename T, size_t rows, size_t cols>
-CUDAHOSTDEV Mat<T, rows, cols> operator*(const T &lhs, const Mat<T, rows, cols>& rhs)
+template<typename TYPE, size_t rows, size_t cols>
+CUDAHOSTDEV Mat<TYPE, rows, cols> operator*(const TYPE &lhs, const Mat<TYPE, rows, cols>& rhs)
 {
     return rhs*lhs;
 }
 
-template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int>>
-CUDAHOSTDEV vT operator*(Mat<T, 2, 2> lhs, vT &rhs)
-{
-    return vT{lhs(0) * rhs.x + lhs(1) * rhs.y,
-              lhs(2) * rhs.x + lhs(3) * rhs.y};
-}
-
-template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int>>
-CUDAHOSTDEV vT operator*(Mat<T, 3, 3> lhs, vT &rhs)
-{
-    return vT{lhs(0) * rhs.x + lhs(1) * rhs.y + lhs(2) * rhs.z,
-              lhs(3) * rhs.x + lhs(4) * rhs.y + lhs(5) * rhs.z,
-              lhs(6) * rhs.x + lhs(7) * rhs.y + lhs(8) * rhs.z};
-}
-
-template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int>>
-CUDAHOSTDEV vT operator*(Mat<T, 4, 4> lhs, vT &rhs)
-{
-    return vT{lhs(0) * rhs.x + lhs(1) * rhs.y + lhs(2) * rhs.z + lhs(3) * rhs.w,
-              lhs(4) * rhs.x + lhs(5) * rhs.y + lhs(6) * rhs.z + lhs(7) * rhs.w,
-              lhs(8) * rhs.x + lhs(9) * rhs.y + lhs(10) * rhs.z + lhs(11) * rhs.w,
-              lhs(12) * rhs.x + lhs(13) * rhs.y + lhs(14) * rhs.z + lhs(15) * rhs.w};
-}
-
-template<typename T, size_t rows, size_t cols>
-std::string toString(const Mat<T,rows,cols>& mat)
+template<typename TYPE, size_t rows, size_t cols>
+std::string toString(const Mat<TYPE,rows,cols>& mat)
 {
     std::ostringstream ss;
     for(int i = 0; i < rows; ++i)

@@ -51,5 +51,6 @@
 
 // matrix type might be useful without cuda
 #include "Cuda/Matrix.h"
+#include "Cuda/MatrixMath.h"
 
 #endif //MPUTILS_MPUTILS_H

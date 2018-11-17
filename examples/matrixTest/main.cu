@@ -174,6 +174,15 @@ int main()
     myLog.print(LogLvl::INFO) << toString(m8*invert(m8));
     myLog.print(LogLvl::INFO) << toString(invert(m8)*m8);
 
+    Mat<float,3,3> m92( 0,0,5,
+                        0,5,0,
+                        5,0,0);
+    logINFO("MatrixTesting") << "testing invert of 4x4..";
+    myLog.print(LogLvl::INFO) << toString(invert(m92));
+    myLog.print(LogLvl::INFO) << toString(m92*invert(m92));
+    myLog.print(LogLvl::INFO) << toString(invert(m92)*m92);
+
+
     Mat<float,4,4> m9( 0,0,0,5,
                        0,0,5,0,
                        0,5,0,0,
