@@ -42,39 +42,42 @@ namespace mpu {
  * Class Template Mat
  * This is a class template for small matrices to be used with cuda on host or device.
  * On host, glm matrix will be faster due to vectorization.
- * @tparam T the internal data type needs to be an arithmetic type
+ * @tparam TYPE the internal data type needs to be an arithmetic type
  * @tparam numRows number of rows
  * @tparam numCols number of columns
  */
-template<typename T, size_t numRows, size_t numCols>
+template<typename TYPE, size_t numRows, size_t numCols>
 class Mat
 {
-    static_assert(std::is_arithmetic<T>::value, "Non arithmetic type used for matrix.");
+    static_assert(std::is_arithmetic<TYPE>::value, "Non arithmetic type used for matrix.");
 public:
     // default constructors
     Mat() = default;
 
     // additional construction
-    CUDAHOSTDEV explicit Mat(const T v); //!< constructor fills the diagonal with v
+    CUDAHOSTDEV explicit Mat(const TYPE v); //!< constructor fills the diagonal with v
 
     template <typename... cArgs, std::enable_if_t< (sizeof...(cArgs) > 1) && (sizeof...(cArgs) == numRows*numCols), int> = 0>
-    CUDAHOSTDEV explicit Mat(const cArgs... v) : m_data{static_cast<T>(v)...} {} //!< constructs matrix with a value for each element
+    CUDAHOSTDEV explicit Mat(const cArgs... v) : m_data{static_cast<TYPE>(v)...} {} //!< constructs matrix with a value for each element
 
 
 #ifdef MPU_USE_GLM
     // conversion to glm
     template<glm::qualifier Q>
-    explicit Mat(glm::mat<numRows, numCols, T, Q> &glmat); //!< constructs this from glm matrix
+    explicit Mat(glm::mat<numRows, numCols, TYPE, Q> &glmat); //!< constructs this from glm matrix
     template<glm::qualifier Q>
-    explicit operator glm::mat<numRows, numCols, T, Q>(); //!< convert to glm matrix
+    explicit operator glm::mat<numRows, numCols, TYPE, Q>(); //!< convert to glm matrix
 #endif
 
     // data access
-    CUDAHOSTDEV T *operator[](size_t row) { return &m_data[numCols * row]; } //!< access a row
-    CUDAHOSTDEV const T *operator[](size_t row) const { return &m_data[numCols * row]; } //!< access a row
+    CUDAHOSTDEV TYPE *operator[](size_t row) { return &m_data[numCols * row]; } //!< access a row
+    CUDAHOSTDEV const TYPE *operator[](size_t row) const { return &m_data[numCols * row]; } //!< access a row
 
-    CUDAHOSTDEV T &operator()(size_t idx) { return m_data[idx]; } //!< access value
-    CUDAHOSTDEV const T &operator()(size_t idx) const { return m_data[idx]; } //!< access value
+    CUDAHOSTDEV TYPE &operator()(size_t idx) { return m_data[idx]; } //!< access value
+    CUDAHOSTDEV const TYPE &operator()(size_t idx) const { return m_data[idx]; } //!< access value
+
+    CUDAHOSTDEV TYPE &T(size_t row, size_t col) { return this[col][row];} //!< access value as if matrix was transposed
+    CUDAHOSTDEV const TYPE &T(size_t row, size_t col) const { return this[col][row];} //!< access value as if matrix was transposed
 
     // logical operators
     CUDAHOSTDEV bool operator==(const Mat &other) const;
@@ -86,20 +89,20 @@ public:
     CUDAHOSTDEV Mat operator+(const Mat &other) const; //!< component wise addition
     CUDAHOSTDEV Mat operator-(const Mat &other) const; //!< component wise subtraction
 
-    CUDAHOSTDEV Mat &operator*=(const T &v); //!< scalar multiply
-    CUDAHOSTDEV Mat &operator/=(const T &v); //!< scalar divide
-    CUDAHOSTDEV Mat operator*(const T &v) const; //!< scalar multiply
-    CUDAHOSTDEV Mat operator/(const T &v) const; //!< scalar divide
+    CUDAHOSTDEV Mat &operator*=(const TYPE &v); //!< scalar multiply
+    CUDAHOSTDEV Mat &operator/=(const TYPE &v); //!< scalar divide
+    CUDAHOSTDEV Mat operator*(const TYPE &v) const; //!< scalar multiply
+    CUDAHOSTDEV Mat operator/(const TYPE &v) const; //!< scalar divide
 
     CUDAHOSTDEV Mat &operator*=(const Mat &rhs); //!< matrix multiplication
     template<size_t rhsRows, size_t rhsCols>
-    CUDAHOSTDEV Mat<T, numRows, rhsCols> operator*(const Mat<T, rhsRows, rhsCols> &rhs) const; //!< matrix multiplication
+    CUDAHOSTDEV Mat<TYPE, numRows, rhsCols> operator*(const Mat<TYPE, rhsRows, rhsCols> &rhs) const; //!< matrix multiplication
 
     static constexpr size_t size = numRows * numCols;
     static constexpr size_t cols = numCols;
     static constexpr size_t rows = numRows;
 private:
-    T m_data[size];
+    TYPE m_data[size];
 };
 
 /**
@@ -124,8 +127,8 @@ CUDAHOSTDEV Mat<T,2,2> invert(const Mat<T,2,2> &m);
 // /**
 //  * @brief calculates the inverse matrix undefined if determinant is zero
 //  */
-//template <typename T>
-//Mat<T,3,3> invert(Mat<T,3,3> &m);
+//template <typename TYPE>
+//Mat<TYPE,3,3> invert(Mat<TYPE,3,3> &m);
 
 /**
  * @brief calculates the inverse matrix undefined if determinant is zero
@@ -133,7 +136,7 @@ CUDAHOSTDEV Mat<T,2,2> invert(const Mat<T,2,2> &m);
 template <typename T>
 CUDAHOSTDEV Mat<T,4,4> invert(const Mat<T,4,4> &m);
 
-// helper to check if T has a x attribute
+// helper to check if TYPE has a x attribute
 namespace detail {
     template<class T>
     using hasx_t = decltype(std::declval<T>().x);
@@ -197,11 +200,11 @@ Mat<T, numRows, numCols>::Mat(glm::mat<numRows, numCols, T, Q> &glmat)
         }
 }
 
-template<typename T, size_t numRows, size_t numCols>
+template<typename TYPE, size_t numRows, size_t numCols>
 template<glm::qualifier Q>
-Mat<T, numRows, numCols>::operator glm::mat<numRows, numCols, T, Q>()
+Mat<TYPE, numRows, numCols>::operator glm::mat<numRows, numCols, TYPE, Q>()
 {
-    glm::mat<numRows, numCols, T, Q> r;
+    glm::mat<numRows, numCols, TYPE, Q> r;
 
     for(int i = 0; i < numRows; i++)
         for(int j = 0; j < numCols; j++)
@@ -211,6 +214,7 @@ Mat<T, numRows, numCols>::operator glm::mat<numRows, numCols, T, Q>()
 
     return r;
 }
+
 #endif
 
 template<typename T, size_t rows, size_t cols>
@@ -526,7 +530,6 @@ CUDAHOSTDEV vT operator*(Mat<T, 2, 2> lhs, vT &rhs)
 
 template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int>>
 CUDAHOSTDEV vT operator*(Mat<T, 3, 3> lhs, vT &rhs)
-
 {
     return vT{lhs(0) * rhs.x + lhs(1) * rhs.y + lhs(2) * rhs.z,
               lhs(3) * rhs.x + lhs(4) * rhs.y + lhs(5) * rhs.z,
