@@ -104,6 +104,7 @@ private:
 
 /**
  * @brief calculate the transpose of matrix m
+ *          actually transposes in memory by hard copy
  */
 template<typename T, size_t rows, size_t cols>
 CUDAHOSTDEV Mat<T, cols, rows> transpose(Mat<T, rows, cols> &m);
@@ -379,7 +380,7 @@ CUDAHOSTDEV Mat<T, 2, 2> invert(Mat<T, 2, 2> &m)
     r(0) *= det;
     r(1) *= det;
     r(2) *= det;
-    r(3) += det;
+    r(3) *= det;
 
     return r;
 }
@@ -525,6 +526,7 @@ CUDAHOSTDEV vT operator*(Mat<T, 2, 2> lhs, vT &rhs)
 
 template<typename T, typename vT, std::enable_if_t<!std::is_same<T,vT>::value && mpu::is_detected<detail::hasx_t,vT>(), int>>
 CUDAHOSTDEV vT operator*(Mat<T, 3, 3> lhs, vT &rhs)
+
 {
     return vT{lhs(0) * rhs.x + lhs(1) * rhs.y + lhs(2) * rhs.z,
               lhs(3) * rhs.x + lhs(4) * rhs.y + lhs(5) * rhs.z,
