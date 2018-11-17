@@ -61,7 +61,7 @@ public:
     CUDAHOSTDEV explicit Mat(const cArgs... v) : m_data{static_cast<TYPE>(v)...} {} //!< constructs matrix with a value for each element
 
 
-#ifdef MPU_USE_GLM
+#ifdef MPU_GLM_AVAILIBLE
     // conversion to glm
     template<glm::qualifier Q>
     explicit Mat(glm::mat<numRows, numCols, TYPE, Q> &glmat); //!< constructs this from glm matrix
@@ -134,7 +134,7 @@ CUDAHOSTDEV Mat<TYPE, rows, cols>::Mat(const TYPE v)
         }
 }
 
-#ifdef MPU_USE_GLM
+#ifdef MPU_GLM_AVAILIBLE
 template<typename TYPE, size_t numRows, size_t numCols>
 template<glm::qualifier Q>
 Mat<TYPE, numRows, numCols>::Mat(glm::mat<numRows, numCols, TYPE, Q> &glmat)
