@@ -14,9 +14,9 @@
 // includes
 //--------------------
 #include "clionCudaHelper.h"
-#include "../../external/cuda/helper_math.h"
+#include "mpUtils/external/cuda/helper_math.h"
 #include "../Log/Log.h"
-#include "Misc/Range.h"
+#include "mpUtils/Misc/Range.h"
 //--------------------
 
 // some defines
