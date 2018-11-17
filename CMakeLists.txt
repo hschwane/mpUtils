@@ -187,8 +187,8 @@ set_target_properties(mpUtils PROPERTIES
                      )
 
 # set required language standard
-target_compile_features(mpUtils PUBLIC cxx_std_14)
 set_target_properties(mpUtils PROPERTIES
+                        CXX_STANDARD 14
                         CXX_STANDARD_REQUIRED YES
                         CUDA_STANDARD 14
                         CUDA_STANDARD_REQUIRED YES
@@ -196,7 +196,7 @@ set_target_properties(mpUtils PROPERTIES
 
 # force c++17 if using opengl
 if(USE_OPENGL)
-    target_compile_features(mpUtils PUBLIC cxx_std_17)
+    set_target_properties(mpUtils PROPERTIES CXX_STANDARD 17)
 endif()
 
 # set cuda specific properties and compile options
