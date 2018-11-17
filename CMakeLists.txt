@@ -17,7 +17,6 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # create project
-option(FORCE_NEW_VERSION "Increase the version number from git by one patach. Enable during development to not mix up versions." OFF)
 include(GetVersionFromGit)
 project(mpUtils VERSION "${VERSION_SHORT}" LANGUAGES CXX)
 
