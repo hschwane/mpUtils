@@ -12,9 +12,7 @@
 #define MPUTILS_MPUTILS_H
 
 // version and path
-#if !defined(MPU_NO_VERSION)
-    #include "mpUtils/version.h"
-#endif
+#include "mpUtils/version.h"
 #if !defined(MPU_NO_PATHS)
     #include "mpUtils/paths.h"
 #endif

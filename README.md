@@ -67,9 +67,6 @@ The following options are availible:
 - `DISABLE_PPUTILS` by default mpUtils defines and includes a range of preprocessor utilities. 
                         If enabled Preprocessor utils will not be defined. You can also disable the defines on a per project basis by
                         defining `MPU_NO_PREPROCESSOR_UTILS` before inclusion of mpUtils.h
-- `DISABLE_VERSION` by default mpUtils defines its current version number. 
-                        If this option is enabled the version number will not be defined. You can also disable the defines on a per project basis by
-                        defining `MPU_NO_VERSION` before inclusion of mpUtils.h.
 - `DISABLE_PATHS` by default mpUtils defines its paths to its shader and resource folders. 
                        If this option is enabled the paths will not be defined. You can also disable the defines on a per project basis by
                        defining `MPU_NO_PATHS` before inclusion of mpUtils.h and mpGraphics.h.

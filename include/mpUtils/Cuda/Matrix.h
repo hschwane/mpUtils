@@ -17,7 +17,8 @@
 #include <type_traits>
 #include <sstream>
 #include "mpUtils/Misc/type_traitUtils.h"
-#ifdef MPU_USE_GLM
+#include "mpUtils/version.h"
+#ifdef MPU_GLM_AVAILIBLE
     #include <glm/glm.hpp>
 #endif
 //--------------------
