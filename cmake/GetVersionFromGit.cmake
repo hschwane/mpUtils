@@ -1,6 +1,10 @@
 include(GetGitRevisionDescription)
 git_describe(VERSION --tags --match [vV][0-9]*)
 
+if(${VERSION} MATCHES ".*NOTFOUND.*")
+    set(VERSION "v0.0.0")
+endif()
+
 #parse the version information into pieces.
 string(REGEX REPLACE "^v([0-9]+)\\..*" "\\1" VERSION_MAJOR "${VERSION}")
 string(REGEX REPLACE "^v[0-9]+\\.([0-9]+).*" "\\1" VERSION_MINOR "${VERSION}")
