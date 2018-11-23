@@ -104,6 +104,7 @@ in addition the following variables will be set:
 - `mpUtils_OPENGL_AVAILIBLE` 
 - `mpUtils_CUDA_AVAILIBLE` 
 - `mpUtils_PPUTILS_AVAILIBLE`
+- `mpUtils_CUDA_ARCH_FLAGS` only if `mpUtils_CUDA_AVAILIBLE` is true. These are the cuda architecture flags selected during mpUtils installation.
 
 Now, to actually use mpUtils functionality include the file `mpUtils/mpUtils.h`. 
 Most classes and functions live in the namespace `mpu::`. To use the graphics utils include the file `mpGraphics`. 

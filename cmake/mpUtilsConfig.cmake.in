@@ -17,6 +17,9 @@ endif()
 
 # set vars to show which features are availible
 set(mpUtils_CUDA_AVAILIBLE @USE_CUDA@)
+if(mpUtils_CUDA_AVAILIBLE)
+    set(mpUtils_CUDA_ARCH_FLAGS "@CUDA_ARCH_FLAGS@")
+endif()
 set(mpUtils_GLM_AVAILIBLE @USE_GLM@)
 set(mpUtils_OPENGL_AVAILIBLE @USE_OPENGL@)
 set(mpUtils_PPUTILS_AVAILIBLE @DISABLE_PPUTILS@)

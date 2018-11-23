@@ -117,6 +117,7 @@ if (USE_CUDA)
     set(CUDA_ARCH "Auto" CACHE STRING
             "Select cuda arches for which code is produced. Auto | Common | All | list of names | number")
     CUDA_SELECT_NVCC_ARCH_FLAGS(CUDA_ARCH_FLAGS "${CUDA_ARCH}")
+    message(${CUDA_ARCH_FLAGS})
 endif()
 
 
@@ -262,7 +263,6 @@ endif()
 if(USE_OPENGL)
     target_link_libraries(mpUtils PUBLIC OpenGL::GL glfw GLEW::GLEW)
 endif()
-
 
 # --------------------------------------------------------
 # installing and exporting
