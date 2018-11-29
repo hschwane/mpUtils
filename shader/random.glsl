@@ -110,7 +110,7 @@ float haltonSeq(int index, int base)
 
 // random positions on the surface of a spere with radius 1
 // pass a uniform random value [0,1] to u and v
-vec3 randUniformSphere(float u, float v)
+vec3 randSphereShell(float u, float v)
 {
     float theta = 2.f * PI * u;
     float sinTheta = sin(theta);
@@ -125,7 +125,7 @@ vec3 randUniformSphere(float u, float v)
 // random positions on the surface of a spere with radius = radius
 // pass a uniform random value [0,1] to u,v pass 1 for r to generate points on the surface
 // or pass a uniform random value [0,1] to u,v,r to generate points inside the sphere with a max radius of radius
-vec3 randSphere(float u, float v, float r, float radius)
+vec3 randUniformSphere(float u, float v, float r, float radius)
 {
     float theta = 2.f * PI * u;
     float sinTheta = sin(theta);

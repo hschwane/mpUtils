@@ -23,6 +23,7 @@
 #include "Misc/type_traitUtils.h"
 #include "Misc/templateUtils.h"
 #include "Misc/Range.h"
+#include "Misc/pointPicking.h"
 #if !defined(MPU_NO_PREPROCESSOR_UTILS)
     #include "Misc/preprocessorUtils.h"
 #endif
