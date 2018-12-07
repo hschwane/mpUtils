@@ -26,11 +26,7 @@ namespace mpu {
 //-------------------------------------------------------------------
 void ConsoleSink::operator()(const LogMessage &msg)
 {
-    std::ostream* os;
-    if(msg.lvl <= LogLvl::ERROR)
-        os = &std::cerr;
-    else
-        os = &std::cout;
+    std::ostream* os = &std::cout;
 
     struct tm timeStruct;
 #ifdef __linux__
