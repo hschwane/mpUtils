@@ -53,6 +53,8 @@
                     throw std::runtime_error(MESSAGE);}
 #define infoMark() logINFO("mark")
 
+#define logFlush() if(!mpu::Log::noGlobal()) mpu::Log::getGlobal().flush()
+
 // debug is disabled on release build
 #ifdef NDEBUG
     #define logDEBUG(MODULE) if(false) mpu::Log::getGlobal()(mpu::LogLvl::DEBUG, MPU_FILEPOS, MODULE)
@@ -60,7 +62,6 @@
     #define assert_true(TEST,MODULE,MESSAGE)
     #define debugMark()
 #else
-
     #define logDEBUG(MODULE) if(mpu::Log::noGlobal() || mpu::Log::getGlobal().getLogLevel() < mpu::LogLvl::DEBUG) ; \
                         else mpu::Log::getGlobal()(mpu::LogLvl::DEBUG, MPU_FILEPOS, MODULE)
     #define logDEBUG2(MODULE) if(mpu::Log::noGlobal() || mpu::Log::getGlobal().getLogLevel() < mpu::LogLvl::DEBUG2) ; \
