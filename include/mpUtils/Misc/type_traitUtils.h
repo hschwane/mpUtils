@@ -54,7 +54,7 @@ using is_detected = typename detail::is_detected<Trait, void, Args...>::type;
  *      This is availible in std since c++17.
  */
 template< class Base, class Derived >
-inline constexpr bool is_base_of_v = std::is_base_of<Base, Derived>::value;
+constexpr bool is_base_of_v = std::is_base_of<Base, Derived>::value;
 
 //-------------------------------------------------------------------
 /**
@@ -68,7 +68,7 @@ struct conjunction<B1, Bn...>
         : std::conditional_t<bool(B1::value), conjunction<Bn...>, B1> {};
 
 template<class... B>
-inline constexpr bool conjunction_v = conjunction<B...>::value;
+constexpr bool conjunction_v = conjunction<B...>::value;
 
 //-------------------------------------------------------------------
 // is_list_initable
