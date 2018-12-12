@@ -246,10 +246,14 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.i
 if(USE_CUDA)
     include(cudaConvertFlags)
     cuda_convert_flags(Threads::Threads)
-    cuda_convert_flags(glm)
-    cuda_convert_flags(OpenGL::GL)
-    cuda_convert_flags(glfw)
-    cuda_convert_flags(GLEW::GLEW)
+    if(USE_GLM)
+        cuda_convert_flags(glm)
+    endif()
+    if(USE_OPENGL)
+        cuda_convert_flags(OpenGL::GL)
+        cuda_convert_flags(glfw)
+        cuda_convert_flags(GLEW::GLEW)
+    endif()
 endif()
 
 # link required external libs
