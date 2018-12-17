@@ -85,6 +85,81 @@ inline __device__ Range<int> gridStrideRange(int firstElement, int problemSize)
     return Range<int>(firstElement, problemSize, gridDim.x * blockDim.x);
 }
 
+//--------------------
+// stream operators for cuda
+
+std::ostream & operator<<(std::ostream & stream, const float2 & item)
+{
+    stream << "(" << item.x << "," << item.y << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const float3 & item)
+{
+    stream << "(" << item.x << "," << item.y << "," << item.z << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const float4 & item)
+{
+    stream << "(" << item.x << "," << item.y << "," << item.z << "," << item.w << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const double2 & item)
+{
+    stream << "(" << item.x << "," << item.y << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const double3 & item)
+{
+    stream << "(" << item.x << "," << item.y << "," << item.z << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const double4 & item)
+{
+    stream << "(" << item.x << "," << item.y << "," << item.z << "," << item.w << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const int2 & item)
+{
+    stream << "(" << item.x << "," << item.y << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const int3 & item)
+{
+    stream << "(" << item.x << "," << item.y << "," << item.z << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const int4 & item)
+{
+    stream << "(" << item.x << "," << item.y << "," << item.z << "," << item.w << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const uint2 & item)
+{
+    stream << "(" << item.x << "," << item.y << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const uint3 & item)
+{
+    stream << "(" << item.x << "," << item.y << "," << item.z << ")";
+    return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const uint4 & item)
+{
+    stream << "(" << item.x << "," << item.y << "," << item.z << "," << item.w << ")";
+    return stream;
+}
+
 }
 
 #endif //MPUTILS_CUDAUTILS_H
