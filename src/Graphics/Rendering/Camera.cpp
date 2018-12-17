@@ -108,7 +108,7 @@ void Camera::setAspect(const float aspect)
 }
 
 SimpleWASDController::SimpleWASDController( Window* window, float rotation_speed, float movement_speed)
-        : m_rotation_speed(rotation_speed), m_movement_speed(movement_speed), m_window(*window)
+        : m_rotation_speed(rotation_speed/60), m_movement_speed(movement_speed), m_window(*window)
 {
 }
 
@@ -168,9 +168,9 @@ void SimpleWASDController::updateTransform(Transform &transform, double dt)
         m_last_cursor_position = current_position;
 
 
-        transform.rotation = glm::quat(glm::vec3(0.f, glm::radians(delta.x) * m_rotation_speed * dt, 0.f))
+        transform.rotation = glm::quat(glm::vec3(0.f, glm::radians(delta.x) * m_rotation_speed, 0.f))
                                 * transform.rotation
-                             *glm::quat(glm::vec3(glm::radians(delta.y) * m_rotation_speed * dt, 0.f, 0.f));
+                             *glm::quat(glm::vec3(glm::radians(delta.y) * m_rotation_speed, 0.f, 0.f));
 
     }
 
