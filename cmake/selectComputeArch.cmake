@@ -253,6 +253,7 @@ function(CUDA_SELECT_NVCC_ARCH_FLAGS out_variable)
     endforeach()
 
     string(REPLACE ";" " " nvcc_archs_readable "${nvcc_archs_readable}")
+    string(REPLACE ";" " " nvcc_flags "${nvcc_flags}")
     set(${out_variable}          ${nvcc_flags}          PARENT_SCOPE)
     set(${out_variable}_readable ${nvcc_archs_readable} PARENT_SCOPE)
 endfunction()
