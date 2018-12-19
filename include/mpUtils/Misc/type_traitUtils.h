@@ -85,7 +85,7 @@ template <typename T, typename U>
 using is_list_initable = is_detected<detail::list_init_t,T,U>;
 
 //-------------------------------------------------------------------
-// is instanciation of
+// is instantiation of
 // https://stackoverflow.com/questions/17390605/doing-a-static-assert-that-a-template-type-is-another-template
 
 /**
