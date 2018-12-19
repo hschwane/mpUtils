@@ -21,63 +21,6 @@
 //#include <glm/glm.hpp>
 //#include <mpUtils/mpCuda.h>
 
-using namespace mpu;
-using namespace std;
-
-
-//    // type list
-//    template <typename ... Types>
-//    struct tl {};
-//
-//
-//
-//    // prepend
-//    template <typename TypeList, typename T>
-//    struct tl_prepend{};
-//
-//    template <typename ... ListItems, typename T>
-//    struct tl_prepend<T, tl<ListItems...>>
-//    {
-//        using type = tl<T, ListItems...>;
-//    };
-//
-//    template <typename TypeList, typename T>
-//    using tl_prepend_t = typename tl_prepend<T,TypeList>::type;
-//
-//
-//
-//    // append
-//    template <typename TypeList, typename T>
-//    struct tl_append{};
-//
-//    template <typename ... ListItems, typename T>
-//    struct tl_append<T, tl<ListItems...>>
-//    {
-//        using type = tl<ListItems...,T>;
-//    };
-//
-//    template <typename TypeList, typename T>
-//    using tl_append_t = typename tl_append<T,TypeList>::type;
-//
-//
-//
-//    // concatinate
-//    template <typename TypeListA, typename TypeListB>
-//    struct tl_concat{};
-//
-//    template <typename ... ListAItems, typename ... ListBItems>
-//    struct tl_concat< tl<ListAItems...>, tl<ListBItems...>>
-//    {
-//        using type = tl<ListAItems...,ListBItems...>;
-//    };
-//
-//    template <typename TypeListA, typename TypeListB>
-//    using tl_concat_t = typename tl_concat<TypeListA,TypeListB>::type;
-//
-//    // head
-//    // tail
-
-
 //    // type list
 //    struct tl_end_t {};
 //
@@ -207,58 +150,100 @@ using namespace std;
 //    using tl_tail_t = typename tl_tail<TList>::type;
 
 
+//    struct empty_tuple;
+//
+//    template <typename Tuple>
+//    struct pop_head
+//    {
+//        using head = void;
+//        using rest = std::tuple<void>;
+//    };
+//
+//    template <typename Head, typename ...Ts>
+//    struct pop_head <std::tuple<Head, Ts...>>
+//    {
+//        using head = Head;
+//        using rest = std::tuple<Ts...>;
+//    };
+//
+//    template <typename Tuple>
+//    using front_t = typename pop_head<Tuple>::head;
+//
+//    template <typename Tuple>
+//    using pop_front_t = typename pop_head<Tuple>::rest;
 
+//using namespace mpu;
+//using namespace std;
 
+// -------------------------------------------
+// build a index list for the types in Tuple based of the position of the same type in Reference
+template <typename Tuple, typename Reference>
+struct build_comp_index_list;
 
-
-
-
-
-// test function
-template <class ...Ts>
-void testFunction()
+template <typename ... Ts, typename Reference>
+struct build_comp_index_list <std::tuple<Ts...>, Reference>
 {
-    int t[] = {0, ( cout << typeid(Ts).name() << "\n",1)...};
-}
-
-template <typename Tpl>
-struct foo;
-
-template <class ...Ts>
-struct foo< tuple<Ts...>>
-{
-    void operator()()
-    {
-        testFunction<Ts...>();
-    }
+    using type = std::index_sequence< mpu::index_of_v<Ts, Reference>... >;
 };
 
+template <typename Tuple, typename Reference>
+using build_comp_index_list_t = typename build_comp_index_list<Tuple,Reference>::type;
+
+// -------------------------------------------
+// check if the order of types in Tuple is the same as in Reference and there are no duplicates
+template <typename Tuple, typename Reference>
+using checkOrder = mpu::is_strict_rising< build_comp_index_list_t<Tuple,Reference> >;
+
+// -------------------------------------------
+// build tuple using indices and reference tuple, for each number from the list is used as an index, then the type at
+// that index in tuple Reference is used to build the new tuple
+template <typename Reference, typename IndexList>
+struct make_tpl;
+
+template <typename Reference, typename T, T first, T ... Ints>
+struct make_tpl<Reference, std::integer_sequence<T,first,Ints...>>
+{
+    using head_tuple = typename std::tuple< typename std::tuple_element<first,Reference>::type>; // do work
+    using tail_tuple = typename make_tpl<Reference,std::integer_sequence<T,Ints...>>::type; // recursive call
+    using type = mpu::tuple_cat_t< head_tuple , tail_tuple >; // put together
+};
+
+template <typename Reference, typename T>
+struct make_tpl<Reference, std::integer_sequence<T>>
+{
+    using type = std::tuple<>;
+};
+
+template <typename IndexList, typename Reference>
+using make_tpl_t = typename make_tpl<Reference,IndexList>::type;
+
+
+// -------------------------------------------
+// reorder tuple following the reference and remove duplicates
+template <typename Tuple, typename Reference>
+using reorderd_t = make_tpl_t< mpu::is_rm_duplicates_t< mpu::is_sort_asc_t< build_comp_index_list_t<Tuple,Reference>>>, Reference>;
+
+
+using order = std::tuple<int,float,double,long>;
+using test = std::tuple<float,double,int,int>;
+
+//static_assert(checkOrder< std::tuple<int,float,double>, order >::value, "Wrong type order!"); // should be ok
+//static_assert(checkOrder< std::tuple<int,double>, order >::value, "Wrong type order!"); // should be ok
+//static_assert(checkOrder< std::tuple<float,double>, order >::value, "Wrong type order!"); // should be ok
+//static_assert(checkOrder< std::tuple<float>, order >::value, "Wrong type order!"); // should be ok
+//
+//static_assert(checkOrder< std::tuple<float,int>, order >::value, "Wrong type order!"); // should fail
+//static_assert(checkOrder< std::tuple<double,float>, order >::value, "Wrong type order!"); // should fail
+//static_assert(checkOrder< std::tuple<double,double>, order >::value, "Wrong type order!"); // should fail
 
 template <typename T> class debug_t;
 
+debug_t< reorderd_t<test,order> > dt;
+//debug_t< build_comp_index_list_t< std::tuple<double,float,int,float, double>, order> > dt;
+
+
 int main()
 {
-//    using myListA = tl<float,int,double>;
-//    using myListB = tl<int,int,int>;
-//    using myPrependedList = tl_prepend_t<myListA,long>;
-//    using myAppendedList = tl_append_t<myPrependedList,long>;
-
-
-//    using myListA = tl_make_t<int,double,float,long> ;
-//    using myListB = tl_make_t<int,double,float,long> ;
-//
-//    using tt = std::make_tuple<int,float,double>();
-//
-    using tl = std::tuple<int,float,double>;
-
-//    debug_t< bla<tl> > dt;
-    testFunction<tl>();
-
-//    testFunction<tl::types>();
-
-
-
-//    bind_t<tl,testFunction>();
 
     return 0;
 }
