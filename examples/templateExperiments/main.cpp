@@ -236,9 +236,8 @@ using test = std::tuple<float,double,int,int>;
 //static_assert(checkOrder< std::tuple<double,float>, order >::value, "Wrong type order!"); // should fail
 //static_assert(checkOrder< std::tuple<double,double>, order >::value, "Wrong type order!"); // should fail
 
-template <typename T> class debug_t;
-
-debug_t< reorderd_t<test,order> > dt;
+//template <typename T> class debug_t;
+//debug_t< reorderd_t<test,order> > dt;
 //debug_t< build_comp_index_list_t< std::tuple<double,float,int,float, double>, order> > dt;
 
 
