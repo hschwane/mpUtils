@@ -75,7 +75,7 @@ using is_list_initable = is_detected<detail::list_init_t,T,U>;
 // https://stackoverflow.com/questions/17390605/doing-a-static-assert-that-a-template-type-is-another-template
 
 /**
- * @brief Evaluates to std::true_type if Ts is an instantiation of the class template TT
+ * @brief Evaluates to std::true_type if T is an instantiation of the class template TT
  */
 template<template<typename...> class TT, typename T>
 struct is_instantiation_of : std::false_type { };
@@ -83,6 +83,11 @@ struct is_instantiation_of : std::false_type { };
 template<template<typename...> class TT, typename... Ts>
 struct is_instantiation_of<TT, TT<Ts...>> : std::true_type { };
 
+/**
+ * @brief Evaluates to std::true_type if T is an instantiation of the class template TT
+ */
+template<template<typename...> class TT, typename T>
+constexpr bool is_instantiation_of_v = is_instantiation_of<TT,T>::value;
 
 }
 
