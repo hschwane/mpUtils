@@ -136,6 +136,14 @@ struct if_else<false, T, F>
 template <bool b, typename T, typename F>
 using if_else_t = typename if_else<b,T,F>::type;
 
+//!< this is always false but depends on template arguments (so it is false when the template is instantiated)
+template <typename...>
+struct always_false : std::false_type {};
+
+//!< this is always false but depends on template arguments (so it is false when the template is instantiated)
+template <typename... Ts>
+static constexpr bool always_false_v = always_false<Ts...>::value;
+
 //-------------------------------------------------------------------
 // operations / helper on std::tuple
 
