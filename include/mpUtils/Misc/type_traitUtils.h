@@ -5,7 +5,7 @@
  * @author: Hendrik Schwanekamp
  * @mail:   hendrik.schwanekamp@gmx.net
  *
- * some of this is availible in c++ 17 and above but not in c++14
+ * some of this is available in c++ 17 and above but not in c++14
  * Copyright (c) 2018 Hendrik Schwanekamp
  *
  */
@@ -25,13 +25,13 @@ namespace mpu {
 //-------------------------------------------------------------------
 /**
  * @brief Helper for using expression SFINAE by partial instantiation of a parameter which defaults to void. See c++17 void_t.
- *      This is availible in std since c++17.
+ *      This is available in std since c++17.
  */
 template <class... Ts>
 using void_t = void;
 
 //-------------------------------------------------------------------
-// implement is_detected (availible in c++17)
+// implement is_detected (available in c++17)
 // https://blog.tartanllama.xyz/detection-idiom/#fn:2
 namespace detail {
     template <template <class...> class Trait, class Enabler, class... Args>
@@ -43,7 +43,7 @@ namespace detail {
 
 /**
  * @brief Evaluates to std::true_type if Trait can be instantiated by Args. Evaluates to std::false_type otherwise.
- *      This is availible in std since c++17.
+ *      This is available in std since c++17.
  */
 template <template <class...> class Trait, class... Args>
 using is_detected = typename detail::is_detected<Trait, void, Args...>::type;
@@ -51,7 +51,7 @@ using is_detected = typename detail::is_detected<Trait, void, Args...>::type;
 //-------------------------------------------------------------------
 /**
  * @brief Shorthand for std::is_base_of<A,B>::value
- *      This is availible in std since c++17.
+ *      This is available in std since c++17.
  */
 template< class Base, class Derived >
 constexpr bool is_base_of_v = std::is_base_of<Base, Derived>::value;

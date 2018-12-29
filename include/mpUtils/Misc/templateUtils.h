@@ -72,25 +72,25 @@ CUDAHOSTDEV auto base_cast(const T &x)
 };
 
 //-------------------------------------------------------------------
-// logical operations (availible in std since c++ 17)
+// logical operations (available in std since c++ 17)
 
 /**
  * @brief shorthand for integral constant of type bool
- *      This is availible in std since c++17.
+ *      This is available in std since c++17.
  */
 template <bool B>
 using bool_constant = std::integral_constant<bool, B>;
 
 /**
  * @brief negate B which has a member bool::value
- *       This is availible in std since c++17.
+ *       This is available in std since c++17.
  */
 template<class B>
 struct negation : bool_constant<!bool(B::value)> { };
 
 /**
  * @brief Forms logical conjunction of Bs which have a member bool value
- *      This is availible in std since c++17.
+ *      This is available in std since c++17.
  */
 template<class...> struct conjunction : std::true_type { };
 template<class B1> struct conjunction<B1> : B1 { };
@@ -103,7 +103,7 @@ constexpr bool conjunction_v = conjunction<B...>::value;
 
 /**
  * @brief Forms logical disjunction of Bs which have a member bool value
- *      This is availible in std since c++17.
+ *      This is available in std since c++17.
  */
 template<class...> struct disjunction : std::false_type { };
 template<class B1> struct disjunction<B1> : B1 { };
