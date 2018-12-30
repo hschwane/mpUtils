@@ -190,6 +190,24 @@ struct index_of<T, std::tuple<U, Types...>>
 template <class T, class Tuple>
 static constexpr size_t index_of_v = index_of<T,Tuple>::value;
 
+/**
+ * @brief instantiate template Class with types from tuple
+ * @tparam Class the class template to instantiate
+ * @tparam Tuple the std::tuple from where to get the types
+ */
+template <template<typename ...>class Class, typename Tuple>
+struct instantiate_from_tuple;
+
+template <template<typename ...>class Class, typename ...TupleTs>
+struct instantiate_from_tuple<Class, std::tuple<TupleTs...>>
+{
+    using type = Class<TupleTs...>;
+};
+
+//!< instantiate template Class with types from std::tuple Tuple
+template <template<typename ...>class Class, typename Tuple>
+using instantiate_from_tuple_t = typename instantiate_from_tuple<Class,Tuple>::type;
+
 //-------------------------------------------------------------------
 // operations / helper on std::integer_list
 
