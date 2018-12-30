@@ -71,7 +71,6 @@ inline __device__ Range<int> gridStrideRange(int problemSize)
     return Range<int>(blockIdx.x * blockDim.x + threadIdx.x, problemSize, gridDim.x * blockDim.x);
 }
 
-
 /**
  * @brief generates a Range to be used in a for each loop inside a kernel to decouple the grid size from the data size
  *          indices will run in the range [firstElement,problemSize)
@@ -83,6 +82,16 @@ inline __device__ Range<int> gridStrideRange(int firstElement, int problemSize)
 {
     firstElement += blockIdx.x * blockDim.x + threadIdx.x;
     return Range<int>(firstElement, problemSize, gridDim.x * blockDim.x);
+}
+
+/**
+ * @brief calculates the number of cuda blocks to be launched
+ * @param problemSize number of things that needs to be published
+ * @return the number of cuda blocks that should be launched
+ */
+constexpr size_t numBlocks(size_t problemSize, size_t blockSize)
+{
+    return (problemSize + blockSize - 1) / blockSize;
 }
 
 //--------------------
