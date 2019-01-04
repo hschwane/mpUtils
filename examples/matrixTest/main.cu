@@ -45,6 +45,14 @@ int main()
 
     logINFO("MatrixTesting") << "testing construction..";
 
+    logINFO("MatrixTesting") << "default construction";
+    Mat<float,4,4> def;
+    myLog.print(LogLvl::INFO) << toString(def);
+
+    logINFO("MatrixTesting") << "curly brace construction";
+    Mat<float,4,4> curl{};
+    myLog.print(LogLvl::INFO) << toString(curl);
+
     logINFO("MatrixTesting") << "constructing unit matrix";
     Mat<float,4,4> identitiy(1.0);
     myLog.print(LogLvl::INFO) << toString(identitiy);
