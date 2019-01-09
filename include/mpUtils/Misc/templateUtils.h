@@ -412,6 +412,40 @@ template <typename List>
 using is_rm_duplicates_t = typename is_rm_duplicates<List>::type;
 
 
+//-------------------------------------------------------------------
+// misc
+
+/**
+ * @brief has static member ::value which is the number of arguments of function a function type T
+ */
+template <typename T>
+struct argumentCount : argumentCount<decltype(&T::operator())> {};
+
+template <typename R, typename... Args>
+struct argumentCount<R(*)(Args...)> : std::integral_constant<unsigned, sizeof...(Args)> {};
+
+template <typename R, typename C, typename... Args>
+struct argumentCount<R(C::*)(Args...)> : std::integral_constant<unsigned, sizeof...(Args)> {};
+
+template <typename R, typename C, typename... Args>
+struct argumentCount<R(C::*)(Args...) const> : std::integral_constant<unsigned, sizeof...(Args)> {};
+
+/**
+ * @brief the number of arguments of function a function type
+ */
+template <typename T>
+constexpr size_t argumentCount_v = argumentCount<T>::value;
+
+/**
+ * @brief returns the number of arguments of function a function
+ */
+template <typename func>
+constexpr size_t getArgumentCount(func)
+{
+    return argumentCount_v<func>;
+}
+
+
 }
 
 #endif //MPUTILS_TEMPLATEUTILS_H

@@ -240,6 +240,46 @@ using test = std::tuple<float,double,int,int>;
 //debug_t< reorderd_t<test,order> > dt;
 //debug_t< build_comp_index_list_t< std::tuple<double,float,int,float, double>, order> > dt;
 
+template <typename T>
+struct get_arity : get_arity<decltype(&T::operator())> {};
+
+template <typename R, typename... Args>
+struct get_arity<R(*)(Args...)> : std::integral_constant<unsigned, sizeof...(Args)> {};
+// Possibly add specialization for variadic functions
+// Member functions:
+template <typename R, typename C, typename... Args>
+struct get_arity<R(C::*)(Args...)> :
+        std::integral_constant<unsigned, sizeof...(Args)> {};
+template <typename R, typename C, typename... Args>
+struct get_arity<R(C::*)(Args...) const> :
+        std::integral_constant<unsigned, sizeof...(Args)> {};
+
+struct bar
+{
+    void foo(int a, int b)
+    {
+
+    }
+};
+
+void blub(int i)
+{
+
+}
+
+//template <typename func>
+//constexpr size_t noa(func f)
+//{
+//    return get_arity<func>::value;
+//}
+
+//template <typename R, typename C, typename ... Types>
+//constexpr std::integral_constant<unsigned, sizeof ...(Types)> getArgumentCount( R(C::*)(Types ...) const)
+//{
+//    return std::integral_constant<unsigned, sizeof ...(Types)>{};
+//}
+
+
 
 int main()
 {
