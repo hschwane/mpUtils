@@ -56,7 +56,7 @@
 #define logFlush() if(!mpu::Log::noGlobal()) mpu::Log::getGlobal().flush()
 
 // debug is disabled on release build
-#ifdef NDEBUG
+#if defined(NDEBUG) && !defined(MPU_ENABLE_DEBUG_LOGGING)
     #define logDEBUG(MODULE) if(false) mpu::Log::getGlobal()(mpu::LogLvl::DEBUG, MPU_FILEPOS, MODULE)
     #define logDEBUG2(MODULE) if(false) mpu::Log::getGlobal()(mpu::LogLvl::DEBUG2, MPU_FILEPOS, MODULE)
     #define assert_true(TEST,MODULE,MESSAGE)
@@ -144,6 +144,8 @@ struct LogMessage
  * to write message to the global log like logERROR << "An Error!" << endl
  * The first log created is always made global automatically.
  * All other classes of the mpu library will use the global log to output error messages.
+ * In release build debug logging macros are disabled by default. To enable them define MPU_ENABLE_DEBUG_LOGGING before
+ * including mpUtils.h.
  *
  * Thread safety:
  * The class was developed with the goal to allow logging from all threads at the same time, as a
