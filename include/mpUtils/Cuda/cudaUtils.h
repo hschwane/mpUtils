@@ -100,8 +100,10 @@ constexpr size_t numBlocks(size_t problemSize, size_t blockSize)
     return (problemSize + blockSize - 1) / blockSize;
 }
 
+}
+
 //--------------------
-// stream operators for cuda
+// stream operators for cuda (outside of mpu namespace)
 
 inline std::ostream & operator<<(std::ostream & stream, const float2 & item)
 {
@@ -173,8 +175,6 @@ inline std::ostream & operator<<(std::ostream & stream, const uint4 & item)
 {
     stream << "(" << item.x << "," << item.y << "," << item.z << "," << item.w << ")";
     return stream;
-}
-
 }
 
 #endif //MPUTILS_CUDAUTILS_H
