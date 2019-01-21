@@ -17,6 +17,7 @@
 // includes
 //--------------------
 #include <cmath>
+#include <random>
 //--------------------
 
 // this file contains device/host functions that also need to compile when using gcc
@@ -34,6 +35,16 @@
 //--------------------
 namespace mpu {
 //--------------------
+
+/**
+ * @brief returns a seed from a random number generator / pseudo random number generator (depending on your system)
+ *          to be used to seed a pseudo random number generator like std::default_random_engine
+ */
+inline unsigned int getRanndomSeed()
+{
+    static std::random_device rd;
+    return rd();
+}
 
 /**
  * @brief random position on the surface of a sphere with radius 1
