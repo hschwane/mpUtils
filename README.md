@@ -127,6 +127,7 @@ also be used in cuda code. Some even in device functions.
 - ini-Style configuration file parser
 - different timers including asynchronous ones
 - doxygen style documentation
+- includes compile-time math functions from the gcem-library (see 3rd party code)
 
 ------------------------
 ## planned features / wishlist
@@ -142,3 +143,16 @@ also be used in cuda code. Some even in device functions.
 - tests
 - windows and mac support
 - improvements to the log (lock-free-queue, more sinks with better format, different depths for messages)
+
+-----------------------
+## included 3rd party code
+
+GCE-Math: A C++ generalized constant expression-based math library
+Copyright 2016-2019 Keith O'Hara
+This product includes software developed by Keith O'Hara (http://www.kthohr.com)
+
+This software contains source code
+provided by NVIDIA Corporation.
+
+stb_image (https://github.com/nothings/stb)
+This software contains source code provided by Sean T. Barrett.

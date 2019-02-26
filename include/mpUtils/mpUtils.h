@@ -48,6 +48,9 @@
 // image processing
 #include "mpUtils/external/stb_image.h"
 
+// compiletime math
+#include "mpUtils/external/gcem/gcem.hpp"
+
 // matrix type might be useful without cuda
 #include "Cuda/Matrix.h"
 #include "Cuda/MatrixMath.h"
