@@ -28,6 +28,7 @@
 #if !defined(MPU_NO_PREPROCESSOR_UTILS)
     #include "Misc/preprocessorUtils.h"
 #endif
+#include "Misc/Resource.h"
 
 // configuration util
 #include "Cfg/CfgFile.h"

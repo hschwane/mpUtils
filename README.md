@@ -128,6 +128,7 @@ also be used in cuda code. Some even in device functions.
 - different timers including asynchronous ones
 - doxygen style documentation
 - includes compile-time math functions from the gcem-library (see 3rd party code)
+- compile and embed resources into executables
 
 ------------------------
 ## planned features / wishlist
