@@ -17,7 +17,7 @@
 
 int main()
 {
-    mpu::Resource text = LOAD_RESOURCE(hw_txt);
+    mpu::Resource text = LOAD_RESOURCE(blubber_hw_txt);
     std::cout << std::string(text.data(), text.size()) << std::endl;
     return 0;
 }

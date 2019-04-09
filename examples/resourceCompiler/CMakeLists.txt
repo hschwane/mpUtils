@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.8)
 
 #add the resource
 include(addResources)
-ADD_RESOURCES(testResources hw.txt)
+ADD_RESOURCES(testResources blubber/hw.txt)
 
 # create target
 add_executable(resourceCompiler main.cpp ${testResources})
