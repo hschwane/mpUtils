@@ -37,8 +37,8 @@ noexcept
     return( depth < GCEM_EXP_MAX_ITER_SMALL ? \
             // if
                 depth == 1 ? \
-                    T(1) - x/exp_cf_recur(x,depth+1) : 
-                    T(1) + x/T(depth - 1) - x/depth/exp_cf_recur(x,depth+1) : 
+                    T(1) - x/exp_cf_recur(x,depth+1) :
+                    T(1) + x/T(depth - 1) - x/depth/exp_cf_recur(x,depth+1) :
              // else
                 T(1) );
 }
@@ -67,14 +67,14 @@ T
 exp_check(const T x)
 noexcept
 {
-    return( x == GCLIM<T>::quiet_NaN() ? \
+    return( is_nan(x) ? \
                 GCLIM<T>::quiet_NaN() :
             //
             x == - GCLIM<T>::infinity() ? \
                 T(0) :
             //
             GCLIM<T>::epsilon() > abs(x) ? \
-                T(1) : 
+                T(1) :
             //
             x == GCLIM<T>::infinity() ? \
                 GCLIM<T>::infinity() :
@@ -90,7 +90,7 @@ noexcept
  * Compile-time exponential function
  *
  * @param x a real-valued input.
- * @return \f$ \exp(x) \f$ using \f[ \exp(x) = \dfrac{1}{1-\dfrac{x}{1+x-\dfrac{\frac{1}{2}x}{1 + \frac{1}{2}x - \dfrac{\frac{1}{3}x}{1 + \frac{1}{3}x - \ddots}}}} \f] 
+ * @return \f$ \exp(x) \f$ using \f[ \exp(x) = \dfrac{1}{1-\dfrac{x}{1+x-\dfrac{\frac{1}{2}x}{1 + \frac{1}{2}x - \dfrac{\frac{1}{3}x}{1 + \frac{1}{3}x - \ddots}}}} \f]
  * The continued fraction argument is split into two parts: \f$ x = n + r \f$, where \f$ n \f$ is an integer and \f$ r \in [-0.5,0.5] \f$.
  */
 

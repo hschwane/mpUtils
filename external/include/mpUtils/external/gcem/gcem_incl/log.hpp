@@ -38,9 +38,9 @@ log_cf_main(const T xx, const int depth)
 noexcept
 {
     return( depth < GCEM_LOG_MAX_ITER_SMALL ? \
-            // if 
+            // if
                 T(2*depth - 1) - T(depth*depth)*xx/log_cf_main(xx,depth+1) :
-            // else 
+            // else
                 T(2*depth - 1) );
 }
 
@@ -49,7 +49,7 @@ constexpr
 T
 log_cf_begin(const T x)
 noexcept
-{ 
+{
     return( T(2)*x/log_cf_main(x*x,1) );
 }
 
@@ -58,7 +58,7 @@ constexpr
 T
 log_main(const T x)
 noexcept
-{ 
+{
     return( log_cf_begin((x - T(1))/(x + T(1))) );
 }
 
@@ -103,7 +103,7 @@ T
 log_check(const T x)
 noexcept
 {
-    return( x == GCLIM<T>::quiet_NaN() ? \
+    return( is_nan(x) ? \
                 GCLIM<T>::quiet_NaN() :
             // x < 0
             x < T(0) ? \
@@ -113,13 +113,13 @@ noexcept
                 - GCLIM<T>::infinity() :
             // indistinguishable from 1
             GCLIM<T>::epsilon() > abs(x - T(1)) ? \
-                T(0) : 
-            // 
+                T(0) :
+            //
             x == GCLIM<T>::infinity() ? \
                 GCLIM<T>::infinity() :
             // else
                 (x < T(0.5) || x > T(1.5)) ?
-                // if 
+                // if
                     log_breakup(x) :
                 // else
                     log_main(x) );
@@ -131,7 +131,7 @@ noexcept
  * Compile-time natural logarithm function
  *
  * @param x a real-valued input.
- * @return \f$ \log_e(x) \f$ using \f[ \log\left(\frac{1+x}{1-x}\right) = \dfrac{2x}{1-\dfrac{x^2}{3-\dfrac{4x^2}{5 - \dfrac{9x^3}{7 - \ddots}}}}, \ \ x \in [-1,1] \f] 
+ * @return \f$ \log_e(x) \f$ using \f[ \log\left(\frac{1+x}{1-x}\right) = \dfrac{2x}{1-\dfrac{x^2}{3-\dfrac{4x^2}{5 - \dfrac{9x^3}{7 - \ddots}}}}, \ \ x \in [-1,1] \f]
  * The continued fraction argument is split into two parts: \f$ x = a \times 10^c \f$, where \f$ c \f$ is an integer.
  */
 
