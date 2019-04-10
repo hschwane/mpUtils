@@ -54,7 +54,8 @@ inline unsigned int getRanndomSeed()
  * @param catY resulting cartesian Y-coordinate
  * @param catZ resulting cartesian Z-coordinate
  */
-CUDAHOSTDEV void randSphereShell(float u, float v, float& catX, float& catY, float& catZ);
+ template <typename T>
+CUDAHOSTDEV void randSphereShell(T u, T v, T& catX, T& catY, T& catZ);
 
 /**
  * @brief random position inside a uniform density sphere
@@ -66,7 +67,8 @@ CUDAHOSTDEV void randSphereShell(float u, float v, float& catX, float& catY, flo
  * @param catY resulting cartesian Y-coordinate
  * @param catZ resulting cartesian Z-coordinate
  */
-CUDAHOSTDEV void randUniformSphere(float u, float v, float r, float radius, float& catX, float& catY, float& catZ);
+template <typename T>
+CUDAHOSTDEV void randUniformSphere(T u, T v, T r, T radius, T& catX, T& catY, T& catZ);
 
 /**
  * @brief calculate values from the Halton Sequence
@@ -80,28 +82,30 @@ CUDAHOSTDEV float haltonSeq(int index, int base);
 // implementation of point picking functions
 //-------------------------------------------------------------------
 
-CUDAHOSTDEV inline void randSphereShell(float u, float v, float &catX, float &catY, float &catZ)
+template <typename T>
+CUDAHOSTDEV inline void randSphereShell(T u, T v, T &catX, T &catY, T &catZ)
 {
-    float theta = 2.0f * M_PI * u;
-    float sinTheta = std::sin(theta);
-    float cosTheta = std::cos(theta);
+    T theta = 2.0f * M_PI * u;
+    T sinTheta = std::sin(theta);
+    T cosTheta = std::cos(theta);
 
-    float cosPhi = 2*v-1.f;
-    float sinPhi = std::sqrt(std::fmax(0.0f, 1.0f- cosPhi*cosPhi));
+    T cosPhi = 2*v-1.f;
+    T sinPhi = std::sqrt(std::fmax(0.0f, 1.0f- cosPhi*cosPhi));
 
     catX = cosTheta*sinPhi;
     catY = sinTheta*sinPhi;
     catZ = cosPhi;
 }
 
-CUDAHOSTDEV inline void randUniformSphere(float u, float v, float r, float radius, float &catX, float &catY, float &catZ)
+template <typename T>
+CUDAHOSTDEV inline void randUniformSphere(T u, T v, T r, T radius, T &catX, T &catY, T &catZ)
 {
-    float theta = 2.f * M_PI * u;
-    float sinTheta = std::sin(theta);
-    float cosTheta = std::cos(theta);
+    T theta = 2.f * M_PI * u;
+    T sinTheta = std::sin(theta);
+    T cosTheta = std::cos(theta);
 
-    float cosPhi = 2*v-1.f;
-    float sinPhi = std::sqrt(std::fmax(0.0f, 1.0f- cosPhi*cosPhi));
+    T cosPhi = 2*v-1.f;
+    T sinPhi = std::sqrt(std::fmax(0.0f, 1.0f- cosPhi*cosPhi));
 
     r = std::pow(r,1.0f/3.0f) * radius;
 
