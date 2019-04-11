@@ -26,14 +26,18 @@ set(mpUtils_PPUTILS_AVAILIBLE @DISABLE_PPUTILS@)
 
 # find required dependencies
 include(CMakeFindDependencyMacro)
-find_dependency(Threads REQUIRED)
+find_dependency(Threads)
 
 # find optional dependencies
-find_dependency(glm QUIET)
-set(OpenGL_GL_PREFERENCE "GLVND")
-find_dependency(OpenGL QUIET)
-find_dependency(GLEW QUIET)
-find_dependency(glfw3 QUIET)
+if(mpUtils_GLM_AVAILIBLE)
+    find_dependency(glm QUIET)
+endif
+if(mpUtils_OPENGL_AVAILIBLE)
+    set(OpenGL_GL_PREFERENCE "GLVND")
+    find_dependency(OpenGL QUIET)
+    find_dependency(GLEW QUIET)
+    find_dependency(glfw3 QUIET)
+endif
 
 # include the targets
 if(NOT (TARGET mpUtils::mpUtils AND TARGET mpUtils::mpCudaSettings))
