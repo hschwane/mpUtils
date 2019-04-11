@@ -31,13 +31,13 @@ find_dependency(Threads)
 # find optional dependencies
 if(mpUtils_GLM_AVAILIBLE)
     find_dependency(glm QUIET)
-endif
+endif()
 if(mpUtils_OPENGL_AVAILIBLE)
     set(OpenGL_GL_PREFERENCE "GLVND")
     find_dependency(OpenGL QUIET)
     find_dependency(GLEW QUIET)
     find_dependency(glfw3 QUIET)
-endif
+endif()
 
 # include the targets
 if(NOT (TARGET mpUtils::mpUtils AND TARGET mpUtils::mpCudaSettings))
