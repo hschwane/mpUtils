@@ -66,6 +66,8 @@ public:
      * @param normalize enable normalization for integer to float conversion
      */
     void addAttributeArray(GLuint attribIndex, GLuint bindingIndex, GLint vecSize, GLuint relativeOffset, GLenum type=GL_FLOAT, GLboolean normalize = GL_FALSE);
+    void addAttributeArrayInt(GLuint attribIndex, GLuint bindingIndex, GLint vecSize, GLuint relativeOffset, GLenum type=GL_INT);
+    void addAttributeArrayDouble(GLuint attribIndex, GLuint bindingIndex, GLint vecSize, GLuint relativeOffset);
 
     /**
      * @brief Enable a atrribute index and configure it. Bind "buffer" at bindingIndex and set it as the data source.
@@ -81,7 +83,11 @@ public:
      * @param normalize enable normalization for integer to float conversion
      */
     void addAttributeBufferArray(GLuint attribIndex, GLuint bindingIndex, Buffer buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_FLOAT, GLboolean normalize = GL_FALSE);
+    void addAttributeBufferArrayInt(GLuint attribIndex, GLuint bindingIndex, Buffer buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_INT);
+    void addAttributeBufferArrayDouble(GLuint attribIndex, GLuint bindingIndex, Buffer buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset);
     void addAttributeBufferArray(GLuint attribIndex, Buffer buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_FLOAT, GLboolean normalize = GL_FALSE); //!< like above, but use attribute index also as the binding index
+    void addAttributeBufferArrayInt(GLuint attribIndex, Buffer buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_INT); //!< like above, but use attribute index also as the binding index
+    void addAttributeBufferArrayDouble(GLuint attribIndex, Buffer buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset); //!< like above, but use attribute index also as the binding index
 
 
     void setIndexBuffer( uint32_t buffer) const; //!< set a buffer as index buffer for the vao
@@ -132,6 +138,21 @@ inline void VertexArray::addAttributeArray(GLuint attribIndex, GLuint bindingInd
     addBinding(attribIndex, bindingIndex);
 }
 
+inline void VertexArray::addAttributeArrayInt(GLuint attribIndex, GLuint bindingIndex, GLint vecSize, GLuint relativeOffset,
+                                           GLenum type)
+{
+    enableArray(attribIndex);
+    setAttribFormatInt(attribIndex, vecSize, relativeOffset, type);
+    addBinding(attribIndex, bindingIndex);
+}
+
+inline void VertexArray::addAttributeArrayDouble(GLuint attribIndex, GLuint bindingIndex, GLint vecSize, GLuint relativeOffset)
+{
+    enableArray(attribIndex);
+    setAttribFormatDouble(attribIndex, vecSize, relativeOffset);
+    addBinding(attribIndex, bindingIndex);
+}
+
 inline void VertexArray::addAttributeBufferArray(GLuint attribIndex, GLuint bindingIndex, Buffer buffer, GLintptr offset,
                                           GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type,
                                           GLboolean normalize)
@@ -142,10 +163,40 @@ inline void VertexArray::addAttributeBufferArray(GLuint attribIndex, GLuint bind
     addBinding(attribIndex,bindingIndex);
 }
 
+inline void VertexArray::addAttributeBufferArrayInt(GLuint attribIndex, GLuint bindingIndex, Buffer buffer, GLintptr offset,
+                                                 GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type)
+{
+    enableArray(attribIndex);
+    setBuffer(bindingIndex, buffer, offset, stride);
+    setAttribFormatInt(attribIndex, vecSize, relativeOffset, type);
+    addBinding(attribIndex,bindingIndex);
+}
+
+inline void VertexArray::addAttributeBufferArrayDouble(GLuint attribIndex, GLuint bindingIndex, Buffer buffer, GLintptr offset,
+                                                 GLsizei stride, GLint vecSize, GLuint relativeOffset)
+{
+    enableArray(attribIndex);
+    setBuffer(bindingIndex, buffer, offset, stride);
+    setAttribFormatDouble(attribIndex, vecSize, relativeOffset);
+    addBinding(attribIndex,bindingIndex);
+}
+
 inline void VertexArray::addAttributeBufferArray(GLuint attribIndex, Buffer buffer, GLintptr offset, GLsizei stride,
                                           GLint vecSize, GLuint relativeOffset, GLenum type, GLboolean normalize)
 {
     addAttributeBufferArray(attribIndex,attribIndex,buffer,offset,stride,vecSize,relativeOffset,type,normalize);
+}
+
+inline void VertexArray::addAttributeBufferArrayInt(GLuint attribIndex, Buffer buffer, GLintptr offset, GLsizei stride,
+                                                 GLint vecSize, GLuint relativeOffset, GLenum type)
+{
+    addAttributeBufferArrayInt(attribIndex,attribIndex,buffer,offset,stride,vecSize,relativeOffset,type);
+}
+
+inline void VertexArray::addAttributeBufferArrayDouble(GLuint attribIndex, Buffer buffer, GLintptr offset, GLsizei stride,
+                                                 GLint vecSize, GLuint relativeOffset)
+{
+    addAttributeBufferArrayDouble(attribIndex,attribIndex,buffer,offset,stride,vecSize,relativeOffset);
 }
 
 inline void VertexArray::setIndexBuffer(const uint32_t buffer) const
