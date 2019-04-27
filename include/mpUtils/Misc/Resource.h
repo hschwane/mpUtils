@@ -18,6 +18,7 @@
 // includes
 //--------------------
 #include <cstddef>
+#include "mpUtils/external/incbin/incbin.h"
 //--------------------
 
 // namespace
@@ -31,7 +32,8 @@ namespace mpu {
  * Access a resource embedded into the executable.
  *
  * usage:
- * Use the ADD_RESOURCES cmake function in cmake/addResource.cmake to embed a resource file into a executable.
+ * Use the ADD_RESOURCES makro to embed a resource file into a executable.
+ * You can set the search path by using the compiler option -Wa,-I/some/path in your cmake
  * Then use the macro below to load the resource. It will return an object of the following class.
  * You can then use the iterators as well as data and size member functions to access the data.
  *
@@ -51,6 +53,9 @@ public:
                                                   mSize(end - start)
     {}
 
+    Resource(const char *start, size_t size): mData(start), mSize(size)
+    {}
+
     const char * const &data() const { return mData; }
     const size_t &size() const { return mSize; }
 
@@ -62,11 +67,22 @@ private:
     size_t mSize;
 };
 
+/**
+ * @brief uses inline assembler to add a resource to the translation unit. Needs to be called from global scope.
+ */
+#define ADD_RESOURCE(NAME,PATH) INCBIN(NAME, PATH)
 
-#define LOAD_RESOURCE(x) ([]() \
-{                                            \
-    extern const char _binary_##x##_start, _binary_##x##_end;           \
-    return mpu::Resource(&_binary_##x##_start, &_binary_##x##_end);          \
+/**
+ * @brief add resources that is already addded in another compilation unit
+ */
+#define ADD_EXT_RESOURCE(NAME) INCBIN_EXTERN(NAME)
+
+/**
+ * @brief loads a previously added resource in the current scope (returns a resource object)
+ */
+#define LOAD_RESOURCE(NAME) ([]() \
+{               \
+    return mpu::Resource(reinterpret_cast<const char *>(g##NAME##Data), g##NAME##Size);          \
 })()
 
 

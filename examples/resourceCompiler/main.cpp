@@ -15,9 +15,15 @@
 #include <iostream>
 #include "mpUtils/mpUtils.h"
 
+
+ADD_RESOURCE(Text, "blubber/hw.txt");
+
 int main()
 {
-    mpu::Resource text = LOAD_RESOURCE(blubber_hw_txt);
+    mpu::Resource text = LOAD_RESOURCE(Text);
     std::cout << std::string(text.data(), text.size()) << std::endl;
+//    for(int i =0; i<gTextSize;i++)
+//        std::cout << gTextData[i];
+//    std::cout << std::endl;
     return 0;
 }
