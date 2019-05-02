@@ -4,6 +4,7 @@
 #include "cuda_runtime.h"
 #include <math.h>
 #include <math_functions.h>
+#include "mpUtils/external/cuda/helper_math.h"
 
 typedef unsigned int uint;
 typedef unsigned short ushort;
@@ -429,6 +430,19 @@ inline __host__ __device__ double4 operator/(double b, double4 a)
 // min
 ////////////////////////////////////////////////////////////////////////////////
 
+inline  __host__ __device__ float2 fmin(float2 a, float2 b)
+{
+    return fminf(a,b);
+}
+inline __host__ __device__ float3 fmin(float3 a, float3 b)
+{
+    return fminf(a,b);
+}
+inline  __host__ __device__ float4 fmin(float4 a, float4 b)
+{
+    return fminf(a,b);
+}
+
 inline  __host__ __device__ double2 fmin(double2 a, double2 b)
 {
     return make_double2(fmin(a.x,b.x), fmin(a.y,b.y));
@@ -445,6 +459,19 @@ inline  __host__ __device__ double4 fmin(double4 a, double4 b)
 ////////////////////////////////////////////////////////////////////////////////
 // max
 ////////////////////////////////////////////////////////////////////////////////
+
+inline __host__ __device__ float2 fmax(float2 a, float2 b)
+{
+    return fmaxf(a, b);
+}
+inline __host__ __device__ float3 fmax(float3 a, float3 b)
+{
+    return fmaxf(a, b);
+}
+inline __host__ __device__ float4 fmax(float4 a, float4 b)
+{
+    return fmaxf(a, b);
+}
 
 inline __host__ __device__ double2 fmax(double2 a, double2 b)
 {
