@@ -27,6 +27,7 @@
 #include "Misc/additionalMath.h"
 #if !defined(MPU_NO_PREPROCESSOR_UTILS)
     #include "Misc/preprocessorUtils.h"
+    #include "Misc/alignment.h"
 #endif
 #include "Misc/Resource.h"
 
