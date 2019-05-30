@@ -76,6 +76,30 @@ namespace gph {
 
 	private:
 		std::shared_ptr<handle_type> m_handle{ nullptr };
+
+		// recreates handle only if no TArgs are provided
+        template<bool enabled = sizeof...(TArgs) == 0> std::enable_if_t<!enabled,void> constructionHelper() {}
+        template<bool enabled = sizeof...(TArgs) == 0> std::enable_if_t<enabled,void> constructionHelper() {recreate();}
+
+        // switch between first and second recreation format
+        template <bool enabled = std::is_same<decltype(Creator), handle_type(**)(TArgs...)>::value>
+        std::enable_if_t<enabled,void> recreationHelper(TArgs... args)
+        {
+            // First format:
+            // creator: auto id = glCreateXYZ(args...);
+            // deleter: glDestroyXYZ(id);
+            m_handle.reset(new handle_type{ (*Creator)(std::forward<TArgs>(args)...) }, [](handle_type* t) { (*Destroyer)(*t); delete t; });
+        }
+
+        template <bool enabled = std::is_same<decltype(Creator), handle_type(**)(TArgs...)>::value>
+        std::enable_if_t<!enabled,void> recreationHelper(TArgs... args)
+        {
+            // Second format:
+            // creator: auto id; glCreateXYZ(1, &id);
+            // deleter: glDestroyXYZ(1, &id);
+            m_handle.reset(new handle_type{ 0 }, [](handle_type* t) { (*Destroyer)(1, t); delete t; });
+            (*Creator)(std::forward<TArgs>(args)..., 1, m_handle.get());
+        }
 	};
 
 	template<typename THandle, typename TCreate, TCreate Creator, typename TDestroy, TDestroy Destroyer, typename... TArgs>
@@ -84,8 +108,7 @@ namespace gph {
 	{
 		// This constructor may only be used if the variadic template argument list contains at least one type.
 		// Also, the types passed to this constructor should be equal to the TArgs parameters.
-		static_assert(sizeof...(TArgs) != 0 && std::is_convertible_v<std::tuple<TArg, Args...>, std::tuple<TArgs...>>
-			, "Invalid argument count or types.");
+		static_assert(sizeof...(TArgs) != 0 && std::is_convertible<std::tuple<TArg, Args...>, std::tuple<TArgs...>>::value, "Invalid argument count or types.");
 		recreate(arg, std::forward<Args>(args)...);
 	}
 
@@ -98,14 +121,11 @@ namespace gph {
 	template <typename THandle, typename TCreate, TCreate Creator, typename TDestroy, TDestroy Destroyer, typename ... TArgs>
 	Handle<THandle, TCreate, Creator, TDestroy, Destroyer, TArgs...>::Handle()
 	{
-		if constexpr(sizeof...(TArgs) == 0)
-		{
-			recreate();
-		}
-		// Else keep the handle as nullptr.
+        // recreate handle only if number of args is zero
+        constructionHelper();
 	}
 
-	template <typename THandle, typename TCreate, TCreate Creator, typename TDestroy, TDestroy Destroyer, typename ... TArgs>
+template <typename THandle, typename TCreate, TCreate Creator, typename TDestroy, TDestroy Destroyer, typename ... TArgs>
 	void Handle<THandle, TCreate, Creator, TDestroy, Destroyer, TArgs...>::destroy()
 	{
 		m_handle.reset();
@@ -114,21 +134,7 @@ namespace gph {
 	template <typename THandle, typename TCreate, TCreate Creator, typename TDestroy, TDestroy Destroyer, typename ... TArgs>
 	void Handle<THandle, TCreate, Creator, TDestroy, Destroyer, TArgs...>::recreate(TArgs... args)
 	{
-		if constexpr(std::is_same_v<decltype(Creator), handle_type(**)(TArgs...)>)
-		{
-			// First format:
-			// creator: auto id = glCreateXYZ(args...);
-			// deleter: glDestroyXYZ(id);
-			m_handle.reset(new handle_type{ (*Creator)(std::forward<TArgs>(args)...) }, [](handle_type* t) { (*Destroyer)(*t); delete t; });
-		}
-		else
-		{
-			// Second format:
-			// creator: auto id; glCreateXYZ(1, &id);
-			// deleter: glDestroyXYZ(1, &id);
-			m_handle.reset(new handle_type{ 0 }, [](handle_type* t) { (*Destroyer)(1, t); delete t; });
-			(*Creator)(std::forward<TArgs>(args)..., 1, m_handle.get());
-		}
+        recreationHelper(std::forward<TArgs>(args)...);
 	}
 
 	template <typename THandle, typename TCreate, TCreate Creator, typename TDestroy, TDestroy Destroyer, typename ... TArgs>
