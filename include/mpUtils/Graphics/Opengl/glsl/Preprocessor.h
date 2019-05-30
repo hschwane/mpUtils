@@ -610,7 +610,8 @@ namespace glsl {
 						while (!isSpace(text_ptr) && !isNewLine(text_ptr) && *text_ptr != '(')
 							++text_ptr;
 
-						if (const auto space_skipped = skipSpace(text_ptr); isSpace(text_ptr) && (*space_skipped != '(') && !isNewLine(space_skipped))
+                        const auto space_skipped = skipSpace(text_ptr);
+						if (isSpace(text_ptr) && (*space_skipped != '(') && !isNewLine(space_skipped))
 						{
 							// macro without params
 							auto value_end = space_skipped;

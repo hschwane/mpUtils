@@ -99,9 +99,9 @@ namespace gph {
 		template<typename TIterator>
 		void rebuild(TIterator begin, TIterator end, const std::vector<glsl::Definition>& definitions = {}); //!< rebuild the shader program from bigger container with multiple shaderModules
 
-		int attributeLocation(std::string_view attribute) const; //!< querry a given attributes location
-		int uniformLocation(std::string_view uniform) const; //!< querry a given uniforms location
-		int uniformBlock(std::string_view uniform) const; //!< querry a given uniform blocks location
+		int attributeLocation(const std::string& attribute) const; //!< querry a given attributes location
+		int uniformLocation(const std::string& uniform) const; //!< querry a given uniforms location
+		int uniformBlock(const std::string& uniform) const; //!< querry a given uniform blocks location
 
 		void use() const; //!< use the compute shader for the next rendering call
 
@@ -116,37 +116,37 @@ namespace gph {
         // uniform upload functions --------------------------------------------
 
         // upload vector of ints
-		void uniform1i(std::string_view uniform, int32_t value) const; //!< upload an integer to a uniform
-		void uniform2i(std::string_view uniform, const glm::ivec2& value) const; //!< upload an integer vec2 to a uniform
-		void uniform3i(std::string_view uniform, const glm::ivec3& value) const; //!< upload an integer vec3 to a uniform
-		void uniform4i(std::string_view uniform, const glm::ivec4& value) const; //!< upload an integer vec4 to a uniform
+		void uniform1i(const std::string& uniform, int32_t value) const; //!< upload an integer to a uniform
+		void uniform2i(const std::string& uniform, const glm::ivec2& value) const; //!< upload an integer vec2 to a uniform
+		void uniform3i(const std::string& uniform, const glm::ivec3& value) const; //!< upload an integer vec3 to a uniform
+		void uniform4i(const std::string& uniform, const glm::ivec4& value) const; //!< upload an integer vec4 to a uniform
 
         // upload vectors of unsigned ints
-        void uniform1ui(std::string_view uniform, uint32_t value) const; //!< upload an unsigned integer to a uniform
-        void uniform2ui(std::string_view uniform, const glm::uvec2& value) const; //!< upload an unsigned vec2 integer to a uniform
-        void uniform3ui(std::string_view uniform, const glm::uvec3& value) const; //!< upload an unsigned vec3 integer to a uniform
-        void uniform4ui(std::string_view uniform, const glm::uvec4& value) const; //!< upload an unsigned vec4 integer to a uniform
+        void uniform1ui(const std::string& uniform, uint32_t value) const; //!< upload an unsigned integer to a uniform
+        void uniform2ui(const std::string& uniform, const glm::uvec2& value) const; //!< upload an unsigned vec2 integer to a uniform
+        void uniform3ui(const std::string& uniform, const glm::uvec3& value) const; //!< upload an unsigned vec3 integer to a uniform
+        void uniform4ui(const std::string& uniform, const glm::uvec4& value) const; //!< upload an unsigned vec4 integer to a uniform
 
         // upload vector of floats
-        void uniform1f(std::string_view uniform, float value) const; //!< upload a float to a uniform
-        void uniform2f(std::string_view uniform, const glm::vec2& vec) const; //!< upload a float vec2 to a uniform
-        void uniform3f(std::string_view uniform, const glm::vec3& vec) const; //!< upload a float vec2 to a uniform
-        void uniform4f(std::string_view uniform, const glm::vec4& vec) const; //!< upload a float vec2 to a uniform
+        void uniform1f(const std::string& uniform, float value) const; //!< upload a float to a uniform
+        void uniform2f(const std::string& uniform, const glm::vec2& vec) const; //!< upload a float vec2 to a uniform
+        void uniform3f(const std::string& uniform, const glm::vec3& vec) const; //!< upload a float vec2 to a uniform
+        void uniform4f(const std::string& uniform, const glm::vec4& vec) const; //!< upload a float vec2 to a uniform
 
         // upload matrices
-		void uniformMat2(std::string_view uniform, const glm::mat2& mat, bool transpose=false) const; //!< upload a mat2 to a uniform
-		void uniformMat3(std::string_view uniform, const glm::mat3& mat, bool transpose=false) const; //!< upload a mat3 to a uniform
-		void uniformMat4(std::string_view uniform, const glm::mat4& mat, bool transpose=false) const; //!< upload a mat4 to a uniform
-		void uniformMat2x3(std::string_view uniform, const glm::mat2x3& mat, bool transpose=false) const; //!< upload a mat2x3 to a uniform
-		void uniformMat3x2(std::string_view uniform, const glm::mat3x2& mat, bool transpose=false) const; //!< upload a mat3x2 to a uniform
-		void uniformMat2x4(std::string_view uniform, const glm::mat2x4& mat, bool transpose=false) const; //!< upload a mat2x4 to a uniform
-		void uniformMat4x2(std::string_view uniform, const glm::mat4x2& mat, bool transpose=false) const; //!< upload a mat4x2 to a uniform
-		void uniformMat4x3(std::string_view uniform, const glm::mat4x3& mat, bool transpose=false) const; //!< upload a mat4x2 to a uniform
-		void uniformMat3x4(std::string_view uniform, const glm::mat3x4& mat, bool transpose=false) const; //!< upload a mat4x2 to a uniform
+		void uniformMat2(const std::string& uniform, const glm::mat2& mat, bool transpose=false) const; //!< upload a mat2 to a uniform
+		void uniformMat3(const std::string& uniform, const glm::mat3& mat, bool transpose=false) const; //!< upload a mat3 to a uniform
+		void uniformMat4(const std::string& uniform, const glm::mat4& mat, bool transpose=false) const; //!< upload a mat4 to a uniform
+		void uniformMat2x3(const std::string& uniform, const glm::mat2x3& mat, bool transpose=false) const; //!< upload a mat2x3 to a uniform
+		void uniformMat3x2(const std::string& uniform, const glm::mat3x2& mat, bool transpose=false) const; //!< upload a mat3x2 to a uniform
+		void uniformMat2x4(const std::string& uniform, const glm::mat2x4& mat, bool transpose=false) const; //!< upload a mat2x4 to a uniform
+		void uniformMat4x2(const std::string& uniform, const glm::mat4x2& mat, bool transpose=false) const; //!< upload a mat4x2 to a uniform
+		void uniformMat4x3(const std::string& uniform, const glm::mat4x3& mat, bool transpose=false) const; //!< upload a mat4x2 to a uniform
+		void uniformMat3x4(const std::string& uniform, const glm::mat3x4& mat, bool transpose=false) const; //!< upload a mat4x2 to a uniform
 
         // special
-        void uniform1b(std::string_view uniform, bool value) const; //!< upload a boolean to a uniform
-        void uniform1ui64(std::string_view uniform, uint64_t value) const; //!< upload a 64bit unsigned int to a uniform
+        void uniform1b(const std::string& uniform, bool value) const; //!< upload a boolean to a uniform
+        void uniform1ui64(const std::string& uniform, uint64_t value) const; //!< upload a 64bit unsigned int to a uniform
 
 	private:
 		// Only used temporarily when constructing the ShaderProgram.
@@ -162,7 +162,7 @@ namespace gph {
 	template <typename TIterator>
 	void ShaderProgram::rebuild(TIterator begin, TIterator end, const std::vector<glsl::Definition>& definitions)
 	{
-		static_assert(std::is_same_v<std::decay_t<typename std::iterator_traits<TIterator>::value_type>, ShaderModule>,
+		static_assert(std::is_same<std::decay_t<typename std::iterator_traits<TIterator>::value_type>, ShaderModule>::value,
 			"This constructor only accepts iterators of containers containing ShaderModule objects.");
 
 		recreate();
@@ -210,7 +210,7 @@ namespace gph {
 					int log_length;
 					glGetShaderiv(shader_handle, GL_INFO_LOG_LENGTH, &log_length);
 					std::string log(log_length, ' ');
-					glGetShaderInfoLog(shader_handle, log_length, &log_length, log.data());
+					glGetShaderInfoLog(shader_handle, log_length, &log_length, &log[0]);
 					glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, shader_handle, GL_DEBUG_SEVERITY_HIGH, -1, log.c_str());
 					glFinish();
 					assert_critical(false, "Shader", "Shader compilation failed.");
@@ -230,7 +230,7 @@ namespace gph {
 				int log_length;
 				glGetProgramiv(*this, GL_INFO_LOG_LENGTH, &log_length);
 				std::string log(log_length, ' ');
-				glGetProgramInfoLog(*this, log_length, &log_length, log.data());
+				glGetProgramInfoLog(*this, log_length, &log_length, &log[0]);
 				glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, *this, GL_DEBUG_SEVERITY_HIGH, -1, log.c_str());
 				assert_critical(false,"Shader", "Program linking failed.");
 			}

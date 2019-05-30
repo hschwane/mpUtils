@@ -19,7 +19,6 @@ To use the graphics functionality you will also need:
 - glfw3
 - glew
 - graphics drivers supporting some OpenGL version (preferably 4.5+)
-- a c++ 17 compatible compiler eg gcc7+
 
 To use the cuda functionality you will need:
 - CUDA-toolkit version 9+

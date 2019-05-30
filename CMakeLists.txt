@@ -193,11 +193,6 @@ set_target_properties(mpUtils PROPERTIES
                         CUDA_STANDARD_REQUIRED YES
                      )
 
-# force c++17 if using opengl
-if(USE_OPENGL)
-    set_target_properties(mpUtils PROPERTIES CXX_STANDARD 17)
-endif()
-
 # set cuda specific properties and compile options
 if (USE_CUDA)
     set_target_properties( mpUtils PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

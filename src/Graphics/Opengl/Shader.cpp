@@ -70,17 +70,17 @@ namespace gph {
 		rebuild(std::begin(shaders), std::end(shaders), definitions);
 	}
 
-	int ShaderProgram::attributeLocation(std::string_view attribute) const
+	int ShaderProgram::attributeLocation(const std::string& attribute) const
 	{
 		return glGetProgramResourceLocation(*this, GL_PROGRAM_INPUT, attribute.data());
 	}
 
-	int ShaderProgram::uniformLocation(std::string_view uniform) const
+	int ShaderProgram::uniformLocation(const std::string& uniform) const
 	{
 		return glGetProgramResourceLocation(*this, GL_UNIFORM, uniform.data());
 	}
 
-	int ShaderProgram::uniformBlock(std::string_view uniform) const
+	int ShaderProgram::uniformBlock(const std::string& uniform) const
 	{
 		return glGetUniformBlockIndex(*this, uniform.data());
 	}
@@ -146,117 +146,117 @@ namespace gph {
 		glDispatchCompute(groups.x,groups.y,groups.z);
 	}
 
-	void ShaderProgram::uniform1i(const std::string_view uniform, const int32_t value) const
+	void ShaderProgram::uniform1i(const std::string& uniform, const int32_t value) const
 	{
 		glProgramUniform1i(*this, uniformLocation(uniform), value);
 	}
 
-    void ShaderProgram::uniform2i(const std::string_view uniform, const glm::ivec2& value) const
+    void ShaderProgram::uniform2i(const std::string& uniform, const glm::ivec2& value) const
     {
         glProgramUniform2iv(*this, uniformLocation(uniform), 1, glm::value_ptr(value));
     }
 
-    void ShaderProgram::uniform3i(const std::string_view uniform, const glm::ivec3& value) const
+    void ShaderProgram::uniform3i(const std::string& uniform, const glm::ivec3& value) const
     {
         glProgramUniform3iv(*this, uniformLocation(uniform), 1, glm::value_ptr(value));
     }
 
-    void ShaderProgram::uniform4i(const std::string_view uniform, const glm::ivec4& value) const
+    void ShaderProgram::uniform4i(const std::string& uniform, const glm::ivec4& value) const
     {
         glProgramUniform4iv(*this, uniformLocation(uniform), 1, glm::value_ptr(value));
     }
 
-    void ShaderProgram::uniform1ui(const std::string_view uniform, const uint32_t value) const
+    void ShaderProgram::uniform1ui(const std::string& uniform, const uint32_t value) const
     {
         glProgramUniform1ui(*this, uniformLocation(uniform), value);
     }
 
-    void ShaderProgram::uniform2ui(const std::string_view uniform, const glm::uvec2& value) const
+    void ShaderProgram::uniform2ui(const std::string& uniform, const glm::uvec2& value) const
     {
         glProgramUniform2uiv(*this, uniformLocation(uniform), 1, glm::value_ptr(value));
     }
 
-    void ShaderProgram::uniform3ui(const std::string_view uniform, const glm::uvec3& value) const
+    void ShaderProgram::uniform3ui(const std::string& uniform, const glm::uvec3& value) const
     {
         glProgramUniform3uiv(*this, uniformLocation(uniform), 1, glm::value_ptr(value));
     }
 
-    void ShaderProgram::uniform4ui(const std::string_view uniform, const glm::uvec4& value) const
+    void ShaderProgram::uniform4ui(const std::string& uniform, const glm::uvec4& value) const
     {
         glProgramUniform4uiv(*this, uniformLocation(uniform), 1, glm::value_ptr(value));
     }
 
-    void ShaderProgram::uniform1f(const std::string_view uniform, const float value) const
+    void ShaderProgram::uniform1f(const std::string& uniform, const float value) const
 	{
         glProgramUniform1f(*this, uniformLocation(uniform), value);
 	}
 
-    void ShaderProgram::uniform2f(const std::string_view uniform, const glm::vec2& vec) const
+    void ShaderProgram::uniform2f(const std::string& uniform, const glm::vec2& vec) const
     {
         glProgramUniform2fv(*this, uniformLocation(uniform), 1, glm::value_ptr(vec));
     }
 
-    void ShaderProgram::uniform3f(const std::string_view uniform, const glm::vec3& vec) const
+    void ShaderProgram::uniform3f(const std::string& uniform, const glm::vec3& vec) const
     {
         glProgramUniform3fv(*this, uniformLocation(uniform), 1, glm::value_ptr(vec));
     }
 
-    void ShaderProgram::uniform4f(const std::string_view uniform, const glm::vec4& vec) const
+    void ShaderProgram::uniform4f(const std::string& uniform, const glm::vec4& vec) const
     {
         glProgramUniform4fv(*this, uniformLocation(uniform), 1, glm::value_ptr(vec));
     }
 
-    void ShaderProgram::uniformMat2(const std::string_view uniform, const glm::mat2& mat, const bool transpose) const
+    void ShaderProgram::uniformMat2(const std::string& uniform, const glm::mat2& mat, const bool transpose) const
     {
         glProgramUniformMatrix2fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniformMat3(const std::string_view uniform, const glm::mat3& mat, const bool transpose) const
+    void ShaderProgram::uniformMat3(const std::string& uniform, const glm::mat3& mat, const bool transpose) const
     {
         glProgramUniformMatrix3fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniformMat4(const std::string_view uniform, const glm::mat4& mat, const bool transpose) const
+    void ShaderProgram::uniformMat4(const std::string& uniform, const glm::mat4& mat, const bool transpose) const
     {
         glProgramUniformMatrix4fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniformMat2x3(const std::string_view uniform, const glm::mat2x3& mat, const bool transpose) const
+    void ShaderProgram::uniformMat2x3(const std::string& uniform, const glm::mat2x3& mat, const bool transpose) const
     {
         glProgramUniformMatrix2x3fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniformMat3x2(const std::string_view uniform, const glm::mat3x2& mat, const bool transpose) const
+    void ShaderProgram::uniformMat3x2(const std::string& uniform, const glm::mat3x2& mat, const bool transpose) const
     {
         glProgramUniformMatrix3x2fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniformMat2x4(const std::string_view uniform, const glm::mat2x4& mat, const bool transpose) const
+    void ShaderProgram::uniformMat2x4(const std::string& uniform, const glm::mat2x4& mat, const bool transpose) const
     {
         glProgramUniformMatrix2x4fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniformMat4x2(const std::string_view uniform, const glm::mat4x2& mat, const bool transpose) const
+    void ShaderProgram::uniformMat4x2(const std::string& uniform, const glm::mat4x2& mat, const bool transpose) const
     {
         glProgramUniformMatrix4x2fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniformMat4x3(const std::string_view uniform, const glm::mat4x3& mat, const bool transpose) const
+    void ShaderProgram::uniformMat4x3(const std::string& uniform, const glm::mat4x3& mat, const bool transpose) const
     {
         glProgramUniformMatrix4x3fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniformMat3x4(const std::string_view uniform, const glm::mat3x4& mat, const bool transpose) const
+    void ShaderProgram::uniformMat3x4(const std::string& uniform, const glm::mat3x4& mat, const bool transpose) const
     {
         glProgramUniformMatrix3x4fv(*this, uniformLocation(uniform), 1, transpose, glm::value_ptr(mat));
     }
 
-    void ShaderProgram::uniform1b(const std::string_view uniform, const bool value) const
+    void ShaderProgram::uniform1b(const std::string& uniform, const bool value) const
     {
         uniform1i(uniform, static_cast<int32_t>(value));
     }
 
-    void ShaderProgram::uniform1ui64(const std::string_view uniform, const uint64_t value) const
+    void ShaderProgram::uniform1ui64(const std::string& uniform, const uint64_t value) const
     {
         glProgramUniform1ui64ARB(*this, uniformLocation(uniform), value);
     }
