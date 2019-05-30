@@ -89,13 +89,12 @@ private:
 class Buffer : public BufferHandle
 {
 public:
-    constexpr static ptrdiff_t whole_size = -1;
 
     Buffer() = default; //!< creates an empty buffer without allocating it
     explicit Buffer(nullptr_t) : Handle(nullptr) {} //!< creates no buffer
     template<typename T>
-    explicit Buffer( std::vector<T> data, const GLbitfield flags = 0); //!< creates a buffer as a inmutable buffer and allocates it with data from ste std::vector
-    explicit Buffer( intptr_t size, const GLbitfield flags = 0); //!< creates a buffer as a inmutable buffer and allocates it to "size" bytes
+    explicit Buffer( std::vector<T> data, GLbitfield flags = 0); //!< creates a buffer as a immutable buffer and allocates it with data from ste std::vector
+    explicit Buffer( intptr_t size, GLbitfield flags = 0); //!< creates a buffer as a immutable buffer and allocates it to "size" bytes
 
     /**
      * @brief copys a part of this buffers data to another buffer
@@ -155,13 +154,13 @@ public:
      *                                      GL_MAP_WRITE_BIT        allows mapping for write access <br>
      *                                      GL_MAP_PERSISTENT_BIT   allows mapping in persistent mode which allows to maintain a mapping while buffer is used in openGL <br>
      *                                      GL_MAP_COHERENT_BIT     allows mapping in coherent mode where changes to a persistent buffer are always directly visible <br>
-     *                                      GL_CLIENT_STORAGE_BIT   a hint that the buffer shoulb be created in client memory <br>
+     *                                      GL_CLIENT_STORAGE_BIT   a hint that the buffer should be created in client memory <br>
      */
     template<typename T>
     void allocate( intptr_t count, GLbitfield flags = 0) const;
 
     /**
-     * @brief assign data to the buffer via glBufferSubData only availible when the flag GL_DYNAMIC_STORAGE_BIT was set during allocation
+     * @brief assign data to the buffer via glBufferSubData only available when the flag GL_DYNAMIC_STORAGE_BIT was set during allocation
      * @tparam T type of data to be uploaded
      * @param data a vector containing all the data to upload to the buffer
      * @param offset offset of data in the buffer
@@ -179,7 +178,7 @@ public:
     std::vector<T> read( GLsizei size,  intptr_t offset = 0) const;
 
     /**
-     * @brief use the buffer in mutable mode and stram data to it using glBufferData. Do not use on a buffer which was alreade made unmutable with allocate
+     * @brief use the buffer in mutable mode and stream data to it using glBufferData. Do not use on a buffer which was alreade made unmutable with allocate
      * @tparam T the type of data to be copied into the buffer
      * @param data the date as an std vector
      * @param mode the Buffer mode a combination of GL_ and one of <br>
@@ -199,14 +198,14 @@ public:
      * @tparam T the data type you want to use to access the buffer data
      * @param count number of fields of type T to load from the buffer
      * @param offset offset in the the buffer where mapping should start
-     * @param access access bit a combination of    GL_MAP_READ_BIT             map for read acces <br>
-     *                                              GL_MAP_WRITE_BIT            map for write acces <br>
+     * @param access access bit a combination of    GL_MAP_READ_BIT             map for read access <br>
+     *                                              GL_MAP_WRITE_BIT            map for write access <br>
      *                                              GL_PERSISTENT_BIT           allow mapping while buffer is used in openGL <br>
      *                                              GL_COHERENT_BIT             on a persistent buffer, changes are always directly visible <br>
      *                                              GL_MAP_FLUSH_EXPLICIT_BIT   you need to flush everything by yourself instead of automatically on unmap <br>
      *                                              GL_MAP_INVALIDATE_RANGE_BIT   invalidate the mapped range, might be faster  if you write everything <br>
      *                                              GL_MAP_INVALIDATE_BUFFER_BIT  invalidate the complete buffer, might be faster if you write everything <br>
-     *                                              GL_MAP_UNSYNCHRONIZED_BIT   openGL will not perform any syncronization bevor ahnding over the pointer to the mapped date <br>
+     *                                              GL_MAP_UNSYNCHRONIZED_BIT   openGL will not perform any syncronization before handing over the pointer to the mapped date <br>
      * @return a BufferMap object which can be used to manipulate the buffer data. when the BufferMap goes out of scope it will unmap the buffer
      */
     template<typename T = uint8_t>
