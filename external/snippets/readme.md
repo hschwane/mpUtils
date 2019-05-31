@@ -1,0 +1,1 @@
+contains code snippets and single file libraries or header only libraries that do not provide proper cmake build and install facilities. They are compiled and linked into libmpUtils

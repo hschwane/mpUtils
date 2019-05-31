@@ -58,6 +58,7 @@ option(DISABLE_PPUTILS "Disable inclusion of preprocessor utils. (Note: this is 
 option(DISABLE_PATHS "Disable automatic inclusion of paths.h. (Note: this is also possible on a per project bases by defining MPU_NO_PATHS before including mpUtils.h)" OFF)
 option(BUILD_EXAMPLES "Whether or not examples should be build." OFF)
 option(EXPORT_BUILD_TREE "Enable, to export the targets from the build tree to your cmake registry. Useful for development. Use Together with FORCE_NEW_VERSION" OFF)
+option(BUILD_SHARED_LIBS "Build a shared library (.so/.dll) instead of a static one-" ON)
 
 # dependencies between features
 if(USE_OPENGL AND (NOT USE_GLM))
@@ -117,7 +118,6 @@ if (USE_CUDA)
     set(CUDA_ARCH "Auto" CACHE STRING
             "Select cuda arches for which code is produced. Auto | Common | All | list of names | number")
     CUDA_SELECT_NVCC_ARCH_FLAGS(CUDA_ARCH_FLAGS "${CUDA_ARCH}")
-    message(${CUDA_ARCH_FLAGS})
 endif()
 
 
@@ -126,7 +126,7 @@ endif()
 # -------------------------------------------------------------
 
 # create target and add general cpp files
-add_library(mpUtils SHARED "")
+add_library(mpUtils "")
 add_library(mpCudaSettings INTERFACE)
 
 # add an alias so that library can be used inside the build tree, e.g. when testing
@@ -142,7 +142,7 @@ target_sources(mpUtils PRIVATE
                 "src/Log/SyslogSink.cpp"
                 "src/Log/Log.cpp"
                 "src/Cfg/CfgFile.cpp"
-                "external/src/stb_image_impl.cpp"
+                "external/snippets/src/stb_image_impl.cpp"
               )
 
 # add optional source files
@@ -168,7 +168,7 @@ target_include_directories(mpUtils
                                 $<INSTALL_INTERFACE:include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/include>
+                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include>
                             PRIVATE
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src
                         )
@@ -252,7 +252,7 @@ if(USE_CUDA)
 endif()
 
 # link required external libs
-target_link_libraries(mpUtils PUBLIC stdc++fs Threads::Threads)
+target_link_libraries(mpUtils PUBLIC Threads::Threads)
 
 # link optional external libs
 if(USE_GLM)
@@ -262,6 +262,14 @@ endif()
 if(USE_OPENGL)
     target_link_libraries(mpUtils PUBLIC OpenGL::GL glfw GLEW::GLEW)
 endif()
+
+
+# --------------------------------------------------------
+# build and link dependencies in external/modules
+# --------------------------------------------------------
+
+add_subdirectory(external/modules/GLshader)
+target_link_libraries(mpUtils PUBLIC glsp::glsp)
 
 # --------------------------------------------------------
 # installing and exporting
@@ -290,7 +298,7 @@ install(TARGETS mpUtils mpCudaSettings
 
 # install headers
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/version.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mpUtils/)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/installedPaths.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mpUtils/ RENAME paths.h)
 
@@ -344,10 +352,10 @@ install(FILES
 # --------------------------------------------------------
 
 # export targets from build tree
-export(EXPORT mpUtils-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsTargets.cmake NAMESPACE mpUtils::)
+export(TARGETS mpUtils glsp NAMESPACE mpUtils:: FILE ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsTargets.cmake)
 
 if(EXPORT_BUILD_TREE)
-    # register package in users package registry
+#     register package in users package registry
     export(PACKAGE mpUtils)
 endif()
 
