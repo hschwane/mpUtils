@@ -16,22 +16,22 @@
 #pragma once
 
 #include <algorithm>
+#include <vector>
 #include <map>
 #include <iterator>
-#include <experimental/filesystem>
-
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include <glsp/preprocess.hpp>
 #include "Handle.h"
-#include "mpUtils/Graphics/Opengl/glsl/Preprocessor.h"
+#include "mpUtils/Log/Log.h"
 
 namespace mpu {
 namespace gph {
 
 
-    extern std::vector<std::experimental::filesystem::path> shader_include_paths;
-    void addShaderIncludePath(std::experimental::filesystem::path include_path);
+    extern std::vector<glsp::files::path> shader_include_paths;
+    void addShaderIncludePath(glsp::files::path include_path);
 
 	/**
 	 * enum of all shader stages for type-safety
@@ -53,9 +53,7 @@ namespace gph {
 	{
 		ShaderModule() = default;
 		ShaderModule( ShaderStage stage, std::experimental::filesystem::path path_to_file);
-
-		// For a quicker usage, determine shader stage with just the file extension.
-		ShaderModule(std::experimental::filesystem::path path_to_file);
+		ShaderModule(glsp::files::path path_to_file); //!< stage is determined by file extension
 
 		ShaderStage stage;
         std::experimental::filesystem::path path_to_file;
@@ -67,9 +65,13 @@ namespace gph {
      *
      * usage:
      * Use one of the constructors and pass a shaderModule struct for each shader stage you want to use. You can also provide definitions that are passed
-     * to the preprocessor. You can also use rebuild() to rebuild the program from a new set of shader modules.
-     * After that you set your uniforms by using the functions below. For arrays consider a uniform buffer object or
-     * call the glProgramUniform**v() function on your own. (same with type double uniforms)
+     * to the preprocessor. The function mpu::gph::addShaderIncludePath() can be used to globally add include paths.
+     * After that you can modify the shader program by using setShaderModule(), setShaderSource(), addDefinition() and clearDefinitions().
+     * Use rebuild to rebuild the shader program according to the current settings.
+     * You can also use rebuild() to rebuild the program from an entirely new set of shader modules.
+     *
+     * After that you set your uniforms by using the functions below. For arrays consider a ssto or
+     * call the glProgramUniform**v() function on your own.
      * Now you can bind your shader using the use() function and start to render something.
      *
      * Compute Shader:
@@ -77,7 +79,7 @@ namespace gph {
      *
      * Preprocessor:
      * When compiling the custom c/c++ style preprocssor written by Johannes Braun is used on the shader and provides the ability to use
-     * constructs like "#include", "#define", "#ifdef" and other preprocessor macros.
+     * constructs like "#include", "#define", "#ifdef" and other preprocessor macros. See https://github.com/johannes-braun/GLshader.
      *
      */
 	class ShaderProgram : public Handle<uint32_t, decltype(&glCreateProgram), &glCreateProgram, decltype(&glDeleteProgram), &glDeleteProgram>
@@ -85,33 +87,38 @@ namespace gph {
 	public:
 		ShaderProgram();
 		explicit ShaderProgram(nullptr_t);
-
-		explicit ShaderProgram(const ShaderModule& shader, const std::vector<glsl::Definition>& definitions = {}); //!< construct from shader module
-		ShaderProgram(std::initializer_list<const ShaderModule> shaders, const std::vector<glsl::Definition>& definitions = {}); //!< construct from a shader module initializer list
+		explicit ShaderProgram(const ShaderModule& shader, std::vector<glsp::definition> definitions = {}); //!< construct shader program from a single shader module
+		ShaderProgram(std::initializer_list<const ShaderModule> shaders, std::vector<glsp::definition> definitions = {}); //!< construct shader program from multiple modules
 
 		template<typename TIterator>
-		ShaderProgram(TIterator begin, TIterator end, const std::vector<glsl::Definition>& definitions = {}); //!< construct from a bigger container with multiple shaderModules
+		ShaderProgram(TIterator begin, TIterator end, std::vector<glsp::definition> definitions = {}); //!< construct the shader program from some container of shader modules
 
-		void rebuild(const ShaderModule& shader, const std::vector<glsl::Definition>& definitions = {}); //!< rebuild the shader program from a shader module
-		void rebuild(std::initializer_list<const ShaderModule> shaders, const std::vector<glsl::Definition>& definitions = {}); //!< rebuild the shader program from a shader module initalizer list
+		void rebuild(); //!< rebuild shader program with current settings (files will be loaded again)
 
-		// You can use this constructor if you want to use a subset of a bigger container of ShaderModules.
-		template<typename TIterator>
-		void rebuild(TIterator begin, TIterator end, const std::vector<glsl::Definition>& definitions = {}); //!< rebuild the shader program from bigger container with multiple shaderModules
+		void setShaderModule(ShaderModule module); //!< replaces whatever is currently set for the shader stage module belongs to
+		void setShaderSource(ShaderStage stage, std::string source); //!< set some string as the source code for the stage stage replaces the current file or string for that stage
+        void removeShaderStage(ShaderStage stage); //!< removes the shader source registered for the stage "stage"
 
-		int attributeLocation(const std::string& attribute) const; //!< querry a given attributes location
-		int uniformLocation(const std::string& uniform) const; //!< querry a given uniforms location
-		int uniformBlock(const std::string& uniform) const; //!< querry a given uniform blocks location
+		void addDefinition(glsp::definition def);   //!< add a definition that will be used on the shaders programs next rebuild
+        void clearDefinitions();    //!< remove all existing definitions
 
 		void use() const; //!< use the compute shader for the next rendering call
 
+		// compute shader dispatching -----------------------------------
+
 		void dispatch(uint32_t invocations, uint32_t group_size) const; //!< start a 1D compute shader run
-		void dispatch(glm::u32vec2 invocations, glm::u32vec2 group_size) const; //!< start a 2D ompute shader run
+		void dispatch(glm::u32vec2 invocations, glm::u32vec2 group_size) const; //!< start a 2D compute shader run
 		void dispatch(glm::uvec3 invocations, glm::uvec3 group_size) const; //!< start a 3D compute shader run
 
         void dispatch(uint32_t groups) const; //!< start a 1D compute shader run using a fixed group size
         void dispatch(glm::u32vec2 groups) const; //!< start a 2D compute shader run using a fixed group size
         void dispatch(glm::uvec3 groups) const; //!< start a 3D compute shader run using a fixed group size
+
+        // uniforms and attribute queries ---------------------------------
+
+        int attributeLocation(const std::string& attribute) const; //!< query a given attributes location
+        int uniformLocation(const std::string& uniform) const; //!< query a given uniforms location
+        int uniformBlock(const std::string& uniform) const; //!< query a given uniform blocks location
 
         // uniform upload functions --------------------------------------------
 
@@ -149,95 +156,33 @@ namespace gph {
         void uniform1ui64(const std::string& uniform, uint64_t value) const; //!< upload a 64bit unsigned int to a uniform
 
 	private:
+
+	    std::map<ShaderStage, std::pair<glsp::files::path,std::string>> m_shaderSources;
+        std::vector<glsp::definition> m_preprocessorDefinitions;
+
 		// Only used temporarily when constructing the ShaderProgram.
 		using ShaderHandle = Handle<uint32_t, decltype(&glCreateShader), &glCreateShader, decltype(&glDeleteShader), &glDeleteShader, GLenum>;
 	};
 
-	template <typename TIterator>
-	ShaderProgram::ShaderProgram(TIterator begin, TIterator end, const std::vector<glsl::Definition>& definitions)
-	{
-		rebuild(begin, end, definitions);
-	}
 
-	template <typename TIterator>
-	void ShaderProgram::rebuild(TIterator begin, TIterator end, const std::vector<glsl::Definition>& definitions)
-	{
-		static_assert(std::is_same<std::decay_t<typename std::iterator_traits<TIterator>::value_type>, ShaderModule>::value,
-			"This constructor only accepts iterators of containers containing ShaderModule objects.");
+//-------------------------------------------------------------------
+// definitions of template functions of the ShaderProgram class
 
-		recreate();
+template <typename TIterator>
+ShaderProgram::ShaderProgram(TIterator begin, TIterator end, std::vector<glsp::definition> definitions)
+    : ShaderProgram()
+{
+    static_assert(std::is_same<std::decay_t<typename std::iterator_traits<TIterator>::value_type>, ShaderModule>::value,
+                  "This constructor only accepts iterators of containers containing ShaderModule objects.");
 
-        using shp=std::pair<ShaderModule, ShaderHandle>;
-		std::map<ShaderStage, shp> shader_modules;
+    m_preprocessorDefinitions = std::move(definitions);
+    std::for_each(begin, end, [this](const ShaderModule& shader)
+    {
+        assert_true(this->m_shaderSources.count(shader.stage) == 0, "ShaderProgram", "You cannot have multiple Shader modules with the same stage in the same program.");
+        this->m_shaderSources[shader.stage] = std::make_pair(shader.path_to_file,"");
+    });
 
-        auto size = end - begin;
-		if ( size == 1)
-		{
-			assert_true((*begin).stage == ShaderStage::eCompute, "Shader", "It's not allowed to have only one Shader stage it it's not a compute shader.");
-            shader_modules[(*begin).stage] = std::make_pair((*begin), ShaderHandle(nullptr));
-		}
-		else
-		{
-			std::for_each(begin, end, [&shader_modules](const ShaderModule& shader)
-			{
-				assert_true(shader_modules.count(shader.stage) == 0, "Shader", "You cannot have multiple Shader modules with the same stage in the same program.");
-				shader_modules[shader.stage] = std::make_pair(shader, ShaderHandle(nullptr));
-			});
-			assert_true(shader_modules.count(ShaderStage::eVertex) != 0, "Shader", "Missing a Vertex Shader.");
-			assert_true(shader_modules.count(ShaderStage::eFragment) != 0, "Shader", "Missing a Fragment Shader.");
-			assert_true(((shader_modules.count(ShaderStage::eTessControl) + shader_modules.count(ShaderStage::eTessEvaluation)) & 0x1) == 0,
-                        "Shader", "When using Tesselation Shaders, you have to provide a Tesselation Control Shader as well as a Tesselation Evaluation Shader.");
-		}
-
-		for(auto&& mapped_shader : shader_modules)
-		{
-			assert_critical(std::experimental::filesystem::exists(mapped_shader.second.first.path_to_file), "Shader",  "Shader file not found: \"" + mapped_shader.second.first.path_to_file.string() + "\"");
-			mapped_shader.second.second = ShaderHandle(static_cast<GLenum>(mapped_shader.first));
-			const uint32_t shader_handle = mapped_shader.second.second;
-
-            auto processed = glsl::process(mapped_shader.second.first.path_to_file, shader_include_paths, definitions);
-
-			const auto sources = processed.contents.data();
-
-			glShaderSource(shader_handle, 1, &sources, nullptr);
-            glCompileShader(shader_handle);
-
-			{
-				int success;
-				glGetShaderiv(shader_handle, GL_COMPILE_STATUS, &success);
-				if (!success)
-				{
-					int log_length;
-					glGetShaderiv(shader_handle, GL_INFO_LOG_LENGTH, &log_length);
-					std::string log(log_length, ' ');
-					glGetShaderInfoLog(shader_handle, log_length, &log_length, &log[0]);
-					glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, shader_handle, GL_DEBUG_SEVERITY_HIGH, -1, log.c_str());
-					glFinish();
-					assert_critical(false, "Shader", "Shader compilation failed.");
-				}
-			}
-
-			glAttachShader(*this, shader_handle);
-		}
-
-		glLinkProgram(*this);
-
-		{
-			int success;
-			glGetProgramiv(*this, GL_LINK_STATUS, &success);
-			if(!success)
-			{
-				int log_length;
-				glGetProgramiv(*this, GL_INFO_LOG_LENGTH, &log_length);
-				std::string log(log_length, ' ');
-				glGetProgramInfoLog(*this, log_length, &log_length, &log[0]);
-				glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, *this, GL_DEBUG_SEVERITY_HIGH, -1, log.c_str());
-				assert_critical(false,"Shader", "Program linking failed.");
-			}
-		}
-
-		for (const auto& mapped_shader : shader_modules)
-			glDetachShader(*this, mapped_shader.second.second);
-	}
+    rebuild();
+}
 
 }}

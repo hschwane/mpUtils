@@ -43,7 +43,7 @@ public:
 
     void setScreenFillShader(std::string file)
     {
-        screenFillShader.rebuild({ {MPU_LIB_SHADER_PATH"screenFillingTri.vert"},
+        screenFillShader = ShaderProgram({ {MPU_LIB_SHADER_PATH"screenFillingTri.vert"},
                                                 {file} });
     }
 

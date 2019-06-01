@@ -152,7 +152,6 @@ if (USE_OPENGL)
                     "src/Graphics/Opengl/Framebuffer.cpp"
                     "src/Graphics/Opengl/Shader.cpp"
                     "src/Graphics/Opengl/Texture.cpp"
-                    "src/Graphics/Opengl/glsl/Preprocessor.cpp"
                     "src/Graphics/Utils/Transform.cpp"
                     "src/Graphics/Utils/ModelViewProjection.cpp"
                     "src/Graphics/Window.cpp"

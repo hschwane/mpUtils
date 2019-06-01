@@ -17,3 +17,11 @@
 namespace glshader::process {}
 // Shorten base namespace. You can use your own namespace if you wish.
 namespace glsp = glshader::process;
+
+#include <functional>
+#include <string>
+namespace glshader::process {
+    extern std::function<void(const std::string &)> logfunc;
+}
+
+#define ERR_OUTPUT(x) glsp::logfunc(x);

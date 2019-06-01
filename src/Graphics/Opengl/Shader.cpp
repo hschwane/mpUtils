@@ -19,19 +19,18 @@
 namespace mpu {
 namespace gph {
 
-    namespace fs = std::experimental::filesystem;
-    std::vector<fs::path> shader_include_paths;
+    std::vector<glsp::files::path> shader_include_paths;
     void addShaderIncludePath(std::experimental::filesystem::path include_path)
     {
         shader_include_paths.emplace_back(std::forward<std::experimental::filesystem::path>(include_path));
     }
 
-	ShaderModule::ShaderModule(const ShaderStage stage, const fs::path path_to_file)
+	ShaderModule::ShaderModule(const ShaderStage stage, const glsp::files::path path_to_file)
 		: stage(stage), path_to_file(path_to_file)
 	{
 	}
 
-	ShaderModule::ShaderModule(fs::path path_to_file)
+	ShaderModule::ShaderModule(glsp::files::path path_to_file)
 		: ShaderModule([ext = path_to_file.extension()]()
 	{
 		if (ext == ".vert") return ShaderStage::eVertex;
@@ -50,27 +49,146 @@ namespace gph {
 	ShaderProgram::ShaderProgram()
 		: Handle(nullptr)
 	{
+        // init glsp debugging once
+        static struct DoOnce
+        {
+            DoOnce() {
+                glsp::logfunc = [](const std::string& x){ logERROR("glsp") << x;};
+            }
+        } doOnce;
 	}
 
 	ShaderProgram::ShaderProgram(nullptr_t)
-		: Handle(nullptr)
+		: ShaderProgram()
 	{
-
 	}
 
-	ShaderProgram::ShaderProgram(const ShaderModule& shader, const std::vector<glsl::Definition>& definitions)
-		: Handle(nullptr)
+	ShaderProgram::ShaderProgram(const ShaderModule& shader, std::vector<glsp::definition> definitions)
+		: ShaderProgram({shader}, std::move(definitions))
 	{
-		rebuild(&shader, &shader + 1, definitions);
 	}
 
-	ShaderProgram::ShaderProgram(const std::initializer_list<const ShaderModule> shaders, const std::vector<glsl::Definition>& definitions)
-		: Handle(nullptr)
+	ShaderProgram::ShaderProgram(std::initializer_list<const ShaderModule> shaders, std::vector<glsp::definition> definitions)
+		: ShaderProgram(shaders.begin(),shaders.end(), std::move(definitions))
 	{
-		rebuild(std::begin(shaders), std::end(shaders), definitions);
 	}
 
-	int ShaderProgram::attributeLocation(const std::string& attribute) const
+    void ShaderProgram::rebuild()
+    {
+
+        assert_true(!m_shaderSources.empty(), "ShaderProgram", "The ShaderProgram has no sources.");
+        assert_true(!(m_shaderSources.size() == 1 && m_shaderSources.count(ShaderStage::eCompute) == 0), "ShaderProgram", "It's not allowed to have only one Shader stage it it's not a compute shader.");
+        assert_true(m_shaderSources.count(ShaderStage::eVertex) != 0, "ShaderProgram", "Missing a Vertex Shader.");
+        assert_true(m_shaderSources.count(ShaderStage::eFragment) != 0, "ShaderProgram", "Missing a Fragment Shader.");
+        assert_true(((m_shaderSources.count(ShaderStage::eTessControl) + m_shaderSources.count(ShaderStage::eTessEvaluation)) & 0x1) == 0,
+                    "ShaderProgram", "When using Tesselation Shaders, you have to provide a Tesselation Control Shader as well as a Tesselation Evaluation Shader.");
+
+        // get new shader program id
+        recreate();
+
+        // compile all stages
+        std::vector<ShaderHandle> handles;
+        for(auto&& shaderSource : m_shaderSources)
+        {
+            // first use glsp to du preprocessing
+            glsp::processed_file result;
+            if(shaderSource.second.first.empty() && !shaderSource.second.second.empty())
+            {
+                // source given as a string
+                result = glsp::preprocess_source(shaderSource.second.second, "ShaderString", shader_include_paths, m_preprocessorDefinitions);
+
+            } else if(!shaderSource.second.first.empty() && shaderSource.second.second.empty())
+            {
+                // source given as a file
+                assert_critical(glsp::files::exists(shaderSource.second.first), "ShaderProgram",  "Shader file not found: \"" + shaderSource.second.first.string() + "\"");
+                result = glsp::preprocess_file(shaderSource.second.first, shader_include_paths, m_preprocessorDefinitions);
+            } else
+            {
+                logERROR("ShaderProgram") << "Unexpected error during shader program rebuild.";
+                logFlush();
+                throw std::logic_error("Program error during ShaderProgram rebuild");
+            }
+
+            if(!result.valid())
+            {
+                logERROR("ShaderProgram") << "Syntax errors during preprocessing of shader " << shaderSource.second.first << ".";
+                logFlush();
+                throw std::runtime_error("Syntax errors during preprocessing of shader");
+            }
+
+            // now generate a handle and compile
+            int id=handles.size();
+            handles.emplace_back(static_cast<GLenum>(shaderSource.first));
+            const char *c_str = result.contents.c_str();
+            glShaderSource(handles[id], 1, &c_str, nullptr);
+            glCompileShader(handles[id]);
+            {
+                int success;
+                glGetShaderiv(handles[id], GL_COMPILE_STATUS, &success);
+                if (!success)
+                {
+                    int log_length;
+                    glGetShaderiv(handles[id], GL_INFO_LOG_LENGTH, &log_length);
+                    std::string log(log_length, ' ');
+                    glGetShaderInfoLog(handles[id], log_length, &log_length, &log[0]);
+
+                    logERROR("ShaderProgram") << "Compiling shader " << shaderSource.second.first << " failed. Compiler Log: " << log;
+                    logFlush();
+                    throw std::runtime_error("Shader compilation failed.");
+                }
+            }
+
+            glAttachShader(*this, handles[id]);
+        }
+
+        // now link
+        glLinkProgram(*this);
+		{
+			int success;
+			glGetProgramiv(*this, GL_LINK_STATUS, &success);
+			if(!success)
+			{
+				int log_length;
+				glGetProgramiv(*this, GL_INFO_LOG_LENGTH, &log_length);
+				std::string log(log_length, ' ');
+				glGetProgramInfoLog(*this, log_length, &log_length, &log[0]);
+
+                logERROR("ShaderProgram") << "Linking shader failed. Linker Log: " << log;
+                logFlush();
+                throw std::runtime_error("Linking shader failed.");
+			}
+		}
+
+		for (const auto& handle : handles)
+			glDetachShader(*this, handle);
+    }
+
+    void ShaderProgram::setShaderModule(ShaderModule module)
+    {
+        m_shaderSources[module.stage] = std::make_pair(module.path_to_file,"");
+    }
+
+    void ShaderProgram::setShaderSource(ShaderStage stage, std::string source)
+    {
+        m_shaderSources[stage] = std::make_pair(glsp::files::path(),source);
+    }
+
+    void ShaderProgram::removeShaderStage(ShaderStage stage)
+    {
+        m_shaderSources.erase(stage);
+    }
+
+    void ShaderProgram::addDefinition(glsp::definition def)
+        {
+            m_preprocessorDefinitions.push_back(std::move(def));
+        }
+
+    void ShaderProgram::clearDefinitions()
+    {
+        m_preprocessorDefinitions.clear();
+    }
+
+    int ShaderProgram::attributeLocation(const std::string& attribute) const
 	{
 		return glGetProgramResourceLocation(*this, GL_PROGRAM_INPUT, attribute.data());
 	}
@@ -83,16 +201,6 @@ namespace gph {
 	int ShaderProgram::uniformBlock(const std::string& uniform) const
 	{
 		return glGetUniformBlockIndex(*this, uniform.data());
-	}
-
-	void ShaderProgram::rebuild(const ShaderModule& shader, const std::vector<glsl::Definition>& definitions)
-	{
-		rebuild(&shader, &shader + 1, definitions);
-	}
-
-	void ShaderProgram::rebuild(const std::initializer_list<const ShaderModule> shaders, const std::vector<glsl::Definition>& definitions)
-	{
-		rebuild(std::begin(shaders), std::end(shaders), definitions);
 	}
 
 	void ShaderProgram::use() const
