@@ -111,9 +111,9 @@ namespace gph {
 
             if(!result.valid())
             {
-                logERROR("ShaderProgram") << "Syntax errors during preprocessing of shader " << shaderSource.second.first << ".";
+                logERROR("ShaderProgram") << "Errors during preprocessing of shader " << shaderSource.second.first << ".";
                 logFlush();
-                throw std::runtime_error("Syntax errors during preprocessing of shader");
+                throw std::runtime_error("Errors during shader compilation: preprocessor.");
             }
 
             // now generate a handle and compile
