@@ -266,9 +266,13 @@ endif()
 # --------------------------------------------------------
 # build and link dependencies in external/modules
 # --------------------------------------------------------
+list(APPEND LOCAL_EXPOR_TARGETS "mpUtils")
+if(USE_OPENGL)
+    add_subdirectory(external/modules/GLshader)
+    target_link_libraries(mpUtils PUBLIC glsp::glsp)
+    list(APPEND LOCAL_EXPOR_TARGETS "glsp")
+endif()
 
-add_subdirectory(external/modules/GLshader)
-target_link_libraries(mpUtils PUBLIC glsp::glsp)
 
 # --------------------------------------------------------
 # installing and exporting
@@ -351,7 +355,7 @@ install(FILES
 # --------------------------------------------------------
 
 # export targets from build tree
-export(TARGETS mpUtils glsp NAMESPACE mpUtils:: FILE ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsTargets.cmake)
+export(TARGETS ${LOCAL_EXPOR_TARGETS} NAMESPACE mpUtils:: FILE ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsTargets.cmake)
 
 if(EXPORT_BUILD_TREE)
 #     register package in users package registry
