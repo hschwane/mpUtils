@@ -264,9 +264,9 @@ template <typename T>
 Buffer Buffer::clone(const ptrdiff_t count, const ptrdiff_t src_offset, const ptrdiff_t dst_offset) const
 {
     throw std::logic_error("THIS MIGHT NOT WORK");
-    Buffer newBuffer;
-    copyTo(newBuffer, count * sizeof(T), src_offset*sizeof(T), dst_offset*sizeof(T));
-    return newBuffer;
+//    Buffer newBuffer;
+//    copyTo(newBuffer, count * sizeof(T), src_offset*sizeof(T), dst_offset*sizeof(T));
+//    return newBuffer;
 }
 
 inline Buffer Buffer::clone(const ptrdiff_t dst_offset) const
@@ -309,7 +309,7 @@ void Buffer::stream(const std::vector<T> data, const GLenum mode) const
 template <typename T>
 BufferMap<T> Buffer::map(const ptrdiff_t count, const ptrdiff_t offset, const GLbitfield access) const
 {
-    static_assert(!std::is_same_v<T, void>, "Cannot use void* as buffer mapping return type.");
+    static_assert(!std::is_same<T, void>::value, "Cannot use void* as buffer mapping return type.");
     return BufferMap<T>(*this, reinterpret_cast<T*>(glMapNamedBufferRange(*this, offset * sizeof(T), count * sizeof(T), access)), count);
 }
 

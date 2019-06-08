@@ -9,7 +9,7 @@
 #pragma once
 
 // NAMESPACE:
-namespace glshader::process {}
+namespace glshader { namespace process {}}
 // Shorten base namespace. You can use your own namespace if you wish.
 namespace glsp = glshader::process;
 
@@ -19,6 +19,8 @@ namespace glsp = glshader::process;
 
 // LOGGING
 // to use a custom logger just set glsp::ERR_OUTPUT to another function
-namespace glshader::process {
+namespace glshader {
+namespace process {
     extern std::function<void(const std::string &)> ERR_OUTPUT;
-}
+
+}}

@@ -17,8 +17,7 @@
  */
 
 #include <mpUtils/mpUtils.h>
-//#include <mpUtils/mpGraphics.h>
-#include <glm/glm.hpp>
+#include <mpUtils/mpGraphics.h>
 #include <mpUtils/mpCuda.h>
 
 using namespace mpu;
