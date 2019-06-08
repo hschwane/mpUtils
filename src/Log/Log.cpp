@@ -13,7 +13,6 @@
 
 // includes
 //--------------------
-#include <aliases.h>
 #include <mpUtils/Log/Log.h>
 #include "mpUtils/version.h"
 //--------------------

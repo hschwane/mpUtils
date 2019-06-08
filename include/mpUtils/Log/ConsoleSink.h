@@ -17,6 +17,7 @@
 // includes
 //--------------------
 #include "Log.h"
+#include <string>
 //--------------------
 
 // namespace

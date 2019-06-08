@@ -52,11 +52,11 @@ namespace gph {
 	struct ShaderModule
 	{
 		ShaderModule() = default;
-		ShaderModule( ShaderStage stage, std::experimental::filesystem::path path_to_file);
+		ShaderModule( ShaderStage stage, glsp::files::path path_to_file);
 		ShaderModule(glsp::files::path path_to_file); //!< stage is determined by file extension
 
 		ShaderStage stage;
-        std::experimental::filesystem::path path_to_file;
+        glsp::files::path path_to_file;
 	};
 
     /**

@@ -18,6 +18,7 @@
 //--------------------
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include "mpUtils/Misc/stringUtils.h"
 #include "mpUtils/Log/Log.h"
 //--------------------

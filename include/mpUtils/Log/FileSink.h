@@ -20,6 +20,7 @@
 #include <experimental/filesystem>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include "Log.h"
 //--------------------
 

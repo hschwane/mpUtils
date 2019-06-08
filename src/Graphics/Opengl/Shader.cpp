@@ -20,9 +20,9 @@ namespace mpu {
 namespace gph {
 
     std::vector<glsp::files::path> shader_include_paths;
-    void addShaderIncludePath(std::experimental::filesystem::path include_path)
+    void addShaderIncludePath(glsp::files::path include_path)
     {
-        shader_include_paths.emplace_back(std::forward<std::experimental::filesystem::path>(include_path));
+        shader_include_paths.emplace_back(std::forward<glsp::files::path>(include_path));
     }
 
 	ShaderModule::ShaderModule(const ShaderStage stage, const glsp::files::path path_to_file)
