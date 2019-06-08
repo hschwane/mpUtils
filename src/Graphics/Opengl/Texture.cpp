@@ -77,7 +77,8 @@ Texture::Texture(const TextureFileType type, const fs::path& file, const bool ha
                           pixels[index(x, width, height - 1 - y)]);
     };
 
-    if (int channels; type == TextureFileType::eU8)
+    int channels;
+    if (type == TextureFileType::eU8)
     {
         const auto pixels = std::unique_ptr<unsigned char[], decltype(&stbi_image_free)>(stbi_load(file.string().c_str(), &width, &height, &channels, STBI_rgb_alpha), &stbi_image_free);
 
