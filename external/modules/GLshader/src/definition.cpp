@@ -5,9 +5,6 @@
 
 namespace glshader::process
 {
-
-    std::function<void(const std::string &)> logfunc; //!< function used for logging
-
     definition_info::definition_info(const char* value)
         : definition_info(std::string(value))
     {
@@ -27,7 +24,7 @@ namespace glshader::process
 
     }
 
-    definition::definition(const std::string& name, const definition_info& info)
+    definition::definition(const std::string& name, const definition_info& info) 
         : name(name), info(info)
     {
 

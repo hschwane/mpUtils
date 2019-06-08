@@ -53,7 +53,7 @@ namespace gph {
         static struct DoOnce
         {
             DoOnce() {
-                glsp::logfunc = [](const std::string& x){ logERROR("glsp") << x;};
+                glsp::ERR_OUTPUT = [](const std::string& x){ logERROR("glsp") << x;};
             }
         } doOnce;
 	}
