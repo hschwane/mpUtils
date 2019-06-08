@@ -155,6 +155,10 @@ if (USE_OPENGL)
                     "src/Graphics/Utils/Transform.cpp"
                     "src/Graphics/Utils/ModelViewProjection.cpp"
                     "src/Graphics/Window.cpp"
+                    "external/snippets/src/imgui/imgui.cpp"
+                    "external/snippets/src/imgui/imgui_demo.cpp"
+                    "external/snippets/src/imgui/imgui_draw.cpp"
+                    "external/snippets/src/imgui/imgui_widgets.cpp"
                   )
 endif()
 
@@ -170,6 +174,7 @@ target_include_directories(mpUtils
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include>
                             PRIVATE
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src
+                                ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include/mpUtils/external/imgui
                         )
 
 
