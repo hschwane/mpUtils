@@ -15,6 +15,7 @@
 //--------------------
 #include "mpUtils/Log/Log.h"
 #include "mpUtils/Graphics/Window.h"
+#include <cmath>
 //--------------------
 
 // namespace
@@ -78,12 +79,14 @@ static void glDebugCallback(GLenum source, GLenum type, GLuint id, const GLenum 
 
 // function definitions of the Window class
 //-------------------------------------------------------------------
-Window::Window(const int width, const int height, const std::string &title, GLFWmonitor *monitor, GLFWwindow *share) : m_w(nullptr,[](GLFWwindow* wnd){})
+Window::Window(const int width, const int height, const std::string &title, GLFWmonitor *monitor, GLFWwindow *share)
+    : m_w(nullptr,[](GLFWwindow* wnd){}), m_origPos(0,0), m_origSize(width-5,height-100)
 {
     // init glfw once
     static struct GLFWinit
     {
-        GLFWinit() {
+        GLFWinit()
+        {
             int e =glfwInit();
             if(e  != GL_TRUE)
             {
@@ -118,6 +121,15 @@ Window::Window(const int width, const int height, const std::string &title, GLFW
     glfwSetWindowUserPointer(m_w.get(),this);
     makeContextCurrent();
 
+    // attach the window handling callbacks
+    glfwSetWindowPosCallback(m_w.get(),globalPositionCallback);
+    glfwSetWindowSizeCallback(m_w.get(),globalSizeCallback);
+    glfwSetWindowCloseCallback(m_w.get(),globalCloseCallback);
+    glfwSetWindowRefreshCallback(m_w.get(),globalRefreshRateCallback);
+    glfwSetWindowFocusCallback(m_w.get(),globalFocusCallback);
+    glfwSetWindowIconifyCallback(m_w.get(),globalMinimizeCalback);
+    glfwSetFramebufferSizeCallback(m_w.get(),globalFramebufferSizeCallback);
+
     // init glew
     static struct GLEWinit
     {
@@ -136,6 +148,17 @@ Window::Window(const int width, const int height, const std::string &title, GLFW
     glDebugMessageCallback(&glDebugCallback, nullptr);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, false);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, nullptr, false);
+}
+
+Window::Window(const std::string &title, GLFWmonitor *monitor, GLFWwindow *share)
+    : Window(glfwGetVideoMode(monitor)->width, glfwGetVideoMode(monitor)->height,
+            title, monitor, share)
+{
+}
+
+Window::Window(const std::string &title, GLFWwindow *share)
+    : Window(title,glfwGetPrimaryMonitor(),share)
+{
 }
 
 Window::operator GLFWwindow*() const
@@ -172,6 +195,162 @@ bool Window::update()
     glfwSwapBuffers(m_w.get());
     glfwPollEvents();
     return !glfwWindowShouldClose(m_w.get());
+}
+
+std::pair<int, int> Window::getGlVersion()
+{
+    return std::pair<int, int>(gl_major,gl_minor);
+}
+
+void Window::makeFullscreen(const int width, const int height, GLFWmonitor *monitor)
+{
+    m_origPos = getPosition();
+    m_origSize = getSize();
+    glfwSetWindowMonitor(m_w.get(), monitor, 0,0, width, height, GLFW_DONT_CARE);
+}
+
+void Window::makeFullscreen(const int width, const int height)
+{
+    makeFullscreen(width,height, getWindowMonitor());
+}
+
+void Window::makeFullscreen()
+{
+    auto vm = glfwGetVideoMode(getWindowMonitor());
+    makeFullscreen(vm->width,vm->height);
+}
+
+void Window::makeWindowed()
+{
+    glfwSetWindowMonitor(m_w.get(), nullptr, m_origPos.x, m_origPos.y, m_origSize.x, m_origSize.y, GLFW_DONT_CARE);
+}
+
+void Window::toggleFullscreen()
+{
+    if(isFullscreen())
+        makeWindowed();
+    else
+        makeFullscreen();
+}
+
+void Window::toogleMinimize()
+{
+    if(isMinimized())
+        restore();
+    else
+        minimize();
+}
+
+void Window::toggleHide()
+{
+    if(isVisible())
+        hide();
+    else
+        show();
+}
+
+void Window::setIcon(int count, const GLFWimage *images)
+{
+    glfwSetWindowIcon(m_w.get(), count, images);
+}
+
+GLFWmonitor *Window::getWindowMonitor()
+{
+    int nmonitors, i;
+    int wx, wy, ww, wh;
+    int mx, my, mw, mh;
+    int overlap, bestoverlap;
+    GLFWmonitor *bestmonitor;
+    GLFWmonitor **monitors;
+    const GLFWvidmode *mode;
+
+    bestoverlap = 0;
+    bestmonitor = NULL;
+
+    glfwGetWindowPos(window(), &wx, &wy);
+    glfwGetWindowSize(window(), &ww, &wh);
+    monitors = glfwGetMonitors(&nmonitors);
+
+    for (i = 0; i < nmonitors; i++) {
+        mode = glfwGetVideoMode(monitors[i]);
+        glfwGetMonitorPos(monitors[i], &mx, &my);
+        mw = mode->width;
+        mh = mode->height;
+
+        overlap =
+                std::max(0, std::min(wx + ww, mx + mw) - std::max(wx, mx)) *
+                std::max(0, std::min(wy + wh, my + mh) - std::max(wy, my));
+
+        if (bestoverlap < overlap) {
+            bestoverlap = overlap;
+            bestmonitor = monitors[i];
+        }
+    }
+
+    return bestmonitor;
+}
+
+void Window::globalPositionCallback(GLFWwindow * window, int x, int y)
+{
+    Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    for(const auto &callback : windowObject->m_positionCallbacks)
+    {
+        callback.second(x,y);
+    }
+}
+
+void Window::globalSizeCallback(GLFWwindow *window, int w, int h)
+{
+    Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    for(const auto &callback : windowObject->m_sizeCallbacks)
+    {
+        callback.second(w,h);
+    }
+}
+
+void Window::globalCloseCallback(GLFWwindow *window)
+{
+    Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    for(const auto &callback : windowObject->m_closeCallbacks)
+    {
+        callback.second();
+    }
+}
+
+void Window::globalRefreshRateCallback(GLFWwindow *window)
+{
+    Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    for(const auto &callback : windowObject->m_refreshRateCallbacks)
+    {
+        callback.second();
+    }
+}
+
+void Window::globalFocusCallback(GLFWwindow *window, int f)
+{
+    Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    for(const auto &callback : windowObject->m_focusCallbacks)
+    {
+        callback.second((f==GLFW_TRUE));
+    }
+}
+
+void Window::globalMinimizeCalback(GLFWwindow *window, int m)
+{
+    Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    for(const auto &callback : windowObject->m_minimizeCallbacks)
+    {
+        callback.second((m==GLFW_TRUE));
+    }
+}
+
+void Window::globalFramebufferSizeCallback(GLFWwindow *window, int w, int h)
+{
+    Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    for(const auto &callback : windowObject->m_framebufferSizeCallbacks)
+    {
+        callback.second(w,h);
+    }
 }
 
 }}
