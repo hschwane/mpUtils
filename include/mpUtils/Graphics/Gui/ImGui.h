@@ -15,6 +15,7 @@
 //--------------------
 #include "mpUtils/Graphics/Window.h"
 #include "mpUtils/external/imgui/imgui.h"
+#include "mpUtils/external/imgui/stdlib/imgui_stdlib.h"
 //--------------------
 
 // namespace
@@ -36,6 +37,13 @@ namespace ImGui { // we extend the imgui namespace inside mpu
      * @param settingFunction function that changes the settings
      */
     void changeSettings(std::function<void()> settingFunction);
+
+    /**
+     * @brief The Hover callback will be called whenever the mouse enter ImGui area (true) or exits it (false).
+     *          This will overwrite the current callback.
+     * @param callback the callback function you want to have called.
+     */
+    void setHoverCallback(const std::function<void(bool)>& callback);
 
     void destroy(); //!< destroy imgui. will be done automatically
     void show(); //!< show the imgui after it was hidden

@@ -16,6 +16,7 @@
 #include "mpUtils/Log/Log.h"
 #include "mpUtils/Graphics/Window.h"
 #include <cmath>
+#include "Graphics/InputDetail.h"
 //--------------------
 
 // namespace
@@ -81,7 +82,7 @@ static void glDebugCallback(GLenum source, GLenum type, GLuint id, const GLenum 
 //-------------------------------------------------------------------
 Window::Window(const int width, const int height, const std::string &title, GLFWmonitor *monitor, GLFWwindow *share)
     : m_w(nullptr,[](GLFWwindow* wnd){}), m_origPos(0,0), m_origSize(width-5,height-100),
-    m_clearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    m_clearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT), m_cursor(nullptr)
 {
     // init glfw once
     static struct GLFWinit
@@ -131,6 +132,9 @@ Window::Window(const int width, const int height, const std::string &title, GLFW
     glfwSetWindowIconifyCallback(m_w.get(),globalMinimizeCalback);
     glfwSetFramebufferSizeCallback(m_w.get(),globalFramebufferSizeCallback);
 
+    // register to the input manager
+    Input::registerWindow(this);
+
     // init glew
     static struct GLEWinit
     {
@@ -162,6 +166,11 @@ Window::Window(const std::string &title, GLFWwindow *share)
 {
 }
 
+Window::~Window()
+{
+    Input::unregisterWindow(this);
+}
+
 Window::operator GLFWwindow*() const
 {
     return m_w.get();
@@ -188,12 +197,15 @@ void Window::setWindowHint(int hint, int value)
 Window Window::headlessContext(std::string title)
 {
     mpu::gph::Window::setWindowHint(GLFW_VISIBLE,false);
-    return mpu::gph::Window(5,5,title);
+    return std::move(mpu::gph::Window(5,5,title));
 }
 
 bool Window::update()
 {
     // end previous frame
+    if(!isContextCurrent())
+        makeContextCurrent();
+
     for(const auto &callback : m_frameEndCallback)
     {
         callback.second();
@@ -219,9 +231,50 @@ bool Window::update()
     return true;
 }
 
+bool Window::update(bool poll)
+{
+    // end previous frame
+    if(!isContextCurrent())
+        makeContextCurrent();
+
+    for(const auto &callback : m_frameEndCallback)
+    {
+        callback.second();
+    }
+    glfwSwapBuffers(m_w.get());
+
+    //---------------
+    // start next frame
+    if(poll)
+        glfwPollEvents();
+
+    // check if window needs to close
+    if(glfwWindowShouldClose(m_w.get()))
+        return false;
+
+    glClear(m_clearMask);
+
+    // call frame begin callbacks
+    for(const auto &callback : m_frameBeginCallback)
+    {
+        callback.second();
+    }
+
+    return true;
+}
+
 std::pair<int, int> Window::getGlVersion()
 {
     return std::pair<int, int>(gl_major,gl_minor);
+}
+
+Window *Window::getCurrentContext()
+{
+    auto wnd = glfwGetCurrentContext();
+    if(wnd)
+        return static_cast<Window*>(glfwGetWindowUserPointer(wnd));
+    else
+        return nullptr;
 }
 
 void Window::makeFullscreen(const int width, const int height, GLFWmonitor *monitor)

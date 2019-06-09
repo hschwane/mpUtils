@@ -161,8 +161,10 @@ if (USE_OPENGL)
                     "external/snippets/src/imgui/imgui_widgets.cpp"
                     "external/snippets/src/imgui/impl/imgui_impl_opengl3.cpp"
                     "external/snippets/src/imgui/impl/imgui_impl_glfw.cpp"
+                    "external/snippets/src/imgui/stdlib/imgui_stdlib.cpp"
                     "src/Graphics/Gui/ImGui.cpp"
                     "src/Graphics/Gui/ImGuiStyles.cpp"
+                    "src/Graphics/Input.cpp"
                   )
 endif()
 

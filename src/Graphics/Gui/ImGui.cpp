@@ -16,6 +16,7 @@
 #include "mpUtils/Log/Log.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "mpUtils/Graphics/Input.h"
 //--------------------
 
 // namespace
@@ -31,8 +32,10 @@ namespace
     int framebufferCallbackId; //!< id of the framebuffer resize callback
     int frameBeginCallbackId; //!< id of frame begin callback
     int frameEndCallbackId; //!< id of frame end callback
-    bool visible; //!< should the gui be rendered?
+    bool visible=true; //!< should the gui be rendered?
+    bool captureMouseLastFrame=false; //!< did imGui capture the mouse last frame?
     std::vector<std::function<void()>> settingFunctions; //!< vector of setting change functions that need to be executed before the next FrameBegin
+    std::function<void(bool)> guiHoverCallback; //!< callback called whenever mouse starts to hover the gui (true) or leaves the gui (false)
 
     void destroyInternal()
     {
@@ -52,7 +55,6 @@ void create(mpu::gph::Window& window)
     assert_critical( ImGui_ImplGlfw_InitForOpenGL(window.window(), true), "ImGui", "Failed to initialize imgui GLFW implementation." )
     assert_critical( ImGui_ImplOpenGL3_Init("#version 130"), "ImGui", "Failed to initialize imgu OpenGL implementation")
 
-    visible = true;
     framebufferSize = window.getFramebufferSize();
 
     // store the window and make sure we destroy the gui when the window gets destroyed
@@ -63,7 +65,7 @@ void create(mpu::gph::Window& window)
     framebufferCallbackId = window.addFBSizeCallback([](int w, int h){ framebufferSize.x=w; framebufferSize.y=h;});
 
     // begin frame callback, so this is done automatically
-    auto beginFrame = []()
+    auto beginFrame = [&window]()
     {
         // call setings functions
         for(const auto &function : settingFunctions)
@@ -76,6 +78,23 @@ void create(mpu::gph::Window& window)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        bool captureMouse = ImGui::GetIO().WantCaptureMouse;
+        if( captureMouse != captureMouseLastFrame)
+        {
+            if(!captureMouse)
+            {
+                window.restoreCursor();
+                if(guiHoverCallback)
+                    guiHoverCallback(true);
+            } else
+            {
+                if(guiHoverCallback)
+                    guiHoverCallback(false);
+            }
+
+            captureMouseLastFrame = captureMouse;
+        }
     };
     frameBeginCallbackId = window.addFrameBeginCallback(beginFrame);
 
@@ -83,6 +102,7 @@ void create(mpu::gph::Window& window)
     frameEndCallbackId = window.addFrameEndCallback([]()
     {
         if(ImGui::GetCurrentContext()->FrameScopeActive)
+        {
             if(visible)
             {
                 ImGui::Render();
@@ -92,13 +112,14 @@ void create(mpu::gph::Window& window)
             {
                 ImGui::EndFrame();
             }
+        }
     });
 
     // begin new frame, so first call to the frameEndCallback will be ok
     logDEBUG("ImGui") << "ImGui initialized!";
 }
 
-void changeSettings(std::function<void()> settingFunction)
+void changeSettings(const std::function<void()>& settingFunction)
 {
     settingFunctions.push_back(settingFunction);
 }
@@ -111,6 +132,11 @@ void destroy()
     attatchedWindow->removeFrameBeginCallback(frameBeginCallbackId);
     attatchedWindow->removeFrameEndCallback(frameEndCallbackId);
     destroyInternal();
+}
+
+void setHoverCallback(const std::function<void(bool)>& callback)
+{
+    guiHoverCallback=callback;
 }
 
 void show()

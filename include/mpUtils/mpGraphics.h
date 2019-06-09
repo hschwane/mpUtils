@@ -41,6 +41,7 @@
 #include "mpUtils/Graphics/Rendering/ScreenFillingTri.h"
 #include "mpUtils/Graphics/Gui/ImGui.h"
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"
+#include "mpUtils/Graphics/Input.h"
 //--------------------
 
 #endif //MPUTILS_MPGRAPHICS_H

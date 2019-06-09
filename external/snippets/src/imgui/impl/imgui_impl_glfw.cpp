@@ -257,7 +257,7 @@ static void ImGui_ImplGlfw_UpdateMouseCursor()
         // Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
         glfwSetInputMode(g_Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     }
-    else
+    else if(io.WantCaptureMouse)
     {
         // Show OS mouse cursor
         // FIXME-PLATFORM: Unfocused windows seems to fail changing the mouse cursor with GLFW 3.2, but 3.3 works here.

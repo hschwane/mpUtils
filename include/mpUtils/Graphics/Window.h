@@ -53,15 +53,23 @@ namespace gph {
  * can be used to draw overlays, guis or measure performance. FrameBegin is called directly after glClear and can be used to perform
  * per frame initialization steps.
  *
+ * While it is in general a good idea to use the input manager to handle inputs, some window specific settings and polling can be done
+ * directly using thw window class.
+ *
  */
 class Window
 {
 public:
+
+    // deal with gl version
     static void setGlVersion(int major, int minor); //!< change the opengl version you want (befor creating a window)
     static std::pair<int,int> getGlVersion(); //! returns the opengl version currently set
+
+    // window creation helper
     static void setWindowHint(int hint, int value); //!< set glfw window hints (before creating a window)
     static Window headlessContext(std::string title); //!< create an invisible window for headless rendering
 
+    // constructor
     /**
      * @brief Create a new window. The created window needs still to be made the current context
      * @param width width of the window
@@ -87,11 +95,47 @@ public:
      */
     explicit Window(const std::string & title, GLFWwindow* share = nullptr);
 
+    // destructor
+    ~Window();
+
+    // make noncopyable but moveable
+    Window(const Window& that) = delete;
+    Window& operator=(const Window& that) = delete;
+    Window(Window&& that) = default;
+    Window& operator=(Window&& that) = default;
+
+    // access to internal glfw window
     explicit operator GLFWwindow*() const; //!< return the inner pointer to the glfw window
     GLFWwindow* window() const; //!< return the inner pointer to the glfw window
 
+    // ------------
+    // functions working with global state
+
+    // context handling
     void makeContextCurrent() {glfwMakeContextCurrent(m_w.get());} //!< makes this window the current openGL context
-    bool update(); //!< take care of regular window stuff (buffer swap and events). Returns false if the window wants to be closed.
+    bool isContextCurrent() {return (this == getCurrentContext());} //!< is this windows context current?
+    static Window* getCurrentContext(); //!< returns the window whose context is current or nullptr if no context is current
+    static void pollEvents(){glfwPollEvents();} //!< manually poll for events when using the second update function with poll == false for all windows
+
+    // ------------
+    // functions working with window state
+
+    /**
+     * @brief Take care of regular window stuff (buffer swap and events). Returns false if the window wants to be closed.
+     *          FrameEnd and FrameBegin callbacks will be called here. Also updating a window will implicitly make it current!
+     */
+    bool update();
+
+    /**
+     * @brief Take care of regular window stuff (buffer swap and events). Returns false if the window wants to be closed.
+     *          Only calls pollEvents if "poll" is true. Use to prevent multiple calls to pollEvents when using multiple windows.
+     *          FrameEnd and FrameBegin callbacks will be called here. Also updating a window will implicitly make it current!
+     */
+    bool update(bool poll);
+
+    // openGL functionality
+    GLbitfield getClearMask() { return m_clearMask;} //!< get the mask that is passed to glClear default is (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    void setClearMask(GLbitfield clearMask) {m_clearMask = clearMask;} //!< set the mask that is passed to glClear default is (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     // functions handling fullscreen mode
     void makeFullscreen(int width, int height, GLFWmonitor* monitor); //!< make the window fullscreen
@@ -103,6 +147,7 @@ public:
     GLFWmonitor* getMonitor(){return glfwGetWindowMonitor(m_w.get());} //!< returns the monitor the window uses for fullscreen mode
 
     // window setting functions
+    void shouldClose() {glfwSetWindowShouldClose(m_w.get(),GLFW_TRUE);}  //!< signal the window to close
     void setTitle(const std::string & s) {glfwSetWindowTitle(m_w.get(),s.c_str());} //!< change the window title
     glm::ivec2 getPosition() {glm::ivec2 p; glfwGetWindowPos(m_w.get(),&p.x,&p.y);return p;} //!< returns the window position
     void setPosition(glm::ivec2 pos) {glfwSetWindowPos(m_w.get(),pos.x,pos.y);} //!< sets a new window position
@@ -121,6 +166,9 @@ public:
     bool isVisible() {return (GLFW_TRUE == glfwGetWindowAttrib(m_w.get(),GLFW_VISIBLE));} //!< check if the window is visible
     void setIcon(int count, const GLFWimage* images); //!< set a list of images, the best one will be picked as the window icon
     GLFWmonitor* getWindowMonitor(); //!< returns the monitor the bigger part of the window is currently on
+
+    // ------------
+    // callbacks
 
     // window handling callbacks
     int addPositionCallback(std::function<void(int,int)> f) {return addCallback(m_positionCallbacks,f);} //!< add a callback that is called whenever the window position is changed
@@ -157,18 +205,21 @@ public:
     // input functions
     void setInputMode(int mode, int value) {glfwSetInputMode(m_w.get(),mode,value);} //!< see glfwSetInputMode for reference
     int getInputMode(int mode){return glfwGetInputMode(m_w.get(),mode);} //!< set glfwSetInputMode for reference
-    int getKey(int key) {return glfwGetKey(m_w.get(),key);} //!< state of key returns GLFW_PRESS or GLFW_RELEASE
-    int getMouseButton(int button) {return glfwGetMouseButton(m_w.get(),button);} //!< state of mouse button returns GLFW_PRESS or GLFW_RELEASE
+    bool isKeyDown(int key) {return glfwGetKey(m_w.get(),key)==GLFW_PRESS;} //!< returns true if key is pressed
+    bool isMouseButtonDown(int button) {return glfwGetMouseButton(m_w.get(),button)==GLFW_PRESS;} //!< returns true if mouse button is pressed
     glm::dvec2 getCursorPos() {glm::dvec2 p; glfwGetCursorPos(m_w.get(),&p.x,&p.y);return p;} //!< returns the cursor position within the window
     void setCursorPos(glm::dvec2 p) {glfwSetCursorPos(m_w.get(),p.x,p.y);} //!< sets a new cursor position
     void setCursorPos(double x, double y) {glfwSetCursorPos(m_w.get(),x,y);} //!< sets a new cursor position
-    void setCursor(GLFWcursor* c) {glfwSetCursor(m_w.get(),c);} //!< sets a new cursor
-    void setClipboard(const std::string & s) {glfwSetClipboardString(m_w.get(),s.c_str());} //!< copy a string to the clipboard
-    std::string getClipboard() { return std::string(glfwGetClipboardString(m_w.get()));} //!< get the string from the clipboard
+    void setCursor(int shape) {setCursor(glfwCreateStandardCursor(shape));} //!< create and set a cursor with a standard shape
+    void setCursor(GLFWcursor* c) {m_cursor=c; glfwSetCursor(m_w.get(),c);} //!< sets a new cursor
+    void restoreCursor(){setCursor(m_cursor);} //!< restores a cursor after it was changed by direct call to the internal window (mainly needed for imgui)
 
-    // openGL functionality
-    GLbitfield getClearMask() { return m_clearMask;} //!< get the mask that is passed to glClear default is (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    void setClearMask(GLbitfield clearMask) {m_clearMask = clearMask;} //!< set the mask that is passed to glClear default is (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    // --------------
+    // deprecated
+    int getKey(int key) {return glfwGetKey(m_w.get(),key);} //!< ||deprecated|| state of key returns GLFW_PRESS or GLFW_RELEASE
+    int getMouseButton(int button) {return glfwGetMouseButton(m_w.get(),button);} //!< ||deprecated|| state of mouse button returns GLFW_PRESS or GLFW_RELEASE
+    // deprecated
+    // --------------
 
 private:
     static int gl_major; //!< major openGL version to use when creating the next window
@@ -206,8 +257,8 @@ private:
 
     glm::ivec2 m_origPos; //!< position before make fullscreen was called
     glm::ivec2 m_origSize; //!< size before make fullscreen was called
-
     GLbitfield m_clearMask; //!< passed to glClear
+    GLFWcursor* m_cursor; //!< last manually set cursor
 };
 
 }}
