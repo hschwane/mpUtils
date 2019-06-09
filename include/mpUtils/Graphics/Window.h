@@ -41,12 +41,17 @@ namespace gph {
  * Most glfw Window functions are implemented in the wrapper, however if you need a glfw Window you can use Window::window()
  * or a cast to obtain a pointer to a glfw Window.
  * In the Windows main loop you shold call Window::update() it handles events and swaps the Framebuffer. It will return false
- * if the operating system is asking the window to be closed.
+ * if the operating system is asking the window to be closed. It also automatically clears the framebuffer using (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT).
+ * You can change the mask with setClearMask().
  * The window is created with the window hints for openGL Version and core profile. To request a specific version call
  * Window::setGlVersion() before creating a window. If you want to use other special options, please use glfwSetWindowHint()
  * to configure all options to your liking before creating a window.
  * Callbacks support lambdas and function objects. Multiple callbacks of the same type can be added and will be called after each other.
  * When adding a callback a id is returned. Remove the callback using it's id before it becomes unsafe to call it! (Eg captured variables run out of scope)
+ *
+ * The Window class also implements the cutom callbacks frameBegin and frameEnd. FrameEnd is called just before buffers are swapped and
+ * can be used to draw overlays, guis or measure performance. FrameBegin is called directly after glClear and can be used to perform
+ * per frame initialization steps.
  *
  */
 class Window
@@ -103,6 +108,7 @@ public:
     void setPosition(glm::ivec2 pos) {glfwSetWindowPos(m_w.get(),pos.x,pos.y);} //!< sets a new window position
     void setPosition(int x, int y) {glfwSetWindowPos(m_w.get(),x,y);} //!< sets a new window position
     glm::ivec2 getSize(){glm::ivec2 p; glfwGetWindowSize(m_w.get(),&p.x,&p.y);return p;} //!< returns the current window size
+    glm::ivec2 getFramebufferSize(){glm::ivec2 p; glfwGetFramebufferSize(m_w.get(),&p.x,&p.y);return p;} //!< returns the current window size
     void setSize(glm::ivec2 size) {glfwSetWindowSize(m_w.get(),size.x,size.y);} //!< resize the window
     void setSize(int x, int y) {glfwSetWindowSize(m_w.get(),x,y);} //!< resize the window
     void minimize() {glfwIconifyWindow(m_w.get());} //!< minimize the window
@@ -130,7 +136,13 @@ public:
     int addMinimizeCallback(std::function<void(bool)> f) {return addCallback(m_minimizeCallbacks,f);} //!< add a callback that is called whenever the window  is minimized or restored (true = is minimized)
     void removeMinimizeCallback(int id) {removeCallback(m_minimizeCallbacks,id);}; //!< removes the minimize callback function specified by id
     int addFBSizeCallback(std::function<void(int,int)> f) {return addCallback(m_framebufferSizeCallbacks,f);} //!< add a callback that is called whenever the framebuffer size is changed
-    void removeSBSizeCallback(int id) {removeCallback(m_framebufferSizeCallbacks,id);}; //!< removes the framebuffer resize function specified by id
+    void removeFBSizeCallback(int id) {removeCallback(m_framebufferSizeCallbacks,id);}; //!< removes the framebuffer resize function specified by id
+
+    // frame begin / end callbacks
+    int addFrameBeginCallback(std::function<void()> f) {return addCallback(m_frameBeginCallback,f);} //!< add a callback that is called at the beginning of every frame
+    void removeFrameBeginCallback(int id) {removeCallback(m_frameBeginCallback,id);}; //!< removes the frameBegin callback function specified by id
+    int addFrameEndCallback(std::function<void()> f) {return addCallback(m_frameEndCallback,f);} //!< add a callback that is called at the end of every frame
+    void removeFrameEndCallback(int id) {removeCallback(m_frameEndCallback,id);}; //!< removes the frameEnd callback function specified by id
 
     // input callbacks
     GLFWkeyfun setKeyCallback(GLFWkeyfun cb) {return glfwSetKeyCallback(m_w.get(),cb);} //!< callback will be called when key input is availible
@@ -154,6 +166,10 @@ public:
     void setClipboard(const std::string & s) {glfwSetClipboardString(m_w.get(),s.c_str());} //!< copy a string to the clipboard
     std::string getClipboard() { return std::string(glfwGetClipboardString(m_w.get()));} //!< get the string from the clipboard
 
+    // openGL functionality
+    GLbitfield getClearMask() { return m_clearMask;} //!< get the mask that is passed to glClear default is (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    void setClearMask(GLbitfield clearMask) {m_clearMask = clearMask;} //!< set the mask that is passed to glClear default is (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
 private:
     static int gl_major; //!< major openGL version to use when creating the next window
     static int gl_minor; //!< minor openGL version to use when creating the next window
@@ -175,6 +191,10 @@ private:
     std::vector<std::pair<int,std::function<void(bool)>>> m_minimizeCallbacks;
     std::vector<std::pair<int,std::function<void(int,int)>>> m_framebufferSizeCallbacks;
 
+    // callback vectors for frame begin / end functions
+    std::vector<std::pair<int,std::function<void()>>> m_frameBeginCallback;
+    std::vector<std::pair<int,std::function<void()>>> m_frameEndCallback;
+
     // internal callbacks for window functions
     static void globalPositionCallback(GLFWwindow * window, int x, int y);
     static void globalSizeCallback(GLFWwindow * window, int w, int h);
@@ -186,6 +206,8 @@ private:
 
     glm::ivec2 m_origPos; //!< position before make fullscreen was called
     glm::ivec2 m_origSize; //!< size before make fullscreen was called
+
+    GLbitfield m_clearMask; //!< passed to glClear
 };
 
 }}
@@ -211,8 +233,8 @@ void mpu::gph::Window::removeCallback(std::vector<std::pair<int,T>> &callbackVec
 {
     auto it = std::lower_bound( callbackVector.cbegin(), callbackVector.cend(), std::pair<int,T>(id,T{}),
             [](const std::pair<int,T>& a, const std::pair<int,T>& b){return (a.first < b.first);});
-    callbackVector.erase(it);
-
+    if(it != callbackVector.end())
+        callbackVector.erase(it);
 }
 
 

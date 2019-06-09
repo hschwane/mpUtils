@@ -156,3 +156,6 @@ provided by NVIDIA Corporation.
 
 stb_image (https://github.com/nothings/stb)
 This software contains source code provided by Sean T. Barrett.
+
+Dear ImGui (https://github.com/ocornut/imgui)
+This software contains source code provided by Omar Cornut.

@@ -80,7 +80,8 @@ static void glDebugCallback(GLenum source, GLenum type, GLuint id, const GLenum 
 // function definitions of the Window class
 //-------------------------------------------------------------------
 Window::Window(const int width, const int height, const std::string &title, GLFWmonitor *monitor, GLFWwindow *share)
-    : m_w(nullptr,[](GLFWwindow* wnd){}), m_origPos(0,0), m_origSize(width-5,height-100)
+    : m_w(nullptr,[](GLFWwindow* wnd){}), m_origPos(0,0), m_origSize(width-5,height-100),
+    m_clearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 {
     // init glfw once
     static struct GLFWinit
@@ -192,9 +193,30 @@ Window Window::headlessContext(std::string title)
 
 bool Window::update()
 {
+    // end previous frame
+    for(const auto &callback : m_frameEndCallback)
+    {
+        callback.second();
+    }
     glfwSwapBuffers(m_w.get());
+
+    //---------------
+    // start next frame
     glfwPollEvents();
-    return !glfwWindowShouldClose(m_w.get());
+
+    // check if window needs to close
+    if(glfwWindowShouldClose(m_w.get()))
+        return false;
+
+    glClear(m_clearMask);
+
+    // call frame begin callbacks
+    for(const auto &callback : m_frameBeginCallback)
+    {
+        callback.second();
+    }
+
+    return true;
 }
 
 std::pair<int, int> Window::getGlVersion()

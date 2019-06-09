@@ -5,9 +5,7 @@ set(PROJECT_SHADER_PATH "${CMAKE_CURRENT_LIST_DIR}/shader")
 set(PROJECT_RESOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/resources")
 
 # create target
-add_executable(imGuiTest main.cpp
-                            "imgui_impl_glfw.cpp"
-                            "imgui_impl_opengl3.cpp")
+add_executable(imGuiTest main.cpp)
 
 # set required language standard
 set_target_properties(imGuiTest PROPERTIES

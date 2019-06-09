@@ -159,6 +159,10 @@ if (USE_OPENGL)
                     "external/snippets/src/imgui/imgui_demo.cpp"
                     "external/snippets/src/imgui/imgui_draw.cpp"
                     "external/snippets/src/imgui/imgui_widgets.cpp"
+                    "external/snippets/src/imgui/impl/imgui_impl_opengl3.cpp"
+                    "external/snippets/src/imgui/impl/imgui_impl_glfw.cpp"
+                    "src/Graphics/Gui/ImGui.cpp"
+                    "src/Graphics/Gui/ImGuiStyles.cpp"
                   )
 endif()
 
@@ -175,6 +179,7 @@ target_include_directories(mpUtils
                             PRIVATE
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src
                                 ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include/mpUtils/external/imgui
+                                ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/src/imgui/impl
                         )
 
 
