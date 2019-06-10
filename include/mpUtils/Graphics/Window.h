@@ -167,6 +167,19 @@ public:
     void setIcon(int count, const GLFWimage* images); //!< set a list of images, the best one will be picked as the window icon
     GLFWmonitor* getWindowMonitor(); //!< returns the monitor the bigger part of the window is currently on
 
+    // input functions
+    void setInputMode(int mode, int value) {glfwSetInputMode(m_w.get(),mode,value);} //!< see glfwSetInputMode for reference
+    int getInputMode(int mode){return glfwGetInputMode(m_w.get(),mode);} //!< set glfwSetInputMode for reference
+    bool isKeyDown(int key) {return glfwGetKey(m_w.get(),key)==GLFW_PRESS;} //!< returns true if key is pressed
+    bool isMouseButtonDown(int button) {return glfwGetMouseButton(m_w.get(),button)==GLFW_PRESS;} //!< returns true if mouse button is pressed
+    glm::dvec2 getCursorPos() {glm::dvec2 p; glfwGetCursorPos(m_w.get(),&p.x,&p.y);return p;} //!< returns the cursor position within the window
+    void setCursorPos(glm::dvec2 p) {glfwSetCursorPos(m_w.get(),p.x,p.y);} //!< sets a new cursor position
+    void setCursorPos(double x, double y) {glfwSetCursorPos(m_w.get(),x,y);} //!< sets a new cursor position
+    void setCursor(int shape) {setCursor(glfwCreateStandardCursor(shape));} //!< create and set a cursor with a standard shape
+    void setCursor(GLFWcursor* c) {m_cursor=c; glfwSetCursor(m_w.get(),c);} //!< sets a new cursor
+    void restoreCursor(){setCursor(m_cursor);} //!< restores a cursor after it was changed by direct call to the internal window (mainly needed for imgui)
+
+
     // ------------
     // callbacks
 
@@ -197,18 +210,6 @@ public:
     GLFWcharmodsfun setCharmodsCallback(GLFWcharmodsfun cb) {return glfwSetCharModsCallback(m_w.get(),cb);} //!< callback provides charater input with modifier keys
     GLFWcursorenterfun setCoursorenterCallback(GLFWcursorenterfun cb) {return glfwSetCursorEnterCallback(m_w.get(),cb);} //!< called when the cursor enters or leaves the window
     GLFWdropfun setDropCallbac(GLFWdropfun cb) {return glfwSetDropCallback(m_w.get(),cb);} //!< called when someting is drag'n droped onto the window
-
-    // input functions
-    void setInputMode(int mode, int value) {glfwSetInputMode(m_w.get(),mode,value);} //!< see glfwSetInputMode for reference
-    int getInputMode(int mode){return glfwGetInputMode(m_w.get(),mode);} //!< set glfwSetInputMode for reference
-    bool isKeyDown(int key) {return glfwGetKey(m_w.get(),key)==GLFW_PRESS;} //!< returns true if key is pressed
-    bool isMouseButtonDown(int button) {return glfwGetMouseButton(m_w.get(),button)==GLFW_PRESS;} //!< returns true if mouse button is pressed
-    glm::dvec2 getCursorPos() {glm::dvec2 p; glfwGetCursorPos(m_w.get(),&p.x,&p.y);return p;} //!< returns the cursor position within the window
-    void setCursorPos(glm::dvec2 p) {glfwSetCursorPos(m_w.get(),p.x,p.y);} //!< sets a new cursor position
-    void setCursorPos(double x, double y) {glfwSetCursorPos(m_w.get(),x,y);} //!< sets a new cursor position
-    void setCursor(int shape) {setCursor(glfwCreateStandardCursor(shape));} //!< create and set a cursor with a standard shape
-    void setCursor(GLFWcursor* c) {m_cursor=c; glfwSetCursor(m_w.get(),c);} //!< sets a new cursor
-    void restoreCursor(){setCursor(m_cursor);} //!< restores a cursor after it was changed by direct call to the internal window (mainly needed for imgui)
 
     // --------------
     // deprecated

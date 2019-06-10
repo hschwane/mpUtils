@@ -30,15 +30,12 @@ namespace Input {
 //--------------------
 
 namespace {
-    std::vector<Window*> m_wndList; //!< list of all windows that can provide input
-    Window* m_focusedWindow; //!< the window in focus or nullptr
-    Window* m_hoveredWindow; //!< the window under the cursor or nullptr
+    // "global" settings
+    std::chrono::milliseconds m_doubleTapTime;
+    float m_analogToButtonRatio;
+    float m_digitalToAxisRatio;
 
-
-    std::chrono::milliseconds m_doubleTapTime(500);
-    float m_analogToButtonRatio = 1;
-    float m_digitalToAxisRatio = 1;
-
+    // private classes
     /**
      * @brief This class represents a input function. There are different types of input functions (button/axis).
      *          Both can be mapped to all available inputs using different settings for each mapping.
@@ -183,16 +180,35 @@ namespace {
         AxisBehavior axisBehavior; //!< controles behavior if mapping analog input to button or digital input to axis
     };
 
+    // types
     using InputType = std::pair<std::string,std::unique_ptr<InputFunction>>;
     using InputMapType = std::unordered_map<std::string,std::unique_ptr<InputFunction>>;
     using DigitalMapType = std::unordered_multimap<int, InputMapping>;
     using AnalogMapType = std::vector<InputMapping>;
 
+    // key maps and callback handling
     InputMapType m_inputFunctions; //!< all input funtions life here
     DigitalMapType m_keymap; //!< mapping keyboard keys to input functions
     DigitalMapType m_mbmap; //!< mapping mouse buttons to input functions
-    AnalogMapType m_horizontalScrollmap; //!< mapping horizontal scroll movment to input functions
-    AnalogMapType m_verticalScrollmap; //!< mapping vertical scroll movment to input functions
+    AnalogMapType m_horizontalScrollmap; //!< mapping horizontal scroll movement to input functions
+    AnalogMapType m_verticalScrollmap; //!< mapping vertical scroll movement to input functions
+    AnalogMapType m_horizontalCursormap; //!< mapping horizontal cursor movement to input functions
+    AnalogMapType m_verticalCursormap; //!< mapping vertical cursor movement to input functions
+
+    // data needed for polling and other utilities
+    std::vector<Window*> m_wndList; //!< list of all windows that can provide input
+    Window* m_focusedWindow; //!< the window in focus or nullptr
+    Window* m_hoveredWindow; //!< the window under the cursor or nullptr
+
+    /**
+     * @brief initializes the input manager is automatically called when first window is registered
+     */
+    void initialize()
+    {
+        m_doubleTapTime = std::chrono::milliseconds(500);
+        m_analogToButtonRatio = 1;
+        m_digitalToAxisRatio = 1;
+    }
 }
 
 // declare callback functions
@@ -205,6 +221,14 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos); //!
 
 void registerWindow(Window* wnd)
 {
+    // initialize input manager
+    static struct InputInit{
+        InputInit()
+        {
+            initialize();
+        }
+    }inputInit;
+
     // add window to lst of windows
     m_wndList.push_back(wnd);
 
@@ -353,7 +377,7 @@ void mapMouseButtonToInput(std::string name, int button, int requiredMods,
     m_mbmap.emplace(button, InputMapping(std::move(name),inputFunc,requiredMods,overrideBehavior, ab));
 }
 
-void mapScrollToInput(std::string name, int requiredMods, AxisBehavior direction, ScrollAxis axis)
+void mapScrollToInput(std::string name, int requiredMods, AxisBehavior direction, AxisOrientation axis)
 {
     InputFunction* inputFunc = nullptr;
     auto result = m_inputFunctions.find(name);
@@ -365,13 +389,29 @@ void mapScrollToInput(std::string name, int requiredMods, AxisBehavior direction
     else
     logWARNING("InputManager") << "Mapping scroll axis " << static_cast<int>(axis) << " to input \"" << name << "\" that does not jet exist";
 
-    if(axis == ScrollAxis::horizontal)
+    if(axis == AxisOrientation::horizontal)
         m_horizontalScrollmap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction);
-    else if(axis == ScrollAxis::vertical)
+    else if(axis == AxisOrientation::vertical)
         m_verticalScrollmap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction);
 }
 
-void bindCourserToInput(std::string name);
+void mapCourserToInput(std::string name, AxisOrientation axis, int requiredMods, AxisBehavior direction)
+{
+    InputFunction* inputFunc = nullptr;
+    auto result = m_inputFunctions.find(name);
+    if(result != m_inputFunctions.end())
+    {
+        inputFunc = result->second.get();
+        logDEBUG("InputManager") << "Mapping cursor axis " << static_cast<int>(axis) << " to input \"" << name << "\"";
+    }
+    else
+    logWARNING("InputManager") << "Mapping cursor axis " << static_cast<int>(axis) << " to input \"" << name << "\" that does not jet exist";
+
+    if(axis == AxisOrientation::horizontal)
+        m_horizontalCursormap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction);
+    else if(axis == AxisOrientation::vertical)
+        m_verticalCursormap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction);
+}
 
 void addButton(std::string name, std::string description, std::function<void(Window&)> function,
         ButtonBehavior behavior, bool allowBehaviorOverride,  bool active)
@@ -604,6 +644,37 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
     if(wnd->isKeyDown(GLFW_KEY_LEFT_SUPER) || wnd->isKeyDown(GLFW_KEY_RIGHT_SUPER))
         mods |= GLFW_MOD_SUPER;
 
+    // calculate the rate of change
+    static double xLastPos=xpos;
+    static double yLastPos=ypos;
+    double xChange = xpos - xLastPos;
+    double yChange = ypos - yLastPos;
+    xLastPos = xpos;
+    yLastPos = ypos;
+
+    if( std::fabs(yChange) > 0)
+        for(auto &item : m_verticalCursormap)
+            {
+                // check if the input function is installed
+                // check if the input function is active,
+                // check if all required modifiers are down,
+                if( item.function && item.function->active && mods >= item.requiredMods)
+                {
+                    item.function->handleValue(*wnd, yChange, item.axisBehavior);
+                }
+            }
+
+    if( std::fabs(xChange) > 0)
+        for(auto &item : m_horizontalCursormap)
+        {
+            // check if the input function is installed
+            // check if the input function is active,
+            // check if all required modifiers are down,
+            if( item.function && item.function->active && mods >= item.requiredMods)
+            {
+                item.function->handleValue(*wnd, xChange, item.axisBehavior);
+            }
+        }
 }
 
 }}}

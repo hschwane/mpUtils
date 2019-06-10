@@ -45,11 +45,16 @@ void setupInputs()
         logINFO("Test") << "Axis changed by " << v;
     });
     gph::Input::mapScrollToInput("TestAxis");
+
+    gph::Input::addAxis("TestAxis2","A axis that prints its value", [](gph::Window& w, double v)
+    {
+        logINFO("Test") << "Axis changed by " << v;
+    });
+    gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal);
 }
 
 int main(int, char**)
 {
-
     Log myLog( LogLvl::ALL, ConsoleSink());
     myLog.printHeader("imGuiTest", MPU_VERSION_STRING, MPU_VERSION_COMMIT, "");
 
@@ -68,6 +73,8 @@ int main(int, char**)
     ImGui::StyleDarcula();
 //    ImGui::StylePagghiu();
 //    ImGui::StyleLightGreen();
+
+    gph::enableVsync(true);
 
     // Load Fonts
     auto io = ImGui::GetIO();

@@ -64,9 +64,9 @@ enum class AxisBehavior
 };
 
 /**
- * @brief switch between horizontal and vertical scrolling when mapping a analog scroll to an input
+ * @brief switch between horizontal and vertical axis
  */
-enum class ScrollAxis
+enum class AxisOrientation
 {
     horizontal, //!< horizontal axis if availible
     vertical //!< vertical axis (default)
@@ -97,7 +97,8 @@ void mapMouseButtonToInput(std::string name, int button, int requiredMods = 0,
                            ButtonBehavior overrideBehavior = ButtonBehavior::defaultBehavior,
                            AxisBehavior ab = AxisBehavior::defaultBehavior);
 void mapScrollToInput(std::string name, int requiredMods = 0, AxisBehavior direction = AxisBehavior::defaultBehavior,
-                      ScrollAxis axis = ScrollAxis::vertical);
+                      AxisOrientation axis = AxisOrientation::vertical);
+void mapCourserToInput(std::string name, AxisOrientation axis, int requiredMods = 0, AxisBehavior direction = AxisBehavior::defaultBehavior);
 
 }}}
 #endif //MPUTILS_INPUT_H
