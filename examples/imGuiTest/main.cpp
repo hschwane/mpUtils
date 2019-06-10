@@ -42,15 +42,27 @@ void setupInputs()
 
     gph::Input::addAxis("TestAxis","A axis that prints its value", [](gph::Window& w, double v)
     {
-        logINFO("Test") << "Axis changed by " << v;
+//        logINFO("Test") << "Axis changed by " << v;
     });
     gph::Input::mapScrollToInput("TestAxis");
 
     gph::Input::addAxis("TestAxis2","A axis that prints its value", [](gph::Window& w, double v)
     {
-        logINFO("Test") << "Axis changed by " << v;
+//        logINFO("Test") << "Axis changed by " << v;
     });
     gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal);
+
+    gph::Input::addButton("Toggle Gui", "Globally toggles the ImGui overlay.", [](gph::Window& wnd)
+    {
+        ImGui::toggleVisibility();
+    });
+    gph::Input::mapKeyToInput("Toggle Gui", GLFW_KEY_F10);
+
+    gph::Input::addButton("Toggle Gui Lock", "Globally toggles the ImGui overlay.", [](gph::Window& wnd)
+    {
+        ImGui::toggleLock();
+    });
+    gph::Input::mapKeyToInput("Toggle Gui Lock", GLFW_KEY_F9);
 }
 
 int main(int, char**)

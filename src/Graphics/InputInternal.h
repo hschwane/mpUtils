@@ -32,6 +32,8 @@ namespace Input {
 
 void registerWindow(Window* wnd); //!< register a window to the input manager
 void unregisterWindow(Window* wnd); //!< remove a window from the input manager
+void registerGui();
+void unregisterGui();
 
 }}}
 

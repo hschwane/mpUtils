@@ -49,8 +49,11 @@ namespace ImGui { // we extend the imgui namespace inside mpu
     void show(); //!< show the imgui after it was hidden
     void hide(); //!< hide the imgui from the screen
     bool isVisible(); //!< check if imgui is currently visible
-    void toogleVisibility(); //!< toogle the visibility of imgui
-
+    void toggleVisibility(); //!< toogle the visibility of imgui
+    void unlock(); //!< unlock the imgui after it was locked
+    void lock(); //!< lock the imgui
+    bool isLocked(); //!< check if imgui is currently locked
+    void toggleLock(); //!< toogle the lock state of imgui
 }
 
 #endif //MPUTILS_IMGUI_H

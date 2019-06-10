@@ -308,7 +308,7 @@ void Window::toggleFullscreen()
         makeFullscreen();
 }
 
-void Window::toogleMinimize()
+void Window::toggleMinimize()
 {
     if(isMinimized())
         restore();

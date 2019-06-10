@@ -72,18 +72,35 @@ enum class AxisOrientation
     vertical //!< vertical axis (default)
 };
 
+// polling
 bool isKeyDown(int key);
 bool isMouseButtonDown(int key);
-std::pair<Window*,glm::ivec2> getCursorPos();
+std::pair<Window*,glm::dvec2> getCursorPos();
 glm::dvec2 getCursorScreenPos();
-void setCursorScreenPos(double x, double y);
-void setCursorScreenPos(glm::dvec2 p);
 Window* getActiveWindow();
 Window* getHoveredWindow();
+
+// control the cursor
+void setCursorScreenPos(double x, double y);
+void setCursorScreenPos(glm::dvec2 p);
 void setCursor(GLFWcursor* c);
 void setCursor(int shape);
+
+// deal with the clipboard
 std::string getClipboard();
 void setClipboard(const std::string& text);
+
+// add and remove custom callbacks
+int addDropCallback(std::function<void(Window&, const std::vector<std::string>&)> f);
+void removeDropCallback(int id);
+
+// change global settings
+void setDoubleClickTime(unsigned int ms);
+unsigned int getDoubleClickTime();
+void setAnalogToDigitalRatio(double r);
+double setAnalogToDigitalRatio();
+void setDigitaltoAnalogRatio(double r);
+double setDigitalToAnalogRatio();
 
 
 void addButton(std::string name, std::string description, std::function<void(Window&)> function,

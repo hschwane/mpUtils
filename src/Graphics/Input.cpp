@@ -31,9 +31,9 @@ namespace Input {
 
 namespace {
     // "global" settings
-    std::chrono::milliseconds m_doubleTapTime;
-    float m_analogToButtonRatio;
-    float m_digitalToAxisRatio;
+    std::chrono::milliseconds m_doubleClickTime;
+    double m_analogToButtonRatio;
+    double m_digitalToAxisRatio;
 
     // private classes
     /**
@@ -70,7 +70,7 @@ namespace {
     public:
         ButtonInput(std::string desc, bool isActive, ButtonBehavior buttonBehavior, std::function<void(Window&)> func, bool behaviorOverride)
             : InputFunction(InputFunctionType::button, std::move(desc), isActive), defaultBehavior(buttonBehavior),
-            allowBehaviorOverride(behaviorOverride), function(std::move(func)), doubleTapTimer(m_doubleTapTime)
+            allowBehaviorOverride(behaviorOverride), function(std::move(func)), doubleTapTimer(m_doubleClickTime)
         {}
 
         void handlePressed(Window& wnd, ButtonBehavior behavior, AxisBehavior ab) override
@@ -180,13 +180,12 @@ namespace {
         AxisBehavior axisBehavior; //!< controles behavior if mapping analog input to button or digital input to axis
     };
 
-    // types
+    // key maps and InputFunction handling
     using InputType = std::pair<std::string,std::unique_ptr<InputFunction>>;
     using InputMapType = std::unordered_map<std::string,std::unique_ptr<InputFunction>>;
     using DigitalMapType = std::unordered_multimap<int, InputMapping>;
     using AnalogMapType = std::vector<InputMapping>;
 
-    // key maps and callback handling
     InputMapType m_inputFunctions; //!< all input funtions life here
     DigitalMapType m_keymap; //!< mapping keyboard keys to input functions
     DigitalMapType m_mbmap; //!< mapping mouse buttons to input functions
@@ -195,20 +194,56 @@ namespace {
     AnalogMapType m_horizontalCursormap; //!< mapping horizontal cursor movement to input functions
     AnalogMapType m_verticalCursormap; //!< mapping vertical cursor movement to input functions
 
+    // lists to store external callbacks
+    std::vector<std::pair<int,std::function<void(Window&,const std::vector<std::string>&)>>> m_dropCallbacks;
+
     // data needed for polling and other utilities
     std::vector<Window*> m_wndList; //!< list of all windows that can provide input
     Window* m_focusedWindow; //!< the window in focus or nullptr
     Window* m_hoveredWindow; //!< the window under the cursor or nullptr
+
+    // private helper functions
 
     /**
      * @brief initializes the input manager is automatically called when first window is registered
      */
     void initialize()
     {
-        m_doubleTapTime = std::chrono::milliseconds(500);
+        m_hoveredWindow = nullptr;
+        m_focusedWindow = nullptr;
+        m_doubleClickTime = std::chrono::milliseconds(500);
         m_analogToButtonRatio = 1;
         m_digitalToAxisRatio = 1;
     }
+
+    /**
+     * @brief internal helper to add a callback function to vector of callbacks
+     */
+    template<typename T, typename F>
+    int addCallback(std::vector<std::pair<int,T>> &callbackVector, F f)
+    {
+        int id;
+        if(callbackVector.empty())
+            id = 0;
+        else
+            id = callbackVector.back().first+1;
+
+        callbackVector.emplace_back(id, f);
+        return id;
+    }
+
+    /**
+    * @brief internal helper to remove a callback function from vector of callbacks
+    */
+    template<typename T>
+    void removeCallback(std::vector<std::pair<int,T>> &callbackVector, int id)
+    {
+        auto it = std::lower_bound( callbackVector.cbegin(), callbackVector.cend(), std::pair<int,T>(id,T{}),
+                                    [](const std::pair<int,T>& a, const std::pair<int,T>& b){return (a.first < b.first);});
+        if(it != callbackVector.end())
+            callbackVector.erase(it);
+    }
+
 }
 
 // declare callback functions
@@ -217,7 +252,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods); //!< mouse button callback of the input manager
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset); //!< scroll callback of the input manager
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos); //!< cursor position callback of the input manager
+void drop_callback(GLFWwindow* window, int count, const char** paths); //!< drop callback of the input manager
+void cursor_enter_callback(GLFWwindow* window, int entered); //!< cursor enter callback of the input manager
+void character_callback(GLFWwindow* window, unsigned int codepoint); // char callback of the input manager
 // -----------------------------
+
+// functions only used by other mpUtils Modules
 
 void registerWindow(Window* wnd)
 {
@@ -237,6 +277,18 @@ void registerWindow(Window* wnd)
     glfwSetMouseButtonCallback(wnd->window(),mouse_button_callback);
     glfwSetScrollCallback(wnd->window(),scroll_callback);
     glfwSetCursorPosCallback(wnd->window(),cursor_position_callback);
+    glfwSetDropCallback(wnd->window(),drop_callback);
+    glfwSetCursorEnterCallback(wnd->window(), cursor_enter_callback);
+    glfwSetCharCallback(wnd->window(), character_callback);
+
+    // register focus callback to keep track of the window in focus
+    wnd->addFocusCallback([wnd](bool f)
+    {
+        if(f)
+            m_focusedWindow = wnd;
+        else if(wnd == m_focusedWindow)
+            m_focusedWindow = nullptr;
+    });
 }
 
 void unregisterWindow(Window* wnd)
@@ -250,6 +302,8 @@ void unregisterWindow(Window* wnd)
             it++;
     }
 }
+
+// functions for input polling
 
 bool isKeyDown(int key)
 {
@@ -271,12 +325,12 @@ bool isMouseButtonDown(int button)
     return false;
 }
 
-std::pair<Window*,glm::ivec2> getCursorPos()
+std::pair<Window*,glm::dvec2> getCursorPos()
 {
-    for(auto &wnd: m_wndList)
-    {
-        // TODO: implement with callbacks
-    }
+    Window* wnd = getHoveredWindow();
+    if(wnd)
+        wnd = m_wndList[0];
+    return {wnd,wnd->getCursorPos()};
 }
 
 glm::dvec2 getCursorScreenPos()
@@ -289,6 +343,18 @@ glm::dvec2 getCursorScreenPos()
     }
     return p;
 }
+
+Window *getActiveWindow()
+{
+    return m_focusedWindow;
+}
+
+Window *getHoveredWindow()
+{
+    return m_hoveredWindow;
+}
+
+// functions to control the cursor
 
 void setCursorScreenPos(double x, double y)
 {
@@ -308,18 +374,6 @@ void setCursorScreenPos(glm::dvec2 p)
     }
 }
 
-Window *getActiveWindow()
-{
-    // TODO: implement
-    return nullptr;
-}
-
-Window *getHoveredWindow()
-{
-    // TODO: implement
-    return nullptr;
-}
-
 void setCursor(GLFWcursor* c)
 {
     for(auto &wnd : m_wndList)
@@ -332,6 +386,8 @@ void setCursor(int shape)
         wnd->setCursor(shape);
 }
 
+// handle clippboard
+
 void setClipboard(const std::string & s)
 {
     if(!m_wndList.empty())
@@ -343,8 +399,52 @@ std::string getClipboard()
     return std::string(glfwGetClipboardString(m_wndList[0]->window()));
 }
 
-void setDoubleTapTime(unsigned int ms); //!< sets the time for double taps in miliseconds
-unsigned int getDoubleTapTime(); //!< gets the time for double taps in miliseconds
+// remove and add custom callbacks
+
+int addDropCallback(std::function<void(Window&, const std::vector<std::string>&)> f)
+{
+    return addCallback(m_dropCallbacks, std::move(f));
+}
+
+void removeDropCallback(int id)
+{
+    removeCallback(m_dropCallbacks, id);
+}
+
+// changing global settings
+
+void setDoubleClickTime(unsigned int ms)
+{
+    m_doubleClickTime = std::chrono::milliseconds(ms);
+}
+
+unsigned int getDoubleClickTime()
+{
+    return m_doubleClickTime.count();
+}
+
+void setAnalogToDigitalRatio(double r)
+{
+    m_analogToButtonRatio = r;
+}
+
+double setAnalogToDigitalRatio()
+{
+    return m_analogToButtonRatio;
+}
+
+void setDigitaltoAnalogRatio(double r)
+{
+    m_digitalToAxisRatio = r;
+}
+
+double setDigitalToAnalogRatio()
+{
+    return m_digitalToAxisRatio;
+}
+
+
+
 
 void mapKeyToInput(std::string name, int key, int requiredMods, ButtonBehavior overrideBehavior, AxisBehavior ab)
 {
@@ -675,6 +775,42 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
                 item.function->handleValue(*wnd, xChange, item.axisBehavior);
             }
         }
+}
+
+void drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+    logDEBUG("InputManager") << "Drop event recieved. " << count << " files dropped.";
+
+    auto wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    std::vector<std::string> data(count);
+    for(int i = 0; i < count; ++i)
+    {
+        data[i] = paths[i];
+    }
+
+    for(auto &callback : m_dropCallbacks)
+    {
+        callback.second(*wnd,data);
+    }
+}
+
+void cursor_enter_callback(GLFWwindow* window, int entered)
+{
+    auto wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    if (entered)
+    {
+        m_hoveredWindow = wnd;
+    }
+    else if(m_hoveredWindow == wnd)
+    {
+        // cursor left the hovered window
+        m_hoveredWindow = nullptr;
+    }
+}
+
+void character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+
 }
 
 }}}

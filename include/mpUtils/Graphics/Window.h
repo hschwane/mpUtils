@@ -158,7 +158,7 @@ public:
     void setSize(int x, int y) {glfwSetWindowSize(m_w.get(),x,y);} //!< resize the window
     void minimize() {glfwIconifyWindow(m_w.get());} //!< minimize the window
     void restore() {glfwRestoreWindow(m_w.get());} //!< restore a minimized window
-    void toogleMinimize(); //!< toggle minimzation state
+    void toggleMinimize(); //!< toggle minimzation state
     bool isMinimized() {return (GLFW_TRUE == glfwGetWindowAttrib(m_w.get(),GLFW_ICONIFIED));} //!< check if this the window is minimized
     void hide(){glfwHideWindow(m_w.get());} //!< make the window invisible
     void show(){glfwShowWindow(m_w.get());} //!< make the window visible if it was invisible before
@@ -205,12 +205,6 @@ public:
     int addFrameEndCallback(std::function<void()> f) {return addCallback(m_frameEndCallback,f);} //!< add a callback that is called at the end of every frame
     void removeFrameEndCallback(int id) {removeCallback(m_frameEndCallback,id);}; //!< removes the frameEnd callback function specified by id
 
-    // input callbacks
-    GLFWcharfun setCharCallback(GLFWcharfun cb) {return glfwSetCharCallback(m_w.get(),cb);} //!< callback provides character input
-    GLFWcharmodsfun setCharmodsCallback(GLFWcharmodsfun cb) {return glfwSetCharModsCallback(m_w.get(),cb);} //!< callback provides charater input with modifier keys
-    GLFWcursorenterfun setCoursorenterCallback(GLFWcursorenterfun cb) {return glfwSetCursorEnterCallback(m_w.get(),cb);} //!< called when the cursor enters or leaves the window
-    GLFWdropfun setDropCallbac(GLFWdropfun cb) {return glfwSetDropCallback(m_w.get(),cb);} //!< called when someting is drag'n droped onto the window
-
     // --------------
     // deprecated
     int getKey(int key) {return glfwGetKey(m_w.get(),key);} //!< ||deprecated|| state of key returns GLFW_PRESS or GLFW_RELEASE
@@ -223,7 +217,7 @@ private:
     static int gl_minor; //!< minor openGL version to use when creating the next window
 
     template <typename T, typename F>
-    int addCallback(std::vector<std::pair<int,T>>& callbackVector, F f); //!< helper to implement add callbackk functions
+    int addCallback(std::vector<std::pair<int,T>>& callbackVector, F f); //!< helper to implement add callback functions
 
     template <typename T>
     void removeCallback(std::vector<std::pair<int,T>>& callbackVector, int id); //!< helper to implement remove callback functions
@@ -270,7 +264,7 @@ int mpu::gph::Window::addCallback(std::vector<std::pair<int,T>> &callbackVector,
     if(callbackVector.empty())
         id = 0;
     else
-        int id = callbackVector.back().first+1;
+        id = callbackVector.back().first+1;
 
     callbackVector.emplace_back(id, f);
     return id;

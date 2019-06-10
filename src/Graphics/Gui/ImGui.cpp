@@ -16,7 +16,7 @@
 #include "mpUtils/Log/Log.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "mpUtils/Graphics/Input.h"
+#include "Graphics/InputInternal.h"
 //--------------------
 
 // namespace
@@ -33,6 +33,8 @@ namespace
     int frameBeginCallbackId; //!< id of frame begin callback
     int frameEndCallbackId; //!< id of frame end callback
     bool visible=true; //!< should the gui be rendered?
+    bool locked=false; //!< should the gui be rendered?
+    float oldAlpha; //!< stores the old alpha when locking
     bool captureMouseLastFrame=false; //!< did imGui capture the mouse last frame?
     std::vector<std::function<void()>> settingFunctions; //!< vector of setting change functions that need to be executed before the next FrameBegin
     std::function<void(bool)> guiHoverCallback; //!< callback called whenever mouse starts to hover the gui (true) or leaves the gui (false)
@@ -65,7 +67,7 @@ void create(mpu::gph::Window& window)
     framebufferCallbackId = window.addFBSizeCallback([](int w, int h){ framebufferSize.x=w; framebufferSize.y=h;});
 
     // begin frame callback, so this is done automatically
-    auto beginFrame = [&window]()
+    frameBeginCallbackId = window.addFrameBeginCallback( [&window]()
     {
         // call setings functions
         for(const auto &function : settingFunctions)
@@ -95,8 +97,7 @@ void create(mpu::gph::Window& window)
 
             captureMouseLastFrame = captureMouse;
         }
-    };
-    frameBeginCallbackId = window.addFrameBeginCallback(beginFrame);
+    });
 
     // end frame callback where gui is rendered
     frameEndCallbackId = window.addFrameEndCallback([]()
@@ -119,9 +120,9 @@ void create(mpu::gph::Window& window)
     logDEBUG("ImGui") << "ImGui initialized!";
 }
 
-void changeSettings(const std::function<void()>& settingFunction)
+void changeSettings( std::function<void()> settingFunction)
 {
-    settingFunctions.push_back(settingFunction);
+    settingFunctions.push_back(std::move(settingFunction));
 }
 
 void destroy()
@@ -142,11 +143,15 @@ void setHoverCallback(const std::function<void(bool)>& callback)
 void show()
 {
     visible =true;
+    unlock();
+    logDEBUG("ImGui") << "ImGui visible!";
 }
 
 void hide()
 {
     visible =false;
+    lock();
+    logDEBUG("ImGui") << "ImGui hidden!";
 }
 
 bool isVisible()
@@ -154,7 +159,7 @@ bool isVisible()
     return visible;
 }
 
-void toogleVisibility()
+void toggleVisibility()
 {
     if(isVisible())
         hide();
@@ -162,5 +167,39 @@ void toogleVisibility()
         show();
 }
 
+void unlock()
+{
+    if(locked)
+    {
+        changeSettings([](){ ImGui::GetStyle().Alpha = oldAlpha; });
+        ImGui_ImplGlfw_DisableInput(false);
+        locked = false;
+        logDEBUG("ImGui") << "ImGui unlocked!";
+    }
+}
+
+void lock()
+{
+    if(!locked)
+    {
+        changeSettings([](){ oldAlpha = ImGui::GetStyle().Alpha;ImGui::GetStyle().Alpha=oldAlpha*0.5;});
+        ImGui_ImplGlfw_DisableInput(true);
+        locked = true;
+        logDEBUG("ImGui") << "ImGui locked!";
+    }
+}
+
+bool isLocked()
+{
+    return locked;
+}
+
+void toggleLock()
+{
+    if(isLocked())
+        unlock();
+    else
+        lock();
+}
 
 }
