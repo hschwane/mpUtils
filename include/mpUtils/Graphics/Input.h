@@ -72,6 +72,9 @@ enum class AxisOrientation
     vertical //!< vertical axis (default)
 };
 
+// important, call once every frame:
+void update(); //!< handley all callbacks and other input stuff. call once per frame
+
 // polling
 bool isKeyDown(int key);
 bool isMouseButtonDown(int key);
@@ -91,8 +94,14 @@ std::string getClipboard();
 void setClipboard(const std::string& text);
 
 // add and remove custom callbacks
+int addUpdateCallback(std::function<void()> f);
+void removeUpdateCallback(int id);
 int addDropCallback(std::function<void(Window&, const std::vector<std::string>&)> f);
 void removeDropCallback(int id);
+int addCursorEnterCallback(std::function<void(Window&,bool)> f);
+void removeCursorEnterCallback(int id);
+int addCharCallback(std::function<void(Window&, unsigned int)> f);
+void removeCharCallback(int id);
 
 // change global settings
 void setDoubleClickTime(unsigned int ms);
@@ -102,11 +111,10 @@ double setAnalogToDigitalRatio();
 void setDigitaltoAnalogRatio(double r);
 double setDigitalToAnalogRatio();
 
-
+// managed input handling
 void addButton(std::string name, std::string description, std::function<void(Window&)> function,
                ButtonBehavior behavior = ButtonBehavior::onPress, bool allowBehaviorOverride = true, bool active=true);
 void addAxis(std::string name, std::string description, std::function<void(Window&,double)> function, bool active=true);
-
 
 void mapKeyToInput(std::string name, int key, int requiredMods = 0,
             ButtonBehavior overrideBehavior = ButtonBehavior::defaultBehavior, AxisBehavior ab = AxisBehavior::defaultBehavior);

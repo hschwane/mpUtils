@@ -202,6 +202,10 @@ Window Window::headlessContext(std::string title)
 
 bool Window::update()
 {
+    // check if window needs to close
+    if(glfwWindowShouldClose(m_w.get()))
+        return false;
+
     // end previous frame
     if(!isContextCurrent())
         makeContextCurrent();
@@ -214,43 +218,6 @@ bool Window::update()
 
     //---------------
     // start next frame
-    glfwPollEvents();
-
-    // check if window needs to close
-    if(glfwWindowShouldClose(m_w.get()))
-        return false;
-
-    glClear(m_clearMask);
-
-    // call frame begin callbacks
-    for(const auto &callback : m_frameBeginCallback)
-    {
-        callback.second();
-    }
-
-    return true;
-}
-
-bool Window::update(bool poll)
-{
-    // end previous frame
-    if(!isContextCurrent())
-        makeContextCurrent();
-
-    for(const auto &callback : m_frameEndCallback)
-    {
-        callback.second();
-    }
-    glfwSwapBuffers(m_w.get());
-
-    //---------------
-    // start next frame
-    if(poll)
-        glfwPollEvents();
-
-    // check if window needs to close
-    if(glfwWindowShouldClose(m_w.get()))
-        return false;
 
     glClear(m_clearMask);
 

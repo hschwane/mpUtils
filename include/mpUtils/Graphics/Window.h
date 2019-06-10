@@ -123,15 +123,9 @@ public:
     /**
      * @brief Take care of regular window stuff (buffer swap and events). Returns false if the window wants to be closed.
      *          FrameEnd and FrameBegin callbacks will be called here. Also updating a window will implicitly make it current!
+     *          Does not call glfwPollEvents any more. For that please call Input::update()
      */
     bool update();
-
-    /**
-     * @brief Take care of regular window stuff (buffer swap and events). Returns false if the window wants to be closed.
-     *          Only calls pollEvents if "poll" is true. Use to prevent multiple calls to pollEvents when using multiple windows.
-     *          FrameEnd and FrameBegin callbacks will be called here. Also updating a window will implicitly make it current!
-     */
-    bool update(bool poll);
 
     // openGL functionality
     GLbitfield getClearMask() { return m_clearMask;} //!< get the mask that is passed to glClear default is (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)

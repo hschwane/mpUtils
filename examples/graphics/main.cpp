@@ -48,7 +48,7 @@ int main()
     int nbframes =0;
     double elapsedPerT = 0;
 
-    while( window.update())
+    while(mpu::gph::Input::update(), window.update())
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glFinish();

@@ -52,6 +52,13 @@ void setupInputs()
     });
     gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal);
 
+    gph::Input::addAxis("TestAxis3","A axis that prints its value", [](gph::Window& w, double v)
+    {
+        logINFO("Test") << "Axis changed by " << v;
+    });
+    gph::Input::mapKeyToInput("TestAxis3",GLFW_KEY_E, 0, gph::Input::ButtonBehavior::defaultBehavior, gph::Input::AxisBehavior::negative);
+    gph::Input::mapKeyToInput("TestAxis3",GLFW_KEY_R, 0, gph::Input::ButtonBehavior::defaultBehavior, gph::Input::AxisBehavior::positive);
+
     gph::Input::addButton("Toggle Gui", "Globally toggles the ImGui overlay.", [](gph::Window& wnd)
     {
         ImGui::toggleVisibility();
@@ -63,6 +70,20 @@ void setupInputs()
         ImGui::toggleLock();
     });
     gph::Input::mapKeyToInput("Toggle Gui Lock", GLFW_KEY_F9);
+
+    gph::Input::addButton("Toggle Fullscreen", "Toggle fullscreen mode on the current window.", [](gph::Window& wnd)
+    {
+        wnd.toggleFullscreen();
+    });
+    gph::Input::mapKeyToInput("Toggle Fullscreen", GLFW_KEY_F11);
+
+    gph::Input::addButton("Show ImGui Window", "Show some imgui window.", [](gph::Window& wnd)
+    {
+        ImGui::Begin("I am only here while the  button is down :D");
+        ImGui::End();
+    });
+    gph::Input::mapKeyToInput("Show ImGui Window", GLFW_KEY_P,0,gph::Input::ButtonBehavior::onPressRepeat);
+    gph::Input::mapKeyToInput("Show ImGui Window", GLFW_KEY_O,0,gph::Input::ButtonBehavior::whenDown);
 }
 
 int main(int, char**)
@@ -73,11 +94,6 @@ int main(int, char**)
     int width = 800;
     int height = 600;
     gph::Window window(width, height,"mpUtils imGui test");
-
-    window.addSizeCallback([](int w, int h){ logDEBUG2("CallbackTest") << "window resized: " << w << "x" << h;});
-    window.addCloseCallback([](){ logDEBUG2("CallbackTest") << "window closed! ";});
-    window.addFocusCallback([](bool f){ if(f) { logDEBUG2("CallbackTest") << "window got focus!";} else {logDEBUG2("CallbackTest") << "window lost focus!";} });
-    window.addMinimizeCallback([](bool f){ if(f) { logDEBUG2("CallbackTest") << "window minimized!";} else {logDEBUG2("CallbackTest") << "window restored!";} });
 
     ImGui::create(window);
 //    ImGui::StyleColorsDark();
@@ -104,9 +120,8 @@ int main(int, char**)
     setupInputs();
 
     // Main loop
-    while (window.update())
+    while (gph::Input::update(), window.update())
     {
-
         ImGui::Begin("Input Test");
         {
 
@@ -179,7 +194,7 @@ int main(int, char**)
 
         if( secondWindow )
         {
-            if(secondWindow->update(false))
+            if(secondWindow->update())
             {
                 // we could render stuff in the second window
             } else
