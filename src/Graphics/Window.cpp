@@ -16,7 +16,7 @@
 #include "mpUtils/Log/Log.h"
 #include "mpUtils/Graphics/Window.h"
 #include <cmath>
-#include "Graphics/InputDetail.h"
+#include "Graphics/InputInternal.h"
 //--------------------
 
 // namespace

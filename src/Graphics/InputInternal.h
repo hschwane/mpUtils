@@ -8,8 +8,8 @@
  * Copyright (c) 2019 Hendrik Schwanekamp
  *
  */
-#ifndef MPUTILS_INPUTDETAIL_H
-#define MPUTILS_INPUTDETAIL_H
+#ifndef MPUTILS_INPUTINTERNAL_H
+#define MPUTILS_INPUTINTERNAL_H
 
 // includes
 //--------------------
@@ -38,4 +38,4 @@ void unregisterWindow(Window* wnd); //!< remove a window from the input manager
 #include "mpUtils/Graphics/Window.h"
 //--------------------
 
-#endif //MPUTILS_INPUTDETAIL_H
+#endif //MPUTILS_INPUTINTERNAL_H

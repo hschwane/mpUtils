@@ -38,6 +38,20 @@ int main(int, char**)
     bool show_demo_window = false;
     std::unique_ptr<gph::Window> secondWindow;
 
+    gph::Input::addButton("TestButton","Tests the button", [](gph::Window& w)
+    {
+        logINFO("Test") << "Button triggered from window at " << glm::to_string(w.getPosition());
+    }, gph::Input::ButtonBehavior::onPress);
+
+    gph::Input::bindKeyToInput("TestButton",GLFW_KEY_A,0, gph::Input::ButtonBehavior::onDoubleClick);
+    gph::Input::bindKeyToInput("TestButton",GLFW_KEY_B,GLFW_MOD_ALT | GLFW_MOD_SHIFT);
+
+    gph::Input::bindKeyToInput("SecondButton",GLFW_KEY_W);
+    gph::Input::addButton("SecondButton","Tests the button", [](gph::Window& w)
+    {
+        logINFO("Test") << "Second button triggered from window at " << glm::to_string(w.getPosition());
+    }, gph::Input::ButtonBehavior::onPress);
+
     // Main loop
     while (window.update())
     {
