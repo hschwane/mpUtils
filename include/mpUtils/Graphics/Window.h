@@ -193,13 +193,9 @@ public:
     void removeFrameEndCallback(int id) {removeCallback(m_frameEndCallback,id);}; //!< removes the frameEnd callback function specified by id
 
     // input callbacks
-    GLFWkeyfun setKeyCallback(GLFWkeyfun cb) {return glfwSetKeyCallback(m_w.get(),cb);} //!< callback will be called when key input is availible
     GLFWcharfun setCharCallback(GLFWcharfun cb) {return glfwSetCharCallback(m_w.get(),cb);} //!< callback provides character input
     GLFWcharmodsfun setCharmodsCallback(GLFWcharmodsfun cb) {return glfwSetCharModsCallback(m_w.get(),cb);} //!< callback provides charater input with modifier keys
-    GLFWmousebuttonfun setMousebuttonCallback(GLFWmousebuttonfun cb) {return glfwSetMouseButtonCallback(m_w.get(),cb);} //!< called when a mouse button is pressed
-    GLFWcursorposfun setCoursorposCallback(GLFWcursorposfun cb) {return glfwSetCursorPosCallback(m_w.get(),cb);} //!< called when the cursor is moved
     GLFWcursorenterfun setCoursorenterCallback(GLFWcursorenterfun cb) {return glfwSetCursorEnterCallback(m_w.get(),cb);} //!< called when the cursor enters or leaves the window
-    GLFWscrollfun setScrollCallback(GLFWscrollfun cb) {return glfwSetScrollCallback(m_w.get(),cb);} //!< called when the scroll wheel is moved
     GLFWdropfun setDropCallbac(GLFWdropfun cb) {return glfwSetDropCallback(m_w.get(),cb);} //!< called when someting is drag'n droped onto the window
 
     // input functions

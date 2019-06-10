@@ -3,6 +3,50 @@
 
 using namespace mpu;
 
+void setupInputs()
+{
+    gph::Input::addButton("TestButton","Tests the button", [](gph::Window& w)
+    {
+        logINFO("Test") << "Button triggered from window at " << glm::to_string(w.getPosition());
+    }, gph::Input::ButtonBehavior::onPress);
+
+    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_A, 0, gph::Input::ButtonBehavior::onDoubleClick);
+    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_B, GLFW_MOD_ALT | GLFW_MOD_SHIFT);
+
+    // there will be a warning since we swapped the order of calls, but it will work
+    gph::Input::mapKeyToInput("SecondButton", GLFW_KEY_W);
+    gph::Input::addButton("SecondButton","Tests the button", [](gph::Window& w)
+    {
+        logINFO("Test") << "Second button triggered from window at " << glm::to_string(w.getPosition());
+    }, gph::Input::ButtonBehavior::onPress);
+
+
+    gph::Input::addButton("mb","Tests the button", [](gph::Window& w)
+    {
+        if(w.getInputMode(GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+            w.setInputMode( GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        else
+            w.setInputMode( GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        logINFO("Test") << "Mouse button triggered from window at " << glm::to_string(w.getPosition());
+    }, gph::Input::ButtonBehavior::onPress);
+    gph::Input::mapMouseButtonToInput("mb", GLFW_MOUSE_BUTTON_RIGHT);
+
+
+    gph::Input::addButton("TriggeredByScroll","A button that is triggered by scrolling", [](gph::Window& w)
+    {
+        logINFO("Test") << "Sroll Wheel was moved for window at: " << glm::to_string(w.getPosition());
+    });
+    gph::Input::mapScrollToInput("TriggeredByScroll",GLFW_MOD_CONTROL,gph::Input::AxisBehavior::positive);
+    gph::Input::mapScrollToInput("TriggeredByScroll",GLFW_MOD_CONTROL,gph::Input::AxisBehavior::negative);
+
+
+    gph::Input::addAxis("TestAxis","A axis that prints its value", [](gph::Window& w, double v)
+    {
+        logINFO("Test") << "Axis changed by " << v;
+    });
+    gph::Input::mapScrollToInput("TestAxis");
+}
+
 int main(int, char**)
 {
 
@@ -38,19 +82,7 @@ int main(int, char**)
     bool show_demo_window = false;
     std::unique_ptr<gph::Window> secondWindow;
 
-    gph::Input::addButton("TestButton","Tests the button", [](gph::Window& w)
-    {
-        logINFO("Test") << "Button triggered from window at " << glm::to_string(w.getPosition());
-    }, gph::Input::ButtonBehavior::onPress);
-
-    gph::Input::bindKeyToInput("TestButton",GLFW_KEY_A,0, gph::Input::ButtonBehavior::onDoubleClick);
-    gph::Input::bindKeyToInput("TestButton",GLFW_KEY_B,GLFW_MOD_ALT | GLFW_MOD_SHIFT);
-
-    gph::Input::bindKeyToInput("SecondButton",GLFW_KEY_W);
-    gph::Input::addButton("SecondButton","Tests the button", [](gph::Window& w)
-    {
-        logINFO("Test") << "Second button triggered from window at " << glm::to_string(w.getPosition());
-    }, gph::Input::ButtonBehavior::onPress);
+    setupInputs();
 
     // Main loop
     while (window.update())

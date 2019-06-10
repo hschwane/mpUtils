@@ -7,6 +7,8 @@
  *
  * Copyright (c) 2019 Hendrik Schwanekamp
  *
+ * Defines function of the input manager that are only used internally by other mpUtils modules.
+ *
  */
 #ifndef MPUTILS_INPUTINTERNAL_H
 #define MPUTILS_INPUTINTERNAL_H
