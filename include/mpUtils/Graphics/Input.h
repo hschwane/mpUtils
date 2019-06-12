@@ -95,8 +95,22 @@ enum class AxisOrientation
     vertical //!< vertical axis (default)
 };
 
-// important, call once every frame:
+// global control functions:
 void update(); //!< handle all callbacks and other input stuff. call once per frame
+void disableMouseInput(); //!< disable all input using mouse buttons or scroll wheels (window specific functions can still be used)
+void enableMouseInput(); //!< re-enables mouse input
+bool isMouseInputEnabled(); //!< check if mouse input is enabled
+void toggleMouseInput(); //!< toggle the enabled state of mouse input
+
+void disableCursourInput(); //!< disable all input using cursour position (window specific functions as well as getCursorPos() can still be used)
+void enableCursourInput(); //!< re-enables cursour input
+bool isCursourInputEnabled(); //!< check if cursor input is enabled
+void toggleCursourInput(); //!< toggle the enabled state of cursour input
+
+void disableKeyboardInput(); //!< disable all keyboard related input (window specific functions can still be used)
+void enableKeyboardInput(); //!< re-enables keyboard input
+bool isKeyboardInputEnabled(); //!< check if keyboard input is enabled
+void toggleKeyboardInput(); //!< toggles the enabled state of keyboard inputs
 
 // polling
 bool isKeyDown(int key); //!< returns true if key (glfw named keycode) is down
@@ -126,7 +140,7 @@ void removeCursorEnterCallback(int id); //!< removes a cursor enter callback by 
 int addCharCallback(std::function<void(Window&, unsigned int)> f); //!< use f to recive character input
 void removeCharCallback(int id); //!< remove a char callback by its id
 
-// change global settings
+// change settings for managed input handling
 void setDoubleClickTime(unsigned int ms); //!< sets the max time between to key presses for them to be registered as a double click
 unsigned int getDoubleClickTime(); //!< returns the max time between to key presses for them to be registered as a double click
 void setAnalogToDigitalRatio(double r); //!< sets the axis value a analog input needs to exceed in order to trigger a button input

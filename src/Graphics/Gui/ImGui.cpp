@@ -16,7 +16,7 @@
 #include "mpUtils/Log/Log.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "Graphics/InputInternal.h"
+#include "mpUtils/Graphics/Input.h"
 //--------------------
 
 // namespace
@@ -35,6 +35,7 @@ namespace
     bool visible=true; //!< should the gui be rendered?
     bool locked=false; //!< should the gui be rendered?
     float oldAlpha; //!< stores the old alpha when locking
+    bool shouldDestroy = false; //!< should this instance be destroyed after ending the frame?
     bool captureMouseLastFrame=false; //!< did imGui capture the mouse last frame?
     std::vector<std::function<void()>> settingFunctions; //!< vector of setting change functions that need to be executed before the next FrameBegin
     std::function<void(bool)> guiHoverCallback; //!< callback called whenever mouse starts to hover the gui (true) or leaves the gui (false)
@@ -61,7 +62,7 @@ void create(mpu::gph::Window& window)
 
     // store the window and make sure we destroy the gui when the window gets destroyed
     attatchedWindow = &window;
-    closeCalbackId = window.addCloseCallback([](){destroyInternal();});
+    closeCalbackId = window.addCloseCallback([](){shouldDestroy = true;});
 
     // add resize callback
     framebufferCallbackId = window.addFBSizeCallback([](int w, int h){ framebufferSize.x=w; framebufferSize.y=h;});
@@ -69,6 +70,13 @@ void create(mpu::gph::Window& window)
     // begin frame callback, so this is done automatically
     frameBeginCallbackId = window.addFrameBeginCallback( [&window]()
     {
+        if(shouldDestroy)
+        {
+            destroyInternal();
+            shouldDestroy=false;
+            return;
+        }
+
         // call setings functions
         for(const auto &function : settingFunctions)
         {
@@ -82,15 +90,30 @@ void create(mpu::gph::Window& window)
         ImGui::NewFrame();
 
         bool captureMouse = ImGui::GetIO().WantCaptureMouse;
+        bool disableKeyInput = ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().WantTextInput;
+        bool disableCursorInput = captureMouse && ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow);
+
+        if(disableKeyInput && mpu::gph::Input::isKeyboardInputEnabled())
+            mpu::gph::Input::disableKeyboardInput();
+        else if(!disableKeyInput && !mpu::gph::Input::isKeyboardInputEnabled())
+            mpu::gph::Input::enableKeyboardInput();
+
+        if(disableCursorInput && mpu::gph::Input::isCursourInputEnabled())
+            mpu::gph::Input::disableCursourInput();
+        else if(!disableCursorInput && !mpu::gph::Input::isCursourInputEnabled())
+            mpu::gph::Input::enableCursourInput();
+
         if( captureMouse != captureMouseLastFrame)
         {
             if(!captureMouse)
             {
+                mpu::gph::Input::enableMouseInput();
                 window.restoreCursor();
                 if(guiHoverCallback)
                     guiHoverCallback(true);
             } else
             {
+                mpu::gph::Input::disableMouseInput();
                 if(guiHoverCallback)
                     guiHoverCallback(false);
             }

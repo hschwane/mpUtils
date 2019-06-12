@@ -11,7 +11,7 @@ void setupInputs()
     }, gph::Input::ButtonBehavior::onPress);
 
     gph::Input::mapKeyToInput("TestButton", GLFW_KEY_A, 0, gph::Input::ButtonBehavior::onDoubleClick);
-    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_B, GLFW_MOD_ALT | GLFW_MOD_SHIFT);
+    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_B, GLFW_MOD_ALT);
 
     // there will be a warning since we swapped the order of calls, but it will work
     gph::Input::mapKeyToInput("SecondButton", GLFW_KEY_W);
@@ -48,9 +48,9 @@ void setupInputs()
 
     gph::Input::addAxis("TestAxis2","A axis that prints its value", [](gph::Window& w, double v)
     {
-//        logINFO("Test") << "Axis changed by " << v;
+        logINFO("Test") << "Axis changed by " << v;
     });
-    gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal);
+    gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal,GLFW_MOD_CONTROL);
 
     gph::Input::addAxis("TestAxis3","A axis that prints its value", [](gph::Window& w, double v)
     {
@@ -102,7 +102,6 @@ int main(int, char**)
 //    ImGui::StylePagghiu();
 //    ImGui::StyleLightGreen();
 
-// TODO: disable input on imgui
 // TODO: print keys
 // TODO: imgui fonts
 // TODO: fix the style colors and default style

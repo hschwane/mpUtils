@@ -34,6 +34,9 @@ namespace {
     std::chrono::milliseconds m_doubleClickTime;
     double m_analogToButtonRatio;
     double m_digitalToAxisRatio;
+    bool m_mouseInputEnabled = true;
+    bool m_cursorInputEnabled = true;
+    bool m_keyboardInputEnabled = true;
 
     // private classes
     /**
@@ -266,6 +269,16 @@ namespace {
             callbackVector.erase(it);
     }
 
+    /**
+     * @brief check if all required modifiers are pressed
+     * @param mods the modifieres currently pressed
+     * @param requiredMods the required modifiers
+     * @return
+     */
+    bool checkMods(int mods, int requiredMods)
+    {
+        return (((requiredMods & mods) ^requiredMods) == 0);
+    }
 }
 
 // declare callback functions
@@ -344,21 +357,23 @@ void update()
         if(wnd->isKeyDown(GLFW_KEY_LEFT_SUPER) || wnd->isKeyDown(GLFW_KEY_RIGHT_SUPER))
             mods |= GLFW_MOD_SUPER;
 
-        for(auto &item : m_polledKeys)
-        {
-            if( item.second.function->active && mods >= item.second.requiredMods && wnd->isKeyDown(item.first))
+        if(m_keyboardInputEnabled)
+            for(auto &item : m_polledKeys)
             {
-                item.second.function->handleIsDown(*wnd,item.second.overrideBehavior,item.second.axisBehavior);
+                if( item.second.function->active && checkMods(mods,item.second.requiredMods) && wnd->isKeyDown(item.first))
+                {
+                    item.second.function->handleIsDown(*wnd,item.second.overrideBehavior,item.second.axisBehavior);
+                }
             }
-        }
 
-        for(auto &item : m_polledMbs)
-        {
-            if( item.second.function->active && mods >= item.second.requiredMods && wnd->isMouseButtonDown(item.first))
+        if(m_mouseInputEnabled)
+            for(auto &item : m_polledMbs)
             {
-                item.second.function->handleIsDown(*wnd,item.second.overrideBehavior,item.second.axisBehavior);
+                if( item.second.function->active && checkMods(mods,item.second.requiredMods) && wnd->isMouseButtonDown(item.first))
+                {
+                    item.second.function->handleIsDown(*wnd,item.second.overrideBehavior,item.second.axisBehavior);
+                }
             }
-        }
     }
 
     //call all update callbacks
@@ -368,10 +383,82 @@ void update()
     }
 }
 
+void disableMouseInput()
+{
+    m_mouseInputEnabled = false;
+}
+
+void enableMouseInput()
+{
+    m_mouseInputEnabled = true;
+}
+
+bool isMouseInputEnabled()
+{
+    return m_mouseInputEnabled;
+}
+
+void toggleMouseInput()
+{
+    if(isMouseInputEnabled())
+        disableMouseInput();
+    else
+        enableMouseInput();
+}
+
+void disableCursourInput()
+{
+    m_cursorInputEnabled = false;
+}
+
+void enableCursourInput()
+{
+    m_cursorInputEnabled = true;
+}
+
+bool isCursourInputEnabled()
+{
+    return m_cursorInputEnabled;
+}
+
+void toggleCursourInput()
+{
+    if(isCursourInputEnabled())
+        disableCursourInput();
+    else
+        enableCursourInput();
+}
+
+void disableKeyboardInput()
+{
+    m_keyboardInputEnabled = false;
+}
+
+void enableKeyboardInput()
+{
+    m_keyboardInputEnabled = true;
+}
+
+bool isKeyboardInputEnabled()
+{
+    return m_keyboardInputEnabled;
+}
+
+void toggleKeyboardInput()
+{
+    if(isKeyboardInputEnabled())
+        disableKeyboardInput();
+    else
+        enableKeyboardInput();
+}
+
 // functions for input polling
 
 bool isKeyDown(int key)
 {
+    if(!m_keyboardInputEnabled)
+        return false;
+
     for(auto &wnd : m_wndList)
     {
         if( wnd->isKeyDown(key) )
@@ -382,6 +469,9 @@ bool isKeyDown(int key)
 
 bool isMouseButtonDown(int button)
 {
+    if(!m_mouseInputEnabled)
+        return false;
+
     for(auto &wnd : m_wndList)
     {
         if( wnd->isMouseButtonDown(button) )
@@ -393,7 +483,7 @@ bool isMouseButtonDown(int button)
 std::pair<Window*,glm::dvec2> getCursorPos()
 {
     Window* wnd = getHoveredWindow();
-    if(wnd)
+    if(!wnd)
         wnd = m_wndList[0];
     return {wnd,wnd->getCursorPos()};
 }
@@ -847,6 +937,9 @@ void addAxis(std::string name, std::string description, std::function<void(Windo
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    if(!m_keyboardInputEnabled)
+        return;
+
     auto wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
     auto range = m_keymap.equal_range(key);
@@ -855,7 +948,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         // check if the input function is installed
         // check if the input function is active,
         // check if all required modifiers are down,
-        if( it->second.function && it->second.function->active && mods >= it->second.requiredMods)
+        if( it->second.function && it->second.function->active && checkMods(mods,it->second.requiredMods))
         {
             switch(action)
             {
@@ -877,6 +970,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    if(!m_mouseInputEnabled)
+        return;
+
     auto wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
     auto range = m_mbmap.equal_range(button);
@@ -885,7 +981,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         // check if the input function is installed
         // check if the input function is active,
         // check if all required modifiers are down,
-        if( it->second.function && it->second.function->active && mods >= it->second.requiredMods)
+        if( it->second.function && it->second.function->active && checkMods(mods,it->second.requiredMods))
         {
             switch(action)
             {
@@ -907,6 +1003,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    if(!m_mouseInputEnabled)
+        return;
+
     auto wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
     int mods = 0;
@@ -924,7 +1023,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         // check if the input function is installed
         // check if the input function is active,
         // check if all required modifiers are down,
-        if( item.function && item.function->active && mods >= item.requiredMods)
+        if( item.function && item.function->active && checkMods(mods,item.requiredMods))
         {
             item.function->handleValue(*wnd, yoffset, item.axisBehavior);
         }
@@ -935,7 +1034,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         // check if the input function is installed
         // check if the input function is active,
         // check if all required modifiers are down,
-        if( item.function && item.function->active && mods >= item.requiredMods)
+        if( item.function && item.function->active && checkMods(mods,item.requiredMods))
         {
             item.function->handleValue(*wnd, xoffset, item.axisBehavior);
         }
@@ -944,16 +1043,19 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    if(!m_cursorInputEnabled)
+        return;
+
     auto wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
     int mods = 0;
     if(wnd->isKeyDown(GLFW_KEY_LEFT_SHIFT) || wnd->isKeyDown(GLFW_KEY_RIGHT_SHIFT))
         mods |= GLFW_MOD_SHIFT;
-    if(wnd->isKeyDown(GLFW_KEY_LEFT_CONTROL) || wnd->isKeyDown(GLFW_KEY_RIGHT_CONTROL))
+    if(wnd->isKeyDown(GLFW_KEY_LEFT_CONTROL) )// || wnd->isKeyDown(GLFW_KEY_RIGHT_CONTROL))
         mods |= GLFW_MOD_CONTROL;
-    if(wnd->isKeyDown(GLFW_KEY_LEFT_ALT) || wnd->isKeyDown(GLFW_KEY_RIGHT_ALT))
+    if(wnd->isKeyDown(GLFW_KEY_LEFT_ALT) )// || wnd->isKeyDown(GLFW_KEY_RIGHT_ALT))
         mods |= GLFW_MOD_ALT;
-    if(wnd->isKeyDown(GLFW_KEY_LEFT_SUPER) || wnd->isKeyDown(GLFW_KEY_RIGHT_SUPER))
+    if(wnd->isKeyDown(GLFW_KEY_LEFT_SUPER) )// || wnd->isKeyDown(GLFW_KEY_RIGHT_SUPER))
         mods |= GLFW_MOD_SUPER;
 
     // calculate the rate of change
@@ -970,7 +1072,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
                 // check if the input function is installed
                 // check if the input function is active,
                 // check if all required modifiers are down,
-                if( item.function && item.function->active && mods >= item.requiredMods)
+                if( item.function && item.function->active && checkMods(mods,item.requiredMods))
                 {
                     item.function->handleValue(*wnd, yChange, item.axisBehavior);
                 }
@@ -982,7 +1084,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
             // check if the input function is installed
             // check if the input function is active,
             // check if all required modifiers are down,
-            if( item.function && item.function->active && mods >= item.requiredMods)
+            if( item.function && item.function->active && checkMods(mods,item.requiredMods))
             {
                 item.function->handleValue(*wnd, xChange, item.axisBehavior);
             }
@@ -1027,6 +1129,9 @@ void cursor_enter_callback(GLFWwindow* window, int entered)
 
 void character_callback(GLFWwindow* window, unsigned int codepoint)
 {
+    if(!m_keyboardInputEnabled)
+        return;
+
     auto wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
     for(auto &callback : m_charCallbacks)
     {
