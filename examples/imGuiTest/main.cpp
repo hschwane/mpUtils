@@ -96,29 +96,15 @@ int main(int, char**)
     gph::Window window(width, height,"mpUtils imGui test");
 
     ImGui::create(window);
-//    ImGui::StyleColorsDark();
-//    ImGui::StyleCorporateGreyFlat();
-    ImGui::StyleDarcula();
-//    ImGui::StylePagghiu();
-//    ImGui::StyleLightGreen();
+
 
 // TODO: print keys
-// TODO: imgui fonts
 // TODO: fix the style colors and default style
 // TODO: some default input functions
 // TODO: get imgui addon stuff
 // TODO: imgui window for performance, logging and changing keys
 
     gph::enableVsync(true);
-
-    // Load Fonts
-    auto io = ImGui::GetIO();
-    io.Fonts->AddFontDefault();
-    io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH"/fonts/Roboto-Medium.ttf", 16.0f);
-    io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH"/fonts/Cousine-Regular.ttf", 15.0f);
-    io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH"/fonts/DroidSans.ttf", 16.0f);
-    io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH"/fonts/Karla-Regular.ttf", 16.0f);
-    io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH"/fonts/ProggyTiny.ttf", 13.0f);
 
     glClearColor( .2f, .2f, .2f, 1.0f);
     bool show_demo_window = false;

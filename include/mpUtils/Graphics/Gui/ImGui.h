@@ -54,6 +54,13 @@ namespace ImGui { // we extend the imgui namespace inside mpu
     void lock(); //!< lock the imgui
     bool isLocked(); //!< check if imgui is currently locked
     void toggleLock(); //!< toogle the lock state of imgui
+
+    // fonts that are shipped with mpUtils
+    extern ImFont *fontDefault;
+    extern ImFont *fontRoboto;
+    extern ImFont *fontCousine;
+    extern ImFont *fontDroid;
+    extern ImFont *fontKarla;
 }
 
 #endif //MPUTILS_IMGUI_H

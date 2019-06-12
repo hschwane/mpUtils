@@ -243,6 +243,7 @@ set(MPU_LIB_SHADER_PATH ${CMAKE_SOURCE_DIR}/shader/)
 set(MPU_LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources/)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/paths.h)
 
+target_compile_options(mpUtils PRIVATE "-Wa,-I${CMAKE_CURRENT_LIST_DIR}/resources")
 
 # -------------------------------------------------------------
 # link dependencies (this will also link the dependencies of dependencies and set required compiler flags)
