@@ -102,6 +102,14 @@ int main(int, char**)
 //    ImGui::StylePagghiu();
 //    ImGui::StyleLightGreen();
 
+// TODO: disable input on imgui
+// TODO: print keys
+// TODO: imgui fonts
+// TODO: fix the style colors and default style
+// TODO: some default input functions
+// TODO: get imgui addon stuff
+// TODO: imgui window for performance, logging and changing keys
+
     gph::enableVsync(true);
 
     // Load Fonts

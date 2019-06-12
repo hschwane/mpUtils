@@ -523,7 +523,7 @@ void setAnalogToDigitalRatio(double r)
     m_analogToButtonRatio = r;
 }
 
-double setAnalogToDigitalRatio()
+double getAnalogToDigitalRatio()
 {
     return m_analogToButtonRatio;
 }
@@ -533,7 +533,7 @@ void setDigitaltoAnalogRatio(double r)
     m_digitalToAxisRatio = r;
 }
 
-double setDigitalToAnalogRatio()
+double getDigitalToAnalogRatio()
 {
     return m_digitalToAxisRatio;
 }
@@ -1032,6 +1032,11 @@ void character_callback(GLFWwindow* window, unsigned int codepoint)
     {
         callback.second(*wnd,codepoint);
     }
+}
+
+std::string generateHelpString()
+{
+    return "This is not implemented yet";
 }
 
 }}}
