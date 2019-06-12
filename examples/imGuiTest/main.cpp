@@ -99,7 +99,6 @@ int main(int, char**)
 
 
 // TODO: print keys
-// TODO: fix the style colors and default style
 // TODO: some default input functions
 // TODO: get imgui addon stuff
 // TODO: imgui window for performance, logging and changing keys
