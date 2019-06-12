@@ -121,11 +121,15 @@ public:
     // functions working with window state
 
     /**
-     * @brief Take care of regular window stuff (buffer swap and events). Returns false if the window wants to be closed.
-     *          FrameEnd and FrameBegin callbacks will be called here. Also updating a window will implicitly make it current!
-     *          Does not call glfwPollEvents any more. For that please call Input::update()
+     * @brief Take care of things that need to be done at the start of a frame for this window. Also makes this windows
+     *      openGL context current and calls all frameBegin callbacks. Returns false if the window should be closed.
      */
-    bool update();
+    bool frameBegin();
+    /**
+     * @brief Take care of things that need to be done at the end of a frame for this window. Also makes this window current
+     * in case you handled another winddow inbetween frammeBegin and frameEnd and calls all frameEnd callbacks.
+     */
+    void frameEnd();
 
     // openGL functionality
     GLbitfield getClearMask() { return m_clearMask;} //!< get the mask that is passed to glClear default is (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)

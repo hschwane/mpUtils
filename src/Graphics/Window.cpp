@@ -200,24 +200,10 @@ Window Window::headlessContext(std::string title)
     return std::move(mpu::gph::Window(5,5,title));
 }
 
-bool Window::update()
+bool Window::frameBegin()
 {
-    // check if window needs to close
-    if(glfwWindowShouldClose(m_w.get()))
-        return false;
-
-    // end previous frame
     if(!isContextCurrent())
         makeContextCurrent();
-
-    for(const auto &callback : m_frameEndCallback)
-    {
-        callback.second();
-    }
-    glfwSwapBuffers(m_w.get());
-
-    //---------------
-    // start next frame
 
     glClear(m_clearMask);
 
@@ -227,7 +213,20 @@ bool Window::update()
         callback.second();
     }
 
-    return true;
+    // check if window needs to close
+    return !(glfwWindowShouldClose(m_w.get()));
+}
+
+void Window::frameEnd()
+{
+    if(!isContextCurrent())
+        makeContextCurrent();
+
+    for(const auto &callback : m_frameEndCallback)
+    {
+        callback.second();
+    }
+    glfwSwapBuffers(m_w.get());
 }
 
 std::pair<int, int> Window::getGlVersion()

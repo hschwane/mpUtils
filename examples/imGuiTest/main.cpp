@@ -128,7 +128,7 @@ int main(int, char**)
     setupInputs();
 
     // Main loop
-    while (gph::Input::update(), window.update())
+    while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
         ImGui::Begin("Input Test");
         {
@@ -202,14 +202,16 @@ int main(int, char**)
 
         if( secondWindow )
         {
-            if(secondWindow->update())
+            if(secondWindow->frameBegin())
             {
                 // we could render stuff in the second window
+                secondWindow->frameEnd();
             } else
             {
                 // close the second window
                 secondWindow.reset();
             }
+
         }
     }
 
