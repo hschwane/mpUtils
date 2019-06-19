@@ -242,7 +242,5 @@ void mapScrollToInput(std::string name, AxisBehavior direction = AxisBehavior::d
  */
 void mapCourserToInput(std::string name, AxisOrientation axis, AxisBehavior direction = AxisBehavior::defaultBehavior, int requiredMods = 0, std::string customModifierName ="");
 
-std::string generateHelpString(); //!< generates a string explaining all registered input functions and mappings
-
 }}}
 #endif //MPUTILS_INPUT_H

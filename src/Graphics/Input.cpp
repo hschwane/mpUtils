@@ -1286,10 +1286,4 @@ void character_callback(GLFWwindow* window, unsigned int codepoint)
 
 }
 
-
-std::string generateHelpString()
-{
-    return "This is not implemented yet";
-}
-
 }}}
