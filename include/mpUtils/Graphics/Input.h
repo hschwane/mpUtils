@@ -80,7 +80,7 @@ enum class ButtonBehavior
     onDoubleClick, //!< input function is only called after button is pressed, released and pressed again. time can be configured with
     onPressRepeat, //!< input function is called when button is pressed and then again when it is repeated
     whenDown,    //!< function is called every frame that button is down like when polling isButtonDown()
-    defaultBehavior //! use the default button behavior instead of the overwritten one (only to be used when mapping input)
+    other //!< used internally for mappings to custom modifiers and axis as well as analog inputs mapped to buttons
 };
 
 /**
@@ -157,6 +157,14 @@ void setAnalogToDigitalRatio(double r); //!< sets the axis value a analog input 
 double getAnalogToDigitalRatio(); //!< returns the axis value a analog input needs to exceed in order to trigger a button input
 void setDigitaltoAnalogRatio(double r); //!< sets the value that is applied per second to an axis input when a digital button is pressed
 double getDigitalToAnalogRatio(); //!< returns the value that is applied per second to an axis input when a digital button is pressed
+void setMouseSensitivityX(double sX); //!< change the sensitivity of axis on mouse input in x direction
+void setMouseSensitivityY(double sY); //!< change the sensitivity of axis on mouse input in y direction
+void setScrollSensitivityX(double sX); //!< change the sensitivity of axis on scroll input in x direction
+void setScrollSensitivityY(double sY); //!< change the sensitivity of axis on scroll input in y direction
+double getMouseSensitivityX(); //!< returns the sensitivity of axis on mouse input in x direction
+double getMouseSensitivityY(); //!< returns the sensitivity of axis on mouse input in y direction
+double getScrollSensitivityX(); //!< returns the sensitivity of axis on scroll input in x direction
+double getScrollSensitivityY(); //!< returns the sensitivity of axis on scroll input in y direction
 
 // managed input handling
 
@@ -165,55 +173,50 @@ double getDigitalToAnalogRatio(); //!< returns the value that is applied per sec
  * @param name The Name of the input by which it is identified. Must be unique. Characters after a double hash "##" will not be displayed in gui or help output.
  * @param description Description of the input will be displayed in gui and help output.
  * @param function The function to be called when the button is triggered. a reference to the window which handled the event will be passed along.
- * @param behavior Defines when the button should be triggered eg onPress or onRelease
- * @param allowBehaviorOverride true to allow the behavior to be overriden by a specificinput mappin. (Eg use onPress for normal key but onDoubleClick for mouse button)
- * @param active True, if the button should be enabled by default
+ * @param active True, if the button should be enabled (usable) by default
  */
-void addButton(std::string name, std::string description, std::function<void(Window&)> function,
-               ButtonBehavior behavior = ButtonBehavior::onPress, bool allowBehaviorOverride = true, bool active=true);
+void addButton(std::string name, std::string description, std::function<void(Window&)> function, bool active=true);
 
 /**
  * @brief Add a axis type input to the input manager.
  * @param name The Name of the input by which it is identified. Must be unique. Characters after a double hash "##" will not be displayed in gui or help output.
  * @param description Description of the input will be displayed in gui and help output.
  * @param function The function is called whenever the value of the axis changes. The rate of change will be passed as well as the window that handled the event.
- * @param active True, if the button should be enabled by default
+ * @param active True, if the button should be enabled (usable) by default
  */
 void addAxis(std::string name, std::string description, std::function<void(Window&,double)> function, bool active=true);
 
 /**
- * @brief Map a keyboard key to a input function. If you map it to a button the button will be triggered according to its behavior.
+ * @brief Map a keyboard key to an input function. If you map it to a button the button will be triggered according to its behavior.
 *          If you map it to a axis a value of getDigitalToAnalogRatio() per second is applied to the axis in the direction specified by "ab".
  *          You can add multiple mappings to an input or use the same key in multiple mappings.
  *          If you map a key to an axis you MUST set "ab" or it will have no effect.
  * @param name Name of the input this mapping should apply to.
  * @param key The glfw named key to use for the mapping.
  * @param requiredMods A bit-set of modifiers that need to be pressed alongside this key for the input to be triggered
- * @param overrideBehavior Try to override the behavior of a button if allowed
+ * @param buttonBehavior the behavior of the button eg onPress or onRelease
  * @param ab The direction in which change is applied by this mapping to an axis input.
  * @param customModifierName If this is not empty a custom modifer with this name will be generated. You can then map butons or keys to it. This input is only considered active when the custom modifier is pressed.
  */
-void mapKeyToInput(std::string name, int key, int requiredMods = 0,
-            ButtonBehavior overrideBehavior = ButtonBehavior::defaultBehavior,
-            AxisBehavior ab = AxisBehavior::defaultBehavior, std::string customModifierName ="");
+void mapKeyToInput(std::string name, int key, ButtonBehavior buttonBehavior = ButtonBehavior::onPress,
+            AxisBehavior ab = AxisBehavior::defaultBehavior, int requiredMods = 0, std::string customModifierName ="");
 
 /**
- * @brief Map a mouse button to a input function. If you map it to a button the button will be triggered according to its behavior.
+ * @brief Map a mouse button to an input function. If you map it to a button the button will be triggered according to its behavior.
  *          If you map it to a axis a value of getDigitalToAnalogRatio() is applied to the axis in the direction specified by "ab".
  *          You can add multiple mappings to an input or use the same mouse buttons in multiple mappings.
  *          If you map a button to an axis you MUST set "ab" or it will have no effect.
  * @param name Name of the input this mapping should apply to.
  * @param button The glfw mouse button id to use for the mapping.
  * @param requiredMods A bit-set of modifiers that need to be pressed alongside this button for the input to be triggered
- * @param overrideBehavior Try to override the behavior of a button if allowed
+ * @param buttonBehavior the behavior of the button eg onPress or onRelease
  * @param ab The direction in which change is applied by this mapping to an axis input.
  * @param customModifierName If this is not empty a custom modifer with this name will be generated. You can then map butons or keys to it. This input is only considered active when the custom modifier is pressed.
  */
-void mapMouseButtonToInput(std::string name, int button, int requiredMods = 0,
-                           ButtonBehavior overrideBehavior = ButtonBehavior::defaultBehavior,
-                           AxisBehavior ab = AxisBehavior::defaultBehavior, std::string customModifierName ="");
+void mapMouseButtonToInput(std::string name, int button, ButtonBehavior buttonBehavior = ButtonBehavior::onPress,
+                           AxisBehavior ab = AxisBehavior::defaultBehavior, int requiredMods = 0, std::string customModifierName ="");
 /**
- * @brief Map a scroll action to a input function. If you map it to an axis the rate of scrolling will be applied as rate of change
+ * @brief Map a scroll action to an input function. If you map it to an axis the rate of scrolling will be applied as rate of change
  *          to the axis. If you map it to a button, the button will be triggered once whenever a rate of change of getAnalogToDigitalRatio
  *          is exceeded in the direction defined by "ab". You can add multiple mappings to an input or use the scroll event in multiple mappings.
  *          If you map a scroll event to a button you MUST set "ab" or it will have no effect.
@@ -223,11 +226,11 @@ void mapMouseButtonToInput(std::string name, int button, int requiredMods = 0,
  * @param axis The orientation of the scroll event (default is vertical scrolling)
  * @param customModifierName If this is not empty a custom modifer with this name will be generated. You can then map butons or keys to it. This input is only considered active when the custom modifier is pressed.
  */
-void mapScrollToInput(std::string name, int requiredMods = 0, AxisBehavior direction = AxisBehavior::defaultBehavior,
-                      AxisOrientation axis = AxisOrientation::vertical, std::string customModifierName ="");
+void mapScrollToInput(std::string name, AxisBehavior direction = AxisBehavior::defaultBehavior,
+                      int requiredMods = 0, std::string customModifierName ="", AxisOrientation axis = AxisOrientation::vertical);
 
 /**
- * @brief Map a mouse cursor move to a input function. If you map it to an axis the rate of movement will be applied as rate of change
+ * @brief Map a mouse cursor move to an input function. If you map it to an axis the rate of movement will be applied as rate of change
  *          to the axis. If you map it to a button, the button will be triggered once whenever a rate of change of getAnalogToDigitalRatio
  *          is exceeded in the direction defined by "ab". You can add multiple mappings to an input or use the same cursor change in multiple mappings.
  *          If you map a cursor position change to a button you MUST set "ab" or it will have no effect.
@@ -237,7 +240,7 @@ void mapScrollToInput(std::string name, int requiredMods = 0, AxisBehavior direc
  * @param direction The direction in which this needs to be moved in order to trigger a button input.
  * @param customModifierName If this is not empty a custom modifer with this name will be generated. You can then map butons or keys to it. This input is only considered active when the custom modifier is pressed.
  */
-void mapCourserToInput(std::string name, AxisOrientation axis, int requiredMods = 0, AxisBehavior direction = AxisBehavior::defaultBehavior, std::string customModifierName ="");
+void mapCourserToInput(std::string name, AxisOrientation axis, AxisBehavior direction = AxisBehavior::defaultBehavior, int requiredMods = 0, std::string customModifierName ="");
 
 std::string generateHelpString(); //!< generates a string explaining all registered input functions and mappings
 

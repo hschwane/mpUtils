@@ -8,17 +8,17 @@ void setupInputs()
     gph::Input::addButton("TestButton","Tests the button", [](gph::Window& w)
     {
         logINFO("Test") << "Button triggered from window at " << glm::to_string(w.getPosition());
-    }, gph::Input::ButtonBehavior::onPress);
+    });
 
-    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_A, 0, gph::Input::ButtonBehavior::onDoubleClick);
-    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_B, GLFW_MOD_ALT);
+    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_A, gph::Input::ButtonBehavior::onDoubleClick);
+    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_B, gph::Input::ButtonBehavior::onPress, gph::Input::AxisBehavior::defaultBehavior, GLFW_MOD_ALT);
 
     // there will be a warning since we swapped the order of calls, but it will work
     gph::Input::mapKeyToInput("SecondButton", GLFW_KEY_W);
     gph::Input::addButton("SecondButton","Tests the button", [](gph::Window& w)
     {
         logINFO("Test") << "Second button triggered from window at " << glm::to_string(w.getPosition());
-    }, gph::Input::ButtonBehavior::onPress);
+    });
 
 
     gph::Input::addButton("mb","Tests the button", [](gph::Window& w)
@@ -28,7 +28,7 @@ void setupInputs()
         else
             w.setInputMode( GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         logINFO("Test") << "Mouse button triggered from window at " << glm::to_string(w.getPosition());
-    }, gph::Input::ButtonBehavior::onPress);
+    });
     gph::Input::mapMouseButtonToInput("mb", GLFW_MOUSE_BUTTON_RIGHT);
 
 
@@ -36,8 +36,8 @@ void setupInputs()
     {
         logINFO("Test") << "Sroll Wheel was moved for window at: " << glm::to_string(w.getPosition());
     });
-    gph::Input::mapScrollToInput("TriggeredByScroll",GLFW_MOD_CONTROL,gph::Input::AxisBehavior::positive);
-    gph::Input::mapScrollToInput("TriggeredByScroll",GLFW_MOD_CONTROL,gph::Input::AxisBehavior::negative);
+    gph::Input::mapScrollToInput("TriggeredByScroll", gph::Input::AxisBehavior::positive);
+    gph::Input::mapScrollToInput("TriggeredByScroll", gph::Input::AxisBehavior::negative, GLFW_MOD_CONTROL);
 
 
     gph::Input::addAxis("TestAxis","A axis that prints its value", [](gph::Window& w, double v)
@@ -50,14 +50,14 @@ void setupInputs()
     {
         logINFO("Test") << "Axis changed by " << v;
     });
-    gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal,GLFW_MOD_CONTROL);
+    gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal, gph::Input::AxisBehavior::defaultBehavior, GLFW_MOD_CONTROL);
 
     gph::Input::addAxis("TestAxis3","A axis that prints its value", [](gph::Window& w, double v)
     {
         logINFO("Test") << "Axis changed by " << v;
     });
-    gph::Input::mapKeyToInput("TestAxis3",GLFW_KEY_E, 0, gph::Input::ButtonBehavior::defaultBehavior, gph::Input::AxisBehavior::negative);
-    gph::Input::mapKeyToInput("TestAxis3",GLFW_KEY_R, 0, gph::Input::ButtonBehavior::defaultBehavior, gph::Input::AxisBehavior::positive);
+    gph::Input::mapKeyToInput("TestAxis3",GLFW_KEY_E, gph::Input::ButtonBehavior::other, gph::Input::AxisBehavior::negative);
+    gph::Input::mapKeyToInput("TestAxis3",GLFW_KEY_R, gph::Input::ButtonBehavior::other, gph::Input::AxisBehavior::positive);
 
     gph::Input::addButton("Toggle Gui", "Globally toggles the ImGui overlay.", [](gph::Window& wnd)
     {
@@ -89,10 +89,9 @@ int main(int, char**)
 
     ImGui::create(window);
 
-// TODO: have button behavior only in the mapping class
-// TODO: add sensitivity scaling to mapping maybe?
 // TODO: print keys
 // TODO: functions to change / activate usw keys
+// TODO: imgui hotkeys
 // TODO: add imgui window to change keys
 // TODO: some default input functions
 // TODO: get imgui addon stuff
