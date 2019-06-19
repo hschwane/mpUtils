@@ -148,14 +148,14 @@ namespace {
         mpu::HRTimer doubleTapTimer; //!< timer to be used to time double clicks
         ButtonBehavior defaultBehavior; //!< the buttons default behavior when not overwritten by the input mapping
         bool allowBehaviorOverride; //!< allow that the button behavior can be overwritten by the input mapping
-        std::function<void(Window&)> function; //!< function taht performs the actual work
+        std::function<void(Window&)> function; //!< function that performs the actual work
     };
 
     /**
      * @brief When the value of an analog input changes the input function is called.
      *        The window in focus during the event will be passed to that function, as well as a value that represents
-     *        the magnitude and direction of the change. Axis can be bound to digital inputs, in that case a constant
-     *        change of m_digitalToAxisRatio is applied in the desired direction while the digital input is pressed.
+     *        the magnitude and direction of the change. Axis can be bound to digital inputs, in that case a
+     *        change of m_digitalToAxisRatio per second is applied in the desired direction while the digital input is pressed.
      */
     class AxisInput : public InputFunction
     {
@@ -171,10 +171,34 @@ namespace {
 
         void handleIsDown(Window &wnd, ButtonBehavior behavior, AxisBehavior ab) override
         {
-            function(wnd, static_cast<int>(ab)*m_digitalToAxisRatio);
+            function(wnd, static_cast<int>(ab)*m_digitalToAxisRatio*deltaTime());
         }
 
         std::function<void(Window&,double)> function;
+    };
+
+    class CustomModifier : public InputFunction
+    {
+    public:
+        explicit CustomModifier(std::string desc)
+                : InputFunction(InputFunctionType::customModifier, std::move(desc), true), m_isDown(false)
+        {
+        }
+
+        void handlePressed(Window& wnd, ButtonBehavior behavior, AxisBehavior ab) override
+        {
+            m_isDown = true;
+        }
+
+        void handleRelesed(Window& wnd, ButtonBehavior behavior, AxisBehavior ab) override
+        {
+            m_isDown = false;
+        }
+
+        bool isDown() {return m_isDown;}
+
+    private:
+        bool m_isDown;
     };
 
     /**
@@ -186,14 +210,25 @@ namespace {
     {
     public:
         InputMapping(std::string name, InputFunction* input, int mods,
-                ButtonBehavior behavior, AxisBehavior ab)
+                     ButtonBehavior behavior, AxisBehavior ab, CustomModifier* customModifier)
                 : functionName(std::move(name)), function(input), requiredMods(mods),
-                overrideBehavior(behavior), axisBehavior(ab)
+                  overrideBehavior(behavior), axisBehavior(ab), customMod(customModifier)
         {}
+
+        /**
+         * Returns true if all conditions are met for the mapping to be triggered
+         * @param mods the currently activated modifier keys
+         * @return true if the mapping can be activated
+         */
+        bool readyToUse(int mods)
+        {
+            return function && function->active && (((requiredMods & mods) ^requiredMods) == 0) && (customMod == nullptr || customMod->isDown());
+        }
 
         const std::string functionName; //!< name of the mapped input function
         InputFunction* function; //!< mapped input function
         int requiredMods; //!< required moddifiers to be pressed for this input mapping to be active
+        CustomModifier* customMod; //!< points to the custom modifier added to this mapping
         ButtonBehavior overrideBehavior; //!< override button behavior
         AxisBehavior axisBehavior; //!< controles behavior if mapping analog input to button or digital input to axis
     };
@@ -215,7 +250,6 @@ namespace {
     PollListType m_polledKeys; //!< all keyboard keys that need to be polled because for some reason
     PollListType m_polledMbs; //!< all mouse buttons that need to be polled because for some reason
 
-
     // lists to store external callbacks
     std::vector<std::pair<int,std::function<void(Window&,const std::vector<std::string>&)>>> m_dropCallbacks;
     std::vector<std::pair<int,std::function<void(Window&,bool)>>> m_cursorEnterCallbacks;
@@ -226,6 +260,9 @@ namespace {
     std::vector<Window*> m_wndList; //!< list of all windows that can provide input
     Window* m_focusedWindow; //!< the window in focus or nullptr
     Window* m_hoveredWindow; //!< the window under the cursor or nullptr
+
+    double m_lastTime; //!< the time returned by the last call to glfwGetTime
+    double m_frametime; //!< the time since the last call to Input::update();
 
     // private helper functions
 
@@ -238,7 +275,9 @@ namespace {
         m_focusedWindow = nullptr;
         m_doubleClickTime = std::chrono::milliseconds(500);
         m_analogToButtonRatio = 1;
-        m_digitalToAxisRatio = 1;
+        m_digitalToAxisRatio = 20;
+        m_frametime = 0;
+        m_lastTime = glfwGetTime();
     }
 
     /**
@@ -270,15 +309,10 @@ namespace {
     }
 
     /**
-     * @brief check if all required modifiers are pressed
-     * @param mods the modifieres currently pressed
-     * @param requiredMods the required modifiers
-     * @return
+     * Creates a Input of type custom modifier and adds it to the list of inputs.
+     * @param name used during creation of input mappings to add a custom modifier
      */
-    bool checkMods(int mods, int requiredMods)
-    {
-        return (((requiredMods & mods) ^requiredMods) == 0);
-    }
+    CustomModifier* addCustomModifier(std::string name, std::string description);
 }
 
 // declare callback functions
@@ -341,6 +375,11 @@ void unregisterWindow(Window* wnd)
 // update function to update the imput state and handle all callbacks
 void update()
 {
+    // update time
+    double t = glfwGetTime();
+    m_frametime = t - m_lastTime;
+    m_lastTime = t;
+
     // handle glfw
     glfwPollEvents();
 
@@ -360,7 +399,7 @@ void update()
         if(m_keyboardInputEnabled)
             for(auto &item : m_polledKeys)
             {
-                if( item.second.function->active && checkMods(mods,item.second.requiredMods) && wnd->isKeyDown(item.first))
+                if( item.second.readyToUse(mods) && wnd->isKeyDown(item.first))
                 {
                     item.second.function->handleIsDown(*wnd,item.second.overrideBehavior,item.second.axisBehavior);
                 }
@@ -369,7 +408,7 @@ void update()
         if(m_mouseInputEnabled)
             for(auto &item : m_polledMbs)
             {
-                if( item.second.function->active && checkMods(mods,item.second.requiredMods) && wnd->isMouseButtonDown(item.first))
+                if( item.second.readyToUse(mods) && wnd->isMouseButtonDown(item.first))
                 {
                     item.second.function->handleIsDown(*wnd,item.second.overrideBehavior,item.second.axisBehavior);
                 }
@@ -450,6 +489,11 @@ void toggleKeyboardInput()
         disableKeyboardInput();
     else
         enableKeyboardInput();
+}
+
+double deltaTime()
+{
+    return m_frametime;
 }
 
 // functions for input polling
@@ -605,7 +649,7 @@ void setDoubleClickTime(unsigned int ms)
 
 unsigned int getDoubleClickTime()
 {
-    return m_doubleClickTime.count();
+    return static_cast<unsigned int>(m_doubleClickTime.count());
 }
 
 void setAnalogToDigitalRatio(double r)
@@ -630,7 +674,7 @@ double getDigitalToAnalogRatio()
 
 // managed input handling
 
-void mapKeyToInput(std::string name, int key, int requiredMods, ButtonBehavior overrideBehavior, AxisBehavior ab)
+void mapKeyToInput(std::string name, int key, int requiredMods, ButtonBehavior overrideBehavior, AxisBehavior ab, std::string customModifierName)
 {
     InputFunction* inputFunc = nullptr;
     auto result = m_inputFunctions.find(name);
@@ -640,7 +684,7 @@ void mapKeyToInput(std::string name, int key, int requiredMods, ButtonBehavior o
         logDEBUG("InputManager") << "Mapping Key "<< key << " (\"" << ((glfwGetKeyName(key,0))? glfwGetKeyName(key,0) : " ") << "\") to input \"" << name << "\"";
     }
     else
-        logWARNING("InputManager") << "Mapping Key "<< key << " (\"" << ((glfwGetKeyName(key,0))? glfwGetKeyName(key,0) : " ") << "\") to input \"" << name << "\" that does not jet exist";
+    logWARNING("InputManager") << "Mapping Key "<< key << " (\"" << ((glfwGetKeyName(key,0))? glfwGetKeyName(key,0) : " ") << "\") to input \"" << name << "\" that does not jet exist";
 
     if(inputFunc && inputFunc->type == InputFunctionType::axis && ab == AxisBehavior::defaultBehavior)
     {
@@ -648,38 +692,47 @@ void mapKeyToInput(std::string name, int key, int requiredMods, ButtonBehavior o
                                    << "\" without setting Axis Behavior. Key will do nothing";
     }
 
+    // create a custom mod if needed
+    CustomModifier* cmod = nullptr;
+    if(!customModifierName.empty())
+    {
+        cmod = addCustomModifier(std::move(customModifierName), "Activates the key " + std::string(((glfwGetKeyName(key,0))? glfwGetKeyName(key,0) : " ")) + " mapped to " + name + ".");
+    }
+
     // check if this needs to be polled for some reason
     if(    inputFunc && (  ( inputFunc->type == InputFunctionType::axis) // the input is an axis => needs to be polled
-                        || ( dynamic_cast<ButtonInput*>(inputFunc)->allowBehaviorOverride  // button which is overridden to whenDown
-                           && overrideBehavior == ButtonBehavior::whenDown
+                           || ( inputFunc->type == InputFunctionType::button
+                                && dynamic_cast<ButtonInput*>(inputFunc)->allowBehaviorOverride  // button which is overridden to whenDown
+                                && overrideBehavior == ButtonBehavior::whenDown
                            )
-                        || ( dynamic_cast<ButtonInput*>(inputFunc)->defaultBehavior == ButtonBehavior::whenDown // button which id whenDown by default and is not overridden
-                           && ( overrideBehavior == ButtonBehavior::defaultBehavior
-                              || !dynamic_cast<ButtonInput*>(inputFunc)->allowBehaviorOverride
-                              )
+                           || ( inputFunc->type == InputFunctionType::button
+                                && dynamic_cast<ButtonInput*>(inputFunc)->defaultBehavior == ButtonBehavior::whenDown // button which id whenDown by default and is not overridden
+                                && ( overrideBehavior == ButtonBehavior::defaultBehavior
+                                     || !dynamic_cast<ButtonInput*>(inputFunc)->allowBehaviorOverride
+                                )
                            )
-                        ))
+    ))
     {
-        m_polledKeys.emplace_back(key, InputMapping(std::move(name), inputFunc, requiredMods, overrideBehavior, ab));
+        m_polledKeys.emplace_back(key, InputMapping(std::move(name), inputFunc, requiredMods, overrideBehavior, ab, cmod));
     }
     else
     {
-        m_keymap.emplace(key, InputMapping(std::move(name), inputFunc, requiredMods, overrideBehavior, ab));
+        m_keymap.emplace(key, InputMapping(std::move(name), inputFunc, requiredMods, overrideBehavior, ab, cmod));
     }
 }
 
-void mapMouseButtonToInput(std::string name, int button, int requiredMods,
-                           ButtonBehavior overrideBehavior, AxisBehavior ab)
+void mapMouseButtonToInput(std::string name, int button, int requiredMods, ButtonBehavior overrideBehavior,
+                           AxisBehavior ab, std::string customModifierName)
 {
     InputFunction* inputFunc = nullptr;
     auto result = m_inputFunctions.find(name);
     if(result != m_inputFunctions.end())
     {
         inputFunc = result->second.get();
-        logDEBUG("InputManager") << "Mapping Key " << button << " to input \"" << name << "\"";
+        logDEBUG("InputManager") << "Mapping mouse button " << button << " to input \"" << name << "\"";
     }
     else
-        logWARNING("InputManager") << "Mapping Mouse Button " << button << " to input \"" << name << "\" that does not jet exist";
+    logWARNING("InputManager") << "Mapping mouse button " << button << " to input \"" << name << "\" that does not jet exist";
 
     if(inputFunc && inputFunc->type == InputFunctionType::axis && ab == AxisBehavior::defaultBehavior)
     {
@@ -687,27 +740,36 @@ void mapMouseButtonToInput(std::string name, int button, int requiredMods,
                                    << "\" without setting Axis Behavior. Key will do nothing";
     }
 
+    // create a custom mod if needed
+    CustomModifier* cmod = nullptr;
+    if(!customModifierName.empty())
+    {
+        cmod = addCustomModifier(std::move(customModifierName), "Activates the mouse button " + std::to_string(button) + " mapped to " + name + ".");
+    }
+
     // check if this needs to be polled for some reason
     if(    inputFunc && (  ( inputFunc->type == InputFunctionType::axis) // the input is an axis => needs to be polled
-                           || ( dynamic_cast<ButtonInput*>(inputFunc)->allowBehaviorOverride  // button which is overridden to whenDown
+                           || ( inputFunc->type == InputFunctionType::button
+                                && dynamic_cast<ButtonInput*>(inputFunc)->allowBehaviorOverride  // button which is overridden to whenDown
                                 && overrideBehavior == ButtonBehavior::whenDown
                            )
-                           || ( dynamic_cast<ButtonInput*>(inputFunc)->defaultBehavior == ButtonBehavior::whenDown // button which id whenDown by default and is not overridden
+                           || ( inputFunc->type == InputFunctionType::button
+                                && dynamic_cast<ButtonInput*>(inputFunc)->defaultBehavior == ButtonBehavior::whenDown // button which id whenDown by default and is not overridden
                                 && ( overrideBehavior == ButtonBehavior::defaultBehavior
                                      || !dynamic_cast<ButtonInput*>(inputFunc)->allowBehaviorOverride
                                 )
                            )
-                        ))
+    ))
     {
-        m_polledMbs.emplace_back(button, InputMapping(std::move(name), inputFunc, requiredMods, overrideBehavior, ab));
+        m_polledMbs.emplace_back(button, InputMapping(std::move(name), inputFunc, requiredMods, overrideBehavior, ab, cmod));
     }
     else
     {
-        m_mbmap.emplace(button, InputMapping(std::move(name), inputFunc, requiredMods, overrideBehavior, ab));
+        m_mbmap.emplace(button, InputMapping(std::move(name), inputFunc, requiredMods, overrideBehavior, ab, cmod));
     }
 }
 
-void mapScrollToInput(std::string name, int requiredMods, AxisBehavior direction, AxisOrientation axis)
+void mapScrollToInput(std::string name, int requiredMods, AxisBehavior direction, AxisOrientation axis, std::string customModifierName)
 {
     InputFunction* inputFunc = nullptr;
     auto result = m_inputFunctions.find(name);
@@ -719,13 +781,20 @@ void mapScrollToInput(std::string name, int requiredMods, AxisBehavior direction
     else
     logWARNING("InputManager") << "Mapping scroll axis " << static_cast<int>(axis) << " to input \"" << name << "\" that does not jet exist";
 
+    // create a custom mod if needed
+    CustomModifier* cmod = nullptr;
+    if(!customModifierName.empty())
+    {
+        cmod = addCustomModifier(std::move(customModifierName), "Activates the scroll axis " + std::to_string(static_cast<int>(axis)) + " mapped to " + name + ".");
+    }
+
     if(axis == AxisOrientation::horizontal)
-        m_horizontalScrollmap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction);
+        m_horizontalScrollmap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction, cmod);
     else if(axis == AxisOrientation::vertical)
-        m_verticalScrollmap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction);
+        m_verticalScrollmap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction, cmod);
 }
 
-void mapCourserToInput(std::string name, AxisOrientation axis, int requiredMods, AxisBehavior direction)
+void mapCourserToInput(std::string name, AxisOrientation axis, int requiredMods, AxisBehavior direction, std::string customModifierName)
 {
     InputFunction* inputFunc = nullptr;
     auto result = m_inputFunctions.find(name);
@@ -737,10 +806,17 @@ void mapCourserToInput(std::string name, AxisOrientation axis, int requiredMods,
     else
     logWARNING("InputManager") << "Mapping cursor axis " << static_cast<int>(axis) << " to input \"" << name << "\" that does not jet exist";
 
+    // create a custom mod if needed
+    CustomModifier* cmod = nullptr;
+    if(!customModifierName.empty())
+    {
+        cmod = addCustomModifier(std::move(customModifierName), "Activates the cursor axis " + std::to_string(static_cast<int>(axis)) + " mapped to " + name + ".");
+    }
+
     if(axis == AxisOrientation::horizontal)
-        m_horizontalCursormap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction);
+        m_horizontalCursormap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction, cmod);
     else if(axis == AxisOrientation::vertical)
-        m_verticalCursormap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction);
+        m_verticalCursormap.emplace_back(std::move(name),inputFunc,requiredMods, ButtonBehavior::defaultBehavior, direction, cmod);
 }
 
 void addButton(std::string name, std::string description, std::function<void(Window&)> function,
@@ -789,7 +865,7 @@ void addButton(std::string name, std::string description, std::function<void(Win
     }
 
     auto it = m_mbmap.begin();
-    while( it != m_keymap.end())
+    while( it != m_mbmap.end())
     {
         auto buffer = it;
         auto& item = *it;
@@ -802,7 +878,7 @@ void addButton(std::string name, std::string description, std::function<void(Win
                    || ( behavior == ButtonBehavior::whenDown && ( item.second.overrideBehavior == ButtonBehavior::defaultBehavior || !allowBehaviorOverride)))
             {
                 m_polledMbs.emplace_back(item.first, item.second);
-                it = m_keymap.erase(it);
+                it = m_mbmap.erase(it);
             }
         }
         if(buffer==it)
@@ -881,7 +957,7 @@ void addAxis(std::string name, std::string description, std::function<void(Windo
     }
 
     auto it = m_mbmap.begin();
-    while( it != m_keymap.end())
+    while( it != m_mbmap.end())
     {
         auto& item = *it;
         if(item.second.functionName == result.first->first)
@@ -890,7 +966,7 @@ void addAxis(std::string name, std::string description, std::function<void(Windo
             logDEBUG("InputManager") << "Found existing mouse button mapping for button \"" << result.first->first << "\"";
             // check if we need to poll this
             m_polledMbs.emplace_back(item.first, item.second);
-            it = m_keymap.erase(it);
+            it = m_mbmap.erase(it);
         }
         else
             it++;
@@ -933,6 +1009,66 @@ void addAxis(std::string name, std::string description, std::function<void(Windo
     }
 }
 
+// private functions
+namespace {
+CustomModifier *addCustomModifier(std::string name, std::string description)
+{
+    std::unique_ptr<InputFunction> ifunc = std::make_unique<CustomModifier>(std::move(description));
+    auto ptr = dynamic_cast<CustomModifier *>(ifunc.get());
+
+    // try to add id
+    auto result = m_inputFunctions.insert({std::move(name), std::move(ifunc)});
+    if (!result.second)
+    {
+        logWARNING("InputManager") << "CustomModifier " << result.first->first
+                                   << " could not be added, existing modifier will be used, with description: "
+                                   << result.first->second->description;
+        InputFunction* f = result.first->second.get();
+        if(f && f->type == InputFunctionType::customModifier)
+        {
+            return dynamic_cast<CustomModifier*>(f);
+        } else
+        {
+            logERROR("InputManager") << "CustomModifier " << result.first->first
+                                     << " could not be added, another input function of different type with the same name exists.";
+            logFlush();
+            throw std::logic_error("Custom Modifer could not be added, another input function of different type exists with the same name.");
+        }
+    }
+
+    logDEBUG("InputManager") << "Added CustomModifier \"" << result.first->first << "\"";
+
+    // see if there is already a key map installed thts points to this id
+
+    auto iter = m_keymap.begin();
+    while (iter != m_keymap.end())
+    {
+        auto &item = *iter;
+        if (item.second.functionName == result.first->first)
+        {
+            item.second.function = result.first->second.get();
+            logDEBUG("InputManager") << "Found existing key mapping for CustomModifier \"" << result.first->first << "\"";
+        }
+        iter++;
+    }
+
+    auto it = m_mbmap.begin();
+    while (it != m_mbmap.end())
+    {
+        auto &item = *it;
+        if (item.second.functionName == result.first->first)
+        {
+            item.second.function = result.first->second.get();
+            logDEBUG("InputManager") << "Found existing mouse button mapping for CustomModifier \"" << result.first->first
+                                     << "\"";
+        }
+        it++;
+    }
+
+    return ptr;
+}
+}
+
 // internal callbacks
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -948,7 +1084,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         // check if the input function is installed
         // check if the input function is active,
         // check if all required modifiers are down,
-        if( it->second.function && it->second.function->active && checkMods(mods,it->second.requiredMods))
+        if( it->second.readyToUse(mods))
         {
             switch(action)
             {
@@ -981,7 +1117,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         // check if the input function is installed
         // check if the input function is active,
         // check if all required modifiers are down,
-        if( it->second.function && it->second.function->active && checkMods(mods,it->second.requiredMods))
+        if( it->second.readyToUse(mods))
         {
             switch(action)
             {
@@ -1023,7 +1159,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         // check if the input function is installed
         // check if the input function is active,
         // check if all required modifiers are down,
-        if( item.function && item.function->active && checkMods(mods,item.requiredMods))
+        if( item.readyToUse(mods))
         {
             item.function->handleValue(*wnd, yoffset, item.axisBehavior);
         }
@@ -1034,7 +1170,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         // check if the input function is installed
         // check if the input function is active,
         // check if all required modifiers are down,
-        if( item.function && item.function->active && checkMods(mods,item.requiredMods))
+        if( item.readyToUse(mods))
         {
             item.function->handleValue(*wnd, xoffset, item.axisBehavior);
         }
@@ -1072,7 +1208,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
                 // check if the input function is installed
                 // check if the input function is active,
                 // check if all required modifiers are down,
-                if( item.function && item.function->active && checkMods(mods,item.requiredMods))
+                if( item.readyToUse(mods))
                 {
                     item.function->handleValue(*wnd, yChange, item.axisBehavior);
                 }
@@ -1084,7 +1220,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
             // check if the input function is installed
             // check if the input function is active,
             // check if all required modifiers are down,
-            if( item.function && item.function->active && checkMods(mods,item.requiredMods))
+            if( item.readyToUse(mods))
             {
                 item.function->handleValue(*wnd, xChange, item.axisBehavior);
             }

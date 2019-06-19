@@ -12,6 +12,7 @@
 #pragma once
 
 #include <string>
+#include "mpUtils/external/imgui/imgui.h"
 
 namespace ImGui
 {

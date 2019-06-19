@@ -76,14 +76,6 @@ void setupInputs()
         wnd.toggleFullscreen();
     });
     gph::Input::mapKeyToInput("Toggle Fullscreen", GLFW_KEY_F11);
-
-    gph::Input::addButton("Show ImGui Window", "Show some imgui window.", [](gph::Window& wnd)
-    {
-        ImGui::Begin("I am only here while the  button is down :D");
-        ImGui::End();
-    });
-    gph::Input::mapKeyToInput("Show ImGui Window", GLFW_KEY_P,0,gph::Input::ButtonBehavior::onPressRepeat);
-    gph::Input::mapKeyToInput("Show ImGui Window", GLFW_KEY_O,0,gph::Input::ButtonBehavior::whenDown);
 }
 
 int main(int, char**)
@@ -97,8 +89,11 @@ int main(int, char**)
 
     ImGui::create(window);
 
-
+// TODO: have button behavior only in the mapping class
+// TODO: add sensitivity scaling to mapping maybe?
 // TODO: print keys
+// TODO: functions to change / activate usw keys
+// TODO: add imgui window to change keys
 // TODO: some default input functions
 // TODO: get imgui addon stuff
 // TODO: imgui window for performance, logging and changing keys

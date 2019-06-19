@@ -117,6 +117,7 @@ Window::Window(const int width, const int height, const std::string &title, GLFW
     if(!wnd)
     {
         logERROR("Window") << "Cannot create window.";
+        logFlush();
         throw std::runtime_error("Cannot create window");
     }
     m_w = std::unique_ptr<GLFWwindow,void(*)(GLFWwindow*)>(wnd,[](GLFWwindow* wnd){glfwDestroyWindow(wnd);});
