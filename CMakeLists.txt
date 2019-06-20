@@ -148,12 +148,10 @@ target_sources(mpUtils PRIVATE
 # add optional source files
 if (USE_OPENGL)
     target_sources(mpUtils PRIVATE
-                    "src/Graphics/Rendering/Camera.cpp"
                     "src/Graphics/Opengl/Framebuffer.cpp"
                     "src/Graphics/Opengl/Shader.cpp"
                     "src/Graphics/Opengl/Texture.cpp"
                     "src/Graphics/Utils/Transform.cpp"
-                    "src/Graphics/Utils/ModelViewProjection.cpp"
                     "src/Graphics/Window.cpp"
                     "external/snippets/src/imgui/imgui.cpp"
                     "external/snippets/src/imgui/imgui_demo.cpp"
