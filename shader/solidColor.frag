@@ -1,4 +1,4 @@
-#version 450
+#version 330
 
 uniform vec4 color;
 out vec4 fragment_color;

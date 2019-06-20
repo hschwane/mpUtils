@@ -31,15 +31,20 @@
 - add 2d camera
 - add a rendering engine for sprites and animated sprites
 
-### shader
-- add defines depending on shader stage
-
 ### bit manipulation
 - add macros or constexpr functions for bit manipulation
 
-### profiling timers
+### math
+- better floating point comparism modes
 
 ## low priority / ideas / long term projects
 - add utility to parse command line input
 - add networking capabilities
 - add serial port capabilities
+- timer set for profiling apps
+
+# finished
+for motivation, all finished todo entries are moved here instead of being deleted
+
+- shader defines are automatically added depending on current shader stage
+- remove all old or unusable graphics functions

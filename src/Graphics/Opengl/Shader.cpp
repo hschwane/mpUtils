@@ -13,6 +13,7 @@
  *
  */
 
+#include <cublas_v2.h>
 #include "mpUtils/Graphics/Opengl/Shader.h"
 #include "glm/ext.hpp"
 
@@ -90,7 +91,31 @@ namespace gph {
         std::vector<ShaderHandle> handles;
         for(auto&& shaderSource : m_shaderSources)
         {
-            // first use glsp to du preprocessing
+            // add the current shader stage to the definitions
+            auto currentDefinitions = m_preprocessorDefinitions;
+            switch(shaderSource.first)
+            {
+                case ShaderStage::eVertex:
+                    currentDefinitions.emplace_back("__VERTEX_SHADER__");
+                    break;
+                case ShaderStage::eTessControl:
+                    currentDefinitions.emplace_back("__TESS_CONTROL_SHADER__");
+                    break;
+                case ShaderStage::eTessEvaluation:
+                    currentDefinitions.emplace_back("__TESS_EVAL_SHADER__");
+                    break;
+                case ShaderStage::eGeometry:
+                    currentDefinitions.emplace_back("__GEOMETRY_SHADER__");
+                    break;
+                case ShaderStage::eFragment:
+                    currentDefinitions.emplace_back("__FRAGMENT_SHADER__");
+                    break;
+                case ShaderStage::eCompute:
+                    currentDefinitions.emplace_back("__COMPUTE_SHADER__");
+                    break;
+            }
+
+            // first use glsp to do preprocessing
             glsp::processed_file result;
             if(shaderSource.second.first.empty() && !shaderSource.second.second.empty())
             {

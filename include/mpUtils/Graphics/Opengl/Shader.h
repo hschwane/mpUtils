@@ -80,6 +80,13 @@ namespace gph {
      * Preprocessor:
      * When compiling the custom c/c++ style preprocssor written by Johannes Braun is used on the shader and provides the ability to use
      * constructs like "#include", "#define", "#ifdef" and other preprocessor macros. See https://github.com/johannes-braun/GLshader.
+     * Depending on the shader stage compiled, one of the following definitions will be added:
+     * __VERTEX_SHADER__
+     * __TESS_CONTROL_SHADER__
+     * __TESS_EVAL_SHADER__
+     * __GEOMETRY_SHADER__
+     * __FRAGMENT_SHADER__
+     * __COMPUTE_SHADER__
      *
      */
 	class ShaderProgram : public Handle<uint32_t, decltype(&glCreateProgram), &glCreateProgram, decltype(&glDeleteProgram), &glDeleteProgram>
