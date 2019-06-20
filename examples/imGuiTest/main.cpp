@@ -88,15 +88,6 @@ int main(int, char**)
     gph::Window window(width, height,"mpUtils imGui test");
 
     ImGui::create(window);
-
-// TODO: print keys
-// TODO: functions to change / activate usw keys
-// TODO: imgui hotkeys
-// TODO: add imgui window to change keys
-// TODO: some default input functions
-// TODO: get imgui addon stuff
-// TODO: imgui window for performance, logging and changing keys
-
     gph::enableVsync(true);
 
     glClearColor( .2f, .2f, .2f, 1.0f);
