@@ -46,5 +46,6 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- better openGL error checking
 - shader defines are automatically added depending on current shader stage
 - remove all old or unusable graphics functions
