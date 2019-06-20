@@ -22,9 +22,6 @@
 - support for different ogl versions
 - add texture compression and anisotropic filtering
 
-### cleanup 
-- throw away everything old / unusable / bad
-
 ### 3d rendering
 - update / add new camera(s)
 - add some geometric primitives
@@ -39,6 +36,8 @@
 
 ### bit manipulation
 - add macros or constexpr functions for bit manipulation
+
+### profiling timers
 
 ## low priority / ideas / long term projects
 - add utility to parse command line input
