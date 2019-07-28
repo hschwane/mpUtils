@@ -142,6 +142,7 @@ target_sources(mpUtils PRIVATE
                 "src/Log/SyslogSink.cpp"
                 "src/Log/Log.cpp"
                 "src/Cfg/CfgFile.cpp"
+                "src/Misc/imageLoader.cpp"
                 "external/snippets/src/stb_image_impl.cpp"
               )
 
@@ -151,6 +152,7 @@ if (USE_OPENGL)
                     "src/Graphics/Opengl/Framebuffer.cpp"
                     "src/Graphics/Opengl/Shader.cpp"
                     "src/Graphics/Opengl/Texture.cpp"
+                    "src/Graphics/Opengl/Sampler.cpp"
                     "src/Graphics/Utils/Transform.cpp"
                     "src/Graphics/Window.cpp"
                     "external/snippets/src/imgui/imgui.cpp"
@@ -230,6 +232,9 @@ endif()
 if(DISABLE_PATHS)
     target_compile_definitions(mpUtils PUBLIC MPU_NO_PATHS)
 endif()
+
+# defines for stb image
+target_compile_definitions(mpUtils PUBLIC STBI_FAILURE_USERMSG)
 
 # generate include files for version and paths
 set(MPU_CUDA_AVAILIBLE ${USE_CUDA})

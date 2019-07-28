@@ -49,21 +49,21 @@ namespace mpu {
 class Resource
 {
 public:
-    Resource(const char *start, const char *end): mData(start),
+    Resource(const unsigned char *start, const unsigned char *end): mData(start),
                                                   mSize(end - start)
     {}
 
-    Resource(const char *start, size_t size): mData(start), mSize(size)
+    Resource(const unsigned char *start, size_t size): mData(start), mSize(size)
     {}
 
-    const char * const &data() const { return mData; }
+    const unsigned char * const &data() const { return mData; }
     const size_t &size() const { return mSize; }
 
-    const char *begin() const { return mData; }
-    const char *end() const { return mData + mSize; }
+    const unsigned char *begin() const { return mData; }
+    const unsigned char *end() const { return mData + mSize; }
 
 private:
-    const char *mData;
+    const unsigned char *mData;
     size_t mSize;
 };
 
@@ -82,7 +82,7 @@ private:
  */
 #define LOAD_RESOURCE(NAME) ([]() \
 {               \
-    return mpu::Resource(reinterpret_cast<const char *>(g##NAME##Data), g##NAME##Size);          \
+    return mpu::Resource((g##NAME##Data), g##NAME##Size);          \
 })()
 
 

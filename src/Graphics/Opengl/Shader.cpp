@@ -48,7 +48,7 @@ namespace gph {
 	}
 
 	ShaderProgram::ShaderProgram()
-		: Handle(nullptr)
+		: m_progHandle(0)
 	{
         // init glsp debugging once
         static struct DoOnce
@@ -59,12 +59,18 @@ namespace gph {
         } doOnce;
 	}
 
-	ShaderProgram::ShaderProgram(nullptr_t)
-		: ShaderProgram()
-	{
-	}
+    ShaderProgram::~ShaderProgram()
+    {
+        if(m_progHandle != 0)
+            glDeleteProgram(m_progHandle);
+    }
 
-	ShaderProgram::ShaderProgram(const ShaderModule& shader, std::vector<glsp::definition> definitions)
+    ShaderProgram::operator uint32_t() const
+    {
+        return m_progHandle;
+    }
+
+    ShaderProgram::ShaderProgram(const ShaderModule& shader, std::vector<glsp::definition> definitions)
 		: ShaderProgram({shader}, std::move(definitions))
 	{
 	}
@@ -74,21 +80,36 @@ namespace gph {
 	{
 	}
 
+    ShaderProgram& ShaderProgram::operator=(ShaderProgram&& other) noexcept
+    {
+        using std::swap;
+        swap(m_progHandle,other.m_progHandle);
+        swap(m_shaderSources,other.m_shaderSources);
+        swap(m_preprocessorDefinitions,other.m_preprocessorDefinitions);
+        return *this;
+    }
+
     void ShaderProgram::rebuild()
     {
 
         assert_true(!m_shaderSources.empty(), "ShaderProgram", "The ShaderProgram has no sources.");
+        assert_true(m_shaderSources.count(ShaderStage::eCompute) != 1 || m_shaderSources.size() == 1, "ShaderProgram", "When using compute shaders no other shader stage is allowed.");
         assert_true(!(m_shaderSources.size() == 1 && m_shaderSources.count(ShaderStage::eCompute) == 0), "ShaderProgram", "It's not allowed to have only one Shader stage it it's not a compute shader.");
-        assert_true(m_shaderSources.count(ShaderStage::eVertex) != 0, "ShaderProgram", "Missing a Vertex Shader.");
-        assert_true(m_shaderSources.count(ShaderStage::eFragment) != 0, "ShaderProgram", "Missing a Fragment Shader.");
+        assert_true(m_shaderSources.count(ShaderStage::eVertex) != 0 || m_shaderSources.count(ShaderStage::eCompute) == 1, "ShaderProgram", "Missing a Vertex Shader.");
+        assert_true(m_shaderSources.count(ShaderStage::eFragment) != 0 || m_shaderSources.count(ShaderStage::eCompute) == 1, "ShaderProgram", "Missing a Fragment Shader.");
         assert_true(((m_shaderSources.count(ShaderStage::eTessControl) + m_shaderSources.count(ShaderStage::eTessEvaluation)) & 0x1) == 0,
                     "ShaderProgram", "When using Tesselation Shaders, you have to provide a Tesselation Control Shader as well as a Tesselation Evaluation Shader.");
 
         // get new shader program id
-        recreate();
+        if(m_progHandle != 0)
+        {
+            glDeleteProgram(m_progHandle);
+            m_progHandle = 0;
+        }
+        m_progHandle = glCreateProgram();
 
         // compile all stages
-        std::vector<ShaderHandle> handles;
+        std::vector<uint32_t> handles;
         for(auto&& shaderSource : m_shaderSources)
         {
             // add the current shader stage to the definitions
@@ -143,7 +164,7 @@ namespace gph {
 
             // now generate a handle and compile
             int id=handles.size();
-            handles.emplace_back(static_cast<GLenum>(shaderSource.first));
+            handles.push_back(glCreateShader(static_cast<GLenum>(shaderSource.first)));
             const char *c_str = result.contents.c_str();
             glShaderSource(handles[id], 1, &c_str, nullptr);
             glCompileShader(handles[id]);
@@ -185,7 +206,10 @@ namespace gph {
 		}
 
 		for (const auto& handle : handles)
-			glDetachShader(*this, handle);
+        {
+            glDetachShader(*this, handle);
+            glDeleteShader(handle);
+        }
     }
 
     void ShaderProgram::setShaderModule(ShaderModule module)

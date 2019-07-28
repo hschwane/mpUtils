@@ -164,13 +164,13 @@ void create(mpu::gph::Window& window)
     cfg.FontDataOwnedByAtlas = false;
     fontDefault = io.Fonts->AddFontDefault();
     strcpy(cfg.Name,"Cousine-Regular.ttf");
-    fontCousine = io.Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontDataCousine.data()),fontDataCousine.size(),15.0,&cfg);
+    fontCousine = io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(fontDataCousine.data()),fontDataCousine.size(),15.0,&cfg);
     strcpy(cfg.Name,"DroidSans.ttf");
-    fontDroid = io.Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontDataDroidSans.data()),fontDataDroidSans.size(),14.0,&cfg);
+    fontDroid = io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(fontDataDroidSans.data()),fontDataDroidSans.size(),14.0,&cfg);
     strcpy(cfg.Name,"Karla-Regular.ttf");
-    fontKarla= io.Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontDataKarla.data()),fontDataKarla.size(),15.0,&cfg);
+    fontKarla= io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(fontDataKarla.data()),fontDataKarla.size(),15.0,&cfg);
     strcpy(cfg.Name,"Roboto-Medium.ttf");
-    fontRoboto= io.Fonts->AddFontFromMemoryTTF(const_cast<char*>(fontDataRoboto.data()),fontDataRoboto.size(),15,&cfg);
+    fontRoboto= io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(fontDataRoboto.data()),fontDataRoboto.size(),15,&cfg);
 
     ImGui::StyleDarcula();
     logDEBUG("ImGui") << "ImGui initialized!";

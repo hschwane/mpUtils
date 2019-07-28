@@ -17,10 +17,8 @@
 - write some good windows, ie logging, performance display, changing keys
 
 ### openGL
-- rewrite some of the openGL wrappers
-- maybe add an openGL state wrapper?
-- support for different ogl versions
-- add texture compression and anisotropic filtering
+- rewrite buffer
+- add sync object support
 
 ### 3d rendering
 - update / add new camera(s)
@@ -30,6 +28,11 @@
 ### 2d renderer
 - add 2d camera
 - add a rendering engine for sprites and animated sprites
+
+### graphics in general
+- some spline support
+- add text rendering
+- add double / triple buffering helper
 
 ### bit manipulation
 - add macros or constexpr functions for bit manipulation
@@ -42,10 +45,17 @@
 - add networking capabilities
 - add serial port capabilities
 - timer set for profiling apps
+- support for different ogl versions / have a manager to check for versions and extensions
+- maybe add an openGL state / context wrapper?
+- add texture compression and anisotropic filtering
+- add system independend popup messages for graphical apps (eg boxer) 
 
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- rewrite / improve / repair opengl wrapper: framebuffer, vertex array, shader, texture, sampler
+- fix shader asserts
+- remove handle class since it does not make sense
 - better openGL error checking
 - shader defines are automatically added depending on current shader stage
 - remove all old or unusable graphics functions
