@@ -17,7 +17,6 @@
 - write some good windows, ie logging, performance display, changing keys
 
 ### openGL
-- rewrite buffer
 - add sync object support
 
 ### 3d rendering
@@ -30,8 +29,6 @@
 - add a rendering engine for sprites and animated sprites
 
 ### graphics in general
-- some spline support
-- add text rendering
 - add double / triple buffering helper
 
 ### bit manipulation
@@ -49,11 +46,13 @@
 - maybe add an openGL state / context wrapper?
 - add texture compression and anisotropic filtering
 - add system independend popup messages for graphical apps (eg boxer) 
+- some spline support
+- add text rendering
 
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
-- rewrite / improve / repair opengl wrapper: framebuffer, vertex array, shader, texture, sampler
+- rewrite / improve / repair opengl wrapper
 - fix shader asserts
 - remove handle class since it does not make sense
 - better openGL error checking

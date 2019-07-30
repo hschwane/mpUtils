@@ -47,7 +47,7 @@ public:
      * @param offset the offset in bytes from the beginning of the buffer
      * @param stride byte offset from one vertex to the next (size of the vertex in bytes)
      */
-    void addBuffer(GLuint bindingIndex, const Buffer& buffer, GLintptr offset, GLsizei stride);
+    void addBuffer(GLuint bindingIndex, const BufferBase& buffer, GLintptr offset, GLsizei stride);
 
     /**
      * @brief Set the format of an attribute that uses float or vec inside the shader.
@@ -130,7 +130,7 @@ public:
      * @param type the type of the input data, GL_FLOAT mostly. Integer are converted into floating point
      * @param normalize enable normalization when passing integers or unsigned integers that are converted to float
      */
-    void addAttributeBufferArray(GLuint attribIndex, GLuint bindingIndex, const Buffer& buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_FLOAT, GLboolean normalize = GL_FALSE);
+    void addAttributeBufferArray(GLuint attribIndex, GLuint bindingIndex, const BufferBase& buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_FLOAT, GLboolean normalize = GL_FALSE);
 
     /**
      * @brief Enable a atrribute index and configure it. Bind "buffer" at bindingIndex and set it as the data source.
@@ -144,7 +144,7 @@ public:
      * @param relativeOffset the relative offset of the vector inside the buffer. Use offset_of(&MyVertex::my_member)
      * @param type the type of the input data in the buffer, GL_INT,  GL_UNSIGNED_INT, usw
      */
-    void addAttributeBufferArrayInt(GLuint attribIndex, GLuint bindingIndex, const Buffer& buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_INT);
+    void addAttributeBufferArrayInt(GLuint attribIndex, GLuint bindingIndex, const BufferBase& buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_INT);
 
     /**
      * @brief Enable a atrribute index and configure it. Bind "buffer" at bindingIndex and set it as the data source.
@@ -157,9 +157,9 @@ public:
      * @param vecSize size of the vector per vertex (1-4)
      * @param relativeOffset the relative offset of the vector inside the buffer. Use offset_of(&MyVertex::my_member)
      */
-    void addAttributeBufferArrayDouble(GLuint attribIndex, GLuint bindingIndex, const Buffer& buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset);
+    void addAttributeBufferArrayDouble(GLuint attribIndex, GLuint bindingIndex, const BufferBase& buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset);
 
-    void setIndexBuffer( const Buffer& buffer) const; //!< set a buffer as index buffer for the vao
+    void setIndexBuffer( const BufferBase& buffer) const; //!< set a buffer as index buffer for the vao
 
 	void bind() const; //!< bind the vao to use it as the rendering source
 
@@ -194,7 +194,7 @@ inline void VertexArray::disableArray(GLuint attribIndex)
     glDisableVertexArrayAttrib(*this, attribIndex);
 }
 
-inline void VertexArray::addBuffer(const GLuint bindingIndex, const Buffer& buffer, const GLintptr offset, const GLsizei stride)
+inline void VertexArray::addBuffer(const GLuint bindingIndex, const BufferBase& buffer, const GLintptr offset, const GLsizei stride)
 {
     glVertexArrayVertexBuffer(*this, bindingIndex, buffer, offset, stride);
 }
@@ -242,9 +242,9 @@ inline void VertexArray::addAttributeArrayDouble(GLuint attribIndex, GLuint bind
     addBinding(attribIndex, bindingIndex);
 }
 
-inline void VertexArray::addAttributeBufferArray(GLuint attribIndex, GLuint bindingIndex, const Buffer& buffer, GLintptr offset,
-                                          GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type,
-                                          GLboolean normalize)
+inline void VertexArray::addAttributeBufferArray(GLuint attribIndex, GLuint bindingIndex, const BufferBase& buffer, GLintptr offset,
+                                                 GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type,
+                                                 GLboolean normalize)
 {
     enableArray(attribIndex);
     addBuffer(bindingIndex, buffer, offset, stride);
@@ -252,8 +252,8 @@ inline void VertexArray::addAttributeBufferArray(GLuint attribIndex, GLuint bind
     addBinding(attribIndex,bindingIndex);
 }
 
-inline void VertexArray::addAttributeBufferArrayInt(GLuint attribIndex, GLuint bindingIndex, const Buffer& buffer, GLintptr offset,
-                                                 GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type)
+inline void VertexArray::addAttributeBufferArrayInt(GLuint attribIndex, GLuint bindingIndex, const BufferBase& buffer, GLintptr offset,
+                                                    GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type)
 {
     enableArray(attribIndex);
     addBuffer(bindingIndex, buffer, offset, stride);
@@ -261,8 +261,8 @@ inline void VertexArray::addAttributeBufferArrayInt(GLuint attribIndex, GLuint b
     addBinding(attribIndex,bindingIndex);
 }
 
-inline void VertexArray::addAttributeBufferArrayDouble(GLuint attribIndex, GLuint bindingIndex, const Buffer& buffer, GLintptr offset,
-                                                 GLsizei stride, GLint vecSize, GLuint relativeOffset)
+inline void VertexArray::addAttributeBufferArrayDouble(GLuint attribIndex, GLuint bindingIndex, const BufferBase& buffer, GLintptr offset,
+                                                       GLsizei stride, GLint vecSize, GLuint relativeOffset)
 {
     enableArray(attribIndex);
     addBuffer(bindingIndex, buffer, offset, stride);
@@ -270,7 +270,7 @@ inline void VertexArray::addAttributeBufferArrayDouble(GLuint attribIndex, GLuin
     addBinding(attribIndex,bindingIndex);
 }
 
-inline void VertexArray::setIndexBuffer(const Buffer& buffer) const
+inline void VertexArray::setIndexBuffer(const BufferBase& buffer) const
 {
 	glVertexArrayElementBuffer(*this, buffer);
 }
