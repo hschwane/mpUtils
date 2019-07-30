@@ -153,6 +153,8 @@ if (USE_OPENGL)
                     "src/Graphics/Opengl/Shader.cpp"
                     "src/Graphics/Opengl/Texture.cpp"
                     "src/Graphics/Opengl/Sampler.cpp"
+                    "src/Graphics/Opengl/Buffer.cpp"
+                    "src/Graphics/Opengl/SyncObject.cpp"
                     "src/Graphics/Utils/Transform.cpp"
                     "src/Graphics/Window.cpp"
                     "external/snippets/src/imgui/imgui.cpp"

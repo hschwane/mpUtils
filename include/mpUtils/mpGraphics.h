@@ -36,6 +36,8 @@
 #include "mpUtils/Graphics/Opengl/Shader.h"
 #include "mpUtils/Graphics/Opengl/Texture.h"
 #include "mpUtils/Graphics/Opengl/Framebuffer.h"
+#include "mpUtils/Graphics/Opengl/Sampler.h"
+#include "mpUtils/Graphics/Opengl/SyncObject.h"
 #include "mpUtils/Graphics/Rendering/ScreenFillingTri.h"
 #include "mpUtils/Graphics/Gui/ImGui.h"
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"

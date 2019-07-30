@@ -16,13 +16,9 @@
 - include usefull imgui addons
 - write some good windows, ie logging, performance display, changing keys
 
-### openGL
-- add sync object support
-
 ### 3d rendering
 - update / add new camera(s)
 - add some geometric primitives
-- build object, scenegraph and rendering abstractions
 
 ### 2d renderer
 - add 2d camera
@@ -48,10 +44,12 @@
 - add system independend popup messages for graphical apps (eg boxer) 
 - some spline support
 - add text rendering
+- add a proper 3d scene renderer
 
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add wrapper for sync object
 - rewrite / improve / repair opengl wrapper
 - fix shader asserts
 - remove handle class since it does not make sense
