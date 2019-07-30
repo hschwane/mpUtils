@@ -7,18 +7,23 @@
  * @author: Hendrik Schwanekamp
  * @mail:   hendrik.schwanekamp@gmx.net
  *
- * Copyright (c) 2017 Hendrik Schwanekamp
- *
- * This file was originally written and generously provided for this framework from Johannes Braun.
+ * Copyright (c) 2019 Hendrik Schwanekamp
  *
  */
 #pragma once
 
+// includes
+//--------------------
 #include <GL/glew.h>
 #include <utility>
+#include <vector>
+//--------------------
 
+// namespace
+//--------------------
 namespace mpu {
 namespace gph {
+//--------------------
 
 /**
  * class BufferBase
