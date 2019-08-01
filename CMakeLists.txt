@@ -156,6 +156,7 @@ if (USE_OPENGL)
                     "src/Graphics/Opengl/Buffer.cpp"
                     "src/Graphics/Opengl/SyncObject.cpp"
                     "src/Graphics/Utils/Transform.cpp"
+                    "src/Graphics/Utils/Transform2D.cpp"
                     "src/Graphics/Window.cpp"
                     "external/snippets/src/imgui/imgui.cpp"
                     "external/snippets/src/imgui/imgui_demo.cpp"

@@ -49,6 +49,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add 2d transform 
 - add wrapper for sync object
 - rewrite / improve / repair opengl wrapper
 - fix shader asserts
