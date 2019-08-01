@@ -47,7 +47,7 @@ void Renderer2D::setProjection(const glm::mat4& projection)
 void Renderer2D::addSprite(const SpriteInstance2D& sprite, const glm::mat4& transform, int layer)
 {
     glm::mat4 model = transform * sprite.getSprite().getBaseTransform();
-    model[3][2] = layer;
+    model[3][2] = -layer;
 
     m_sprites.emplace_back(model,&sprite);
 }
