@@ -27,7 +27,7 @@ namespace gph {
 Sprite2D::Sprite2D(const std::string& imageFile, glm::vec2 size, float forward)
 {
     m_texture = makeTextureFromFile(imageFile);
-    m_baseTransform = glm::scale(glm::mat4(1), glm::vec3(size/2,0.0f));
+    m_baseTransform = glm::scale(glm::mat4(1), glm::vec3(size/2,1.0f));
     m_baseTransform = glm::rotate(m_baseTransform, glm::two_pi<float>() - forward,glm::vec3{0.0f,0.0f,1.0f});
 }
 

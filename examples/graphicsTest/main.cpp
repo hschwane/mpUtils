@@ -39,18 +39,30 @@ int main()
     glClearColor( .2f, .2f, .2f, 1.0f);
 
     gph::Renderer2D renderer;
+    renderer.setProjection(-1,1,-1,1,0,10);
 
     gph::SpriteInstance2D testSprite( std::make_shared<gph::Sprite2D>(MPU_LIB_RESOURCE_PATH"checker-map.png",glm::vec2(0.5f,0.5f),glm::radians(90.0f)) );
+    gph::SpriteInstance2D testSprite2( std::make_shared<gph::Sprite2D>(MPU_LIB_RESOURCE_PATH"checker-map_vertical.png",glm::vec2(0.5f,0.25f),glm::radians(90.0f)) );
+
+    gph::Transform2D tf;
+    bool lookAtCenter=false;
 
     // Main loop
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
-//        renderer.addSprite( glm::mat4(1.0f),testSprite);
+        renderer.addSprite( testSprite,glm::mat4(1.0f),2);
 
-        gph::Transform2D tf({-0.5f,-0.5f});
-        tf.orientation = gph::lookAt2D(tf.position,glm::vec2(0,0));
+        ImGui::Begin("DebugWindow");
+        ImGui::SliderFloat2("position", glm::value_ptr(tf.position), -1.0f,1.0f);
+        ImGui::SliderFloat("orientation", &tf.orientation, -6.3f,6.3f);
+        ImGui::Checkbox("look at center", &lookAtCenter);
+        ImGui::Text("Angle to center: %f", gph::angleBetweenVectors2D(glm::vec2(1,0),glm::vec2(0,0)-tf.position));
+        ImGui::End();
 
-        renderer.addSprite( glm::mat4(tf),testSprite);
+        if(lookAtCenter)
+            tf.orientation = gph::lookAt2D(tf.position,glm::vec2(0,0));
+
+        renderer.addSprite( testSprite2, glm::mat4(tf));
         renderer.render();
     }
 

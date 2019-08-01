@@ -45,7 +45,8 @@ public:
     Renderer2D(const std::string& shaderPath = MPU_LIB_SHADER_PATH);
 
     void setProjection(const glm::mat4& projection);
-    void addSprite(const glm::mat4& transform, const SpriteInstance2D& sprite, int layer=0);
+    void setProjection(float left, float right, float bottom, float top, int minLayer, int maxLayer);
+    void addSprite(const SpriteInstance2D& sprite, const glm::mat4& transform=glm::mat4(1.0f), int layer=0);
     void render();
 
 private:

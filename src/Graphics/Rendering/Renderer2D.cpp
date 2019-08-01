@@ -34,12 +34,17 @@ Renderer2D::Renderer2D(const std::string& shaderPath)
     vao.bind();
 }
 
+void Renderer2D::setProjection(float left, float right, float bottom, float top, int minLayer, int maxLayer)
+{
+    setProjection(glm::ortho( left, right, bottom, top, float(minLayer), float(maxLayer)));
+}
+
 void Renderer2D::setProjection(const glm::mat4& projection)
 {
     m_spriteShader.uniformMat4("projection", projection);
 }
 
-void Renderer2D::addSprite(const glm::mat4& transform, const SpriteInstance2D& sprite, int layer)
+void Renderer2D::addSprite(const SpriteInstance2D& sprite, const glm::mat4& transform, int layer)
 {
     glm::mat4 model = transform * sprite.getSprite().getBaseTransform();
     model[3][2] = layer;

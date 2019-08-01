@@ -64,7 +64,7 @@ gph::Transform2D::operator glm::mat4() const
     glm::mat4 model(1);
     model =  glm::translate(model, glm::vec3(position,0.0f));
     model =  glm::rotate(model, orientation,glm::vec3{0.0f,0.0f,1.0f});
-    model = glm::scale(model, glm::vec3(scale,0.0f));
+    model = glm::scale(model, glm::vec3(scale,1.0f));
     return model;
 }
 
@@ -75,8 +75,20 @@ float angleBetweenVectors2D(glm::vec2 start, glm::vec2 dest)
 
 float lookAt2D(glm::vec2 position, glm::vec2 target)
 {
-    glm::vec2 direction = target - position;
-    return angleBetweenVectors2D(glm::vec2(1, 0), direction) + (glm::sign(direction.x) < 0 ? glm::pi<float>() : 0.0f);
+    glm::vec2 direction = glm::normalize(target - position);
+
+    if(glm::any(glm::isnan(direction)))
+    {
+        return 0;
+    }
+    else
+    {
+        const float angle = glm::acos(glm::dot(glm::vec2(1,0), direction));
+        if(direction.y<0)
+            return glm::two_pi<float>() - angle;
+        else
+            return angle;
+    }
 }
 
 }}
