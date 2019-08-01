@@ -29,7 +29,7 @@ int main()
     myLog.printHeader("graphicsTest", MPU_VERSION_STRING, MPU_VERSION_COMMIT, "");
 
 
-    int width = 800;
+    int width = 600;
     int height = 600;
     gph::Window window(width, height,"mpUtils imGui test");
 
@@ -38,15 +38,20 @@ int main()
 
     glClearColor( .2f, .2f, .2f, 1.0f);
 
-    gph::ScreenFillingTri sft(MPU_LIB_SHADER_PATH"drawTexture.frag");
-//    sft.shader().uniform4f("color", {1,0.5,0.5,1.0});
-    auto tex = gph::makeTextureFromFile("/home/hendrik/Bilder/658142.jpg");
-    tex->bind(GL_TEXTURE0);
+    gph::Renderer2D renderer;
+
+    gph::SpriteInstance2D testSprite( std::make_shared<gph::Sprite2D>(MPU_LIB_RESOURCE_PATH"checker-map.png",glm::vec2(0.5f,0.5f),glm::radians(90.0f)) );
 
     // Main loop
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
-        sft.draw();
+//        renderer.addSprite( glm::mat4(1.0f),testSprite);
+
+        gph::Transform2D tf({-0.5f,-0.5f});
+        tf.orientation = gph::lookAt2D(tf.position,glm::vec2(0,0));
+
+        renderer.addSprite( glm::mat4(tf),testSprite);
+        renderer.render();
     }
 
     return 0;

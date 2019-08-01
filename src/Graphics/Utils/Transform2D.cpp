@@ -76,7 +76,7 @@ float angleBetweenVectors2D(glm::vec2 start, glm::vec2 dest)
 float lookAt2D(glm::vec2 position, glm::vec2 target)
 {
     glm::vec2 direction = target - position;
-    return angleBetweenVectors2D(glm::vec2(1, 0), direction) + (glm::sign(direction.x) < 0 ? glm::pi<float> : 0.0f);
+    return angleBetweenVectors2D(glm::vec2(1, 0), direction) + (glm::sign(direction.x) < 0 ? glm::pi<float>() : 0.0f);
 }
 
 }}

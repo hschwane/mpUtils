@@ -145,7 +145,7 @@ also be used in cuda code. Some even in device functions.
 - improvements to the log (lock-free-queue, more sinks with better format, different depths for messages)
 
 -----------------------
-## included 3rd party code
+## included 3rd party code and resources
 
 GCE-Math: A C++ generalized constant expression-based math library
 Copyright 2016-2019 Keith O'Hara
@@ -159,3 +159,5 @@ This software contains source code provided by Sean T. Barrett.
 
 Dear ImGui (https://github.com/ocornut/imgui)
 This software contains source code provided by Omar Cornut.
+
+Test textures by Thomas Schmall (https://www.oxpal.com/uv-checker-texture.html)  

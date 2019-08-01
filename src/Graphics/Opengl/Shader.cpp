@@ -13,7 +13,6 @@
  *
  */
 
-#include <cublas_v2.h>
 #include "mpUtils/Graphics/Opengl/Shader.h"
 #include "glm/ext.hpp"
 

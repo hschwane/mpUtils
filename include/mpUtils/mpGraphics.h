@@ -30,6 +30,7 @@
 //--------------------
 #include "mpUtils/Graphics/Window.h"
 #include "mpUtils/Graphics/Utils/Transform.h"
+#include "mpUtils/Graphics/Utils/Transform2D.h"
 #include "mpUtils/Graphics/Utils/misc.h"
 #include "mpUtils/Graphics/Opengl/Buffer.h"
 #include "mpUtils/Graphics/Opengl/VertexArray.h"
@@ -39,6 +40,9 @@
 #include "mpUtils/Graphics/Opengl/Sampler.h"
 #include "mpUtils/Graphics/Opengl/SyncObject.h"
 #include "mpUtils/Graphics/Rendering/ScreenFillingTri.h"
+#include "mpUtils/Graphics/Rendering/SpriteInstance2D.h"
+#include "mpUtils/Graphics/Rendering/Sprite2D.h"
+#include "mpUtils/Graphics/Rendering/Renderer2D.h"
 #include "mpUtils/Graphics/Gui/ImGui.h"
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"
 #include "mpUtils/Graphics/Input.h"
