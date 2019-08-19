@@ -213,7 +213,7 @@ namespace gph {
 					glGetShaderInfoLog(shader_handle, log_length, &log_length, log.data());
 					glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, shader_handle, GL_DEBUG_SEVERITY_HIGH, -1, log.c_str());
 					glFinish();
-					assert_critical(false, "Shader", "Shader compilation failed.");
+                    assert_critical(false, "Shader", "Shader compilation failed: " + log);
 				}
 			}
 
@@ -232,8 +232,9 @@ namespace gph {
 				std::string log(log_length, ' ');
 				glGetProgramInfoLog(*this, log_length, &log_length, log.data());
 				glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, *this, GL_DEBUG_SEVERITY_HIGH, -1, log.c_str());
-				assert_critical(false,"Shader", "Program linking failed.");
-			}
+				glFinish();
+                assert_critical(false, "Shader", "Shader compilation failed: " + log);
+            }
 		}
 
 		for (const auto& mapped_shader : shader_modules)
