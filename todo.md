@@ -38,13 +38,18 @@
 - add networking capabilities
 - add serial port capabilities
 - timer set for profiling apps
+- jason and/or xml and easy serializing
+- a argument parser for command line apps
+- util for handling general settings
+- tests
+- improvements to the log (lock-free-queue, more sinks with better format, different depths for messages)
 - support for different ogl versions / have a manager to check for versions and extensions
 - maybe add an openGL state / context wrapper?
 - add texture compression and anisotropic filtering
-- add system independend popup messages for graphical apps (eg boxer) 
 - some spline support
 - add text rendering
 - add a proper 3d scene renderer
+- more other graphics related features
 
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted

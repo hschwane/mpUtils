@@ -1,5 +1,5 @@
 # mpUtils
-A ~~platform independent~~ linux c++ library with some utilities I use in a lot of my projects. It also features support
+A windows and linux c++ library with some utilities I use in a lot of my projects. It also features support
 for computer graphics applications using openGL and CUDA.
 
 -------------------------
@@ -116,8 +116,11 @@ also be used in cuda code. Some even in device functions.
 --------------------------
 ## features
 
+- doxygen style documentation
 - c++ wrapper for most openGl and glfw functionality
 - some utilities for graphics applications like camera handling and screen filling rendering
+- ImGUI based user interface
+- mouse and keyboard input handling 
 - utilities for glsl shader like a c-style preprocessor as well as include files with math functions, rng and noise
 - building with cuda, including cuda support for the clion IDE and some cuda helping functions and utilities
 - vector and matrix math functions for cuda
@@ -125,24 +128,16 @@ also be used in cuda code. Some even in device functions.
 - highly customisable thread safe logger
 - ini-Style configuration file parser
 - different timers including asynchronous ones
-- doxygen style documentation
 - includes compile-time math functions from the gcem-library (see 3rd party code)
-- compile and embed resources into executables
+- system specific dialogs (eg file open / save) using tinyfd (see 3rd party code)
+- compile and embed resources into executables using incbin (see 3rd party code)
 
 ------------------------
-## planned features / wishlist
+## contribution / bugs / missing features
 
-- more utilities for graphics programming (maybe game engine style functionality)
-- utils for handling input better
-- include a GUI
-- network communication
-- serial communication
-- jason and/or xml and easy serializing
-- a argument parser for command line apps
-- util for handling general settings
-- tests
-- windows and mac support
-- improvements to the log (lock-free-queue, more sinks with better format, different depths for messages)
+If you find any bugs or are missing a specific feature feel free to open a issue on github.
+This is especially important for windows related issues as i only develop on linux myself.
+I am also happy to review pull requests if you implemented something yourself.
 
 -----------------------
 ## included 3rd party code and resources
