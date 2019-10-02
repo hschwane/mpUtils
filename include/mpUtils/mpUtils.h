@@ -54,6 +54,9 @@
 // compiletime math
 #include "mpUtils/external/gcem/gcem.hpp"
 
+// tinyfiledialogs
+#include "mpUtils/external/tinyfd/tinyfiledialogs.h"
+
 // matrix type might be useful without cuda
 #include "Cuda/Matrix.h"
 #include "Cuda/MatrixMath.h"

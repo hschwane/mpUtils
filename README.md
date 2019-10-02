@@ -160,4 +160,7 @@ This software contains source code provided by Sean T. Barrett.
 Dear ImGui (https://github.com/ocornut/imgui)
 This software contains source code provided by Omar Cornut.
 
+tiny file dialogs (ysengrin.com)
+This software contains source code provided by Guillaume Vareille.
+
 Test textures by Thomas Schmall (https://www.oxpal.com/uv-checker-texture.html)  

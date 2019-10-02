@@ -18,7 +18,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # create project
 include(GetVersionFromGit)
-project(mpUtils VERSION "${VERSION_SHORT}" LANGUAGES CXX)
+project(mpUtils VERSION "${VERSION_SHORT}" LANGUAGES CXX C)
 
 # default build configuration
 include(setDefaultTypeRelease)
@@ -144,6 +144,7 @@ target_sources(mpUtils PRIVATE
                 "src/Cfg/CfgFile.cpp"
                 "src/Misc/imageLoader.cpp"
                 "external/snippets/src/stb_image_impl.cpp"
+                "external/snippets/src/tinyfd/tinyfiledialogs.c"
               )
 
 # add optional source files
@@ -188,7 +189,8 @@ target_include_directories(mpUtils
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src
                                 ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include/mpUtils/external/imgui
                                 ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/src/imgui/impl
-                        )
+                                ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include/mpUtils/external/imgui
+        )
 
 
 # -------------------------------------------------------------
@@ -285,6 +287,10 @@ if(USE_OPENGL)
     target_link_libraries(mpUtils PUBLIC OpenGL::GL glfw GLEW::GLEW)
 endif()
 
+# link windows specific stuff needed for tinyfiledialogs
+if(WIN32)
+    target_link_libraries(raptor PUBLIC Comdlg32.lib Ole32.lib)
+endif()
 
 # --------------------------------------------------------
 # build and link dependencies in external/modules
