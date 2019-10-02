@@ -54,6 +54,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add imgui loading animations
 - add tinyfiledialogs
 - add 2d transform 
 - add wrapper for sync object
