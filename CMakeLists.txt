@@ -260,6 +260,7 @@ target_compile_options(mpUtils PRIVATE "-Wa,-I${CMAKE_CURRENT_LIST_DIR}/resource
 
 # make imported targets cuda safe
 if(USE_CUDA)
+    target_link_libraries(mpUtils PUBLIC libcudart.so)
     include(cudaConvertFlags)
     cuda_convert_flags(Threads::Threads)
     if(USE_GLM)
