@@ -244,6 +244,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.i
 
 # make imported targets cuda safe
 if(USE_CUDA)
+    target_link_libraries(mpUtils PUBLIC libcudart.so)
     include(cudaConvertFlags)
     cuda_convert_flags(Threads::Threads)
     if(USE_GLM)
