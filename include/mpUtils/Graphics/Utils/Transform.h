@@ -50,28 +50,14 @@ public:
     // cast operators
     explicit operator glm::mat4() const;
 
+    // helpfull member functions
+    void lookAt(const glm::vec3& target, const glm::vec3& up); //!< sets the rotation to face a specific target
+
     // public members for easy access
     glm::vec3 position{ 0, 0, 0 };
     glm::vec3 scale{ 1, 1, 1 };
     glm::quat orientation = glm::angleAxis(0.f, glm::vec3(0));
 };
-
-//-------------------------------------------------------------------
-// some global functions to help with transform
-
-/**
- * @brief calculates orientation between start and dest
- * @return quaternion representing the rotation
- */
-glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
-
-/**
- * @brief orientation needed to look from position to target
- * @return the orientation one has to orient at position to look at target
- */
-glm::quat lookAt(glm::vec3 position, glm::vec3 target, glm::vec3 up = {0.0f,1.0f,0.0f});
-
-
 
 }}
 #endif //MPUTILS_TRANSFORM_H

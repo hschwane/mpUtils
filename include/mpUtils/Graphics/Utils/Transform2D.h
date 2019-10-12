@@ -49,6 +49,9 @@ public:
     // cast operators
     explicit operator glm::mat4() const;
 
+    // helpfull member functions
+    void lookAt(const glm::vec2& target); //!< sets the rotation to face a specific target
+
     // public members for easy access
     glm::vec2 position;
     glm::vec2 scale;

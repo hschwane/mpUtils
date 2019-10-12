@@ -91,4 +91,9 @@ float lookAt2D(glm::vec2 position, glm::vec2 target)
     }
 }
 
+void Transform2D::lookAt(const glm::vec2& target)
+{
+    orientation = lookAt2D(position,target);
+}
+
 }}
