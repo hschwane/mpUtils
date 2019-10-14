@@ -30,6 +30,7 @@ namespace gph {
 //-------------------------------------------------------------------
 Camera::Camera(CameraMode mode, glm::vec3 position, glm::vec3 target, glm::vec3 world_up, std::string uiName)
     : m_transform(position),
+      m_desiredTransform(position),
       m_world_up(world_up),
       m_mode(mode),
       m_uiPrefix(std::move(uiName))
@@ -108,10 +109,23 @@ void Camera::addInputs()
                         });
 }
 
-void Camera::setTarget(const glm::vec3& target)
+void Camera::setTarget(const glm::vec3& target, bool interpolate)
 {
-    m_transform.lookAt(target,m_world_up);
-    m_targetDistance = glm::length(target-m_transform.position);
+    m_desiredTransform.lookAt(target,m_world_up);
+    m_desiredTargetDistance = glm::length(target-m_desiredTransform.position);
+
+    if(!interpolate)
+    {
+        m_transform.orientation = m_desiredTransform.orientation;
+        m_targetDistance = m_desiredTargetDistance;
+    }
+}
+
+void Camera::setPosition(const glm::vec3& pos, bool interpolate)
+{
+    m_desiredTransform.position = pos;
+    if(!interpolate)
+        m_transform.position = pos;
 }
 
 void Camera::setMode(gph::Camera::CameraMode mode)
@@ -119,7 +133,7 @@ void Camera::setMode(gph::Camera::CameraMode mode)
     m_mode = mode;
 }
 
-Camera::CameraMode Camera::getMode()
+Camera::CameraMode Camera::getMode() const
 {
     return m_mode;
 }
@@ -142,36 +156,62 @@ void Camera::update()
         // rotate position around target
 
         // figure out where the old target is
-        glm::vec3 oldTarget = m_transform.position + m_transform.orientation * glm::vec3(0,0,-1) * m_targetDistance;
+        glm::vec3 oldTarget = m_desiredTransform.position + m_desiredTransform.orientation * glm::vec3(0,0,-1) * m_desiredTargetDistance;
 
         // rotate the camera
-        m_transform.orientation = glm::normalize( glm::angleAxis(m_rotationInput.x, m_world_up)
-                                                  * m_transform.orientation
+        m_desiredTransform.orientation = glm::normalize( glm::angleAxis(m_rotationInput.x, m_world_up)
+                                                  * m_desiredTransform.orientation
                                                   * glm::angleAxis(m_rotationInput.y, glm::vec3(1, 0, 0)) );
 
         // move so old target matches new target
-        glm::vec3 newTarget = m_transform.position + m_transform.orientation * glm::vec3(0,0,-1) * m_targetDistance;
-        m_transform.position += oldTarget - newTarget;
+        glm::vec3 newTarget = m_desiredTransform.position + m_desiredTransform.orientation * glm::vec3(0,0,-1) * m_desiredTargetDistance;
+        m_desiredTransform.position += oldTarget - newTarget;
 
         // pan
         // zooming, make sure distance to the target does not become negative
-        if(m_targetDistance + m_movementInput.z > 0.01f * m_zoomSpeed)
+        if(m_desiredTargetDistance + m_movementInput.z > 0.01f * m_zoomSpeed)
         {
-            m_targetDistance += m_movementInput.z;
+            m_desiredTargetDistance += m_movementInput.z;
         }
 
         // now just apply movement
-        m_transform.position += movement;
+        m_desiredTransform.position += movement;
+
+        // interpolate
+
+        // interpolate distance to target
+        m_targetDistance = glm::mix(m_targetDistance, m_desiredTargetDistance,
+                                   static_cast<float>(glm::pow(Input::deltaTime(),m_movementSmoothing)));
+
+        // interpolate current target position
+        glm::vec3 desiredTarget = m_desiredTransform.position + m_desiredTransform.orientation * glm::vec3(0,0,-1) * m_desiredTargetDistance;
+        glm::vec3 oldActualTarget = m_transform.position + m_transform.orientation * glm::vec3(0,0,-1) * m_targetDistance;
+        oldActualTarget = glm::mix(oldActualTarget, desiredTarget,
+                                   static_cast<float>(glm::pow(Input::deltaTime(),m_movementSmoothing)));
+
+        // interpolate orientation
+        m_transform.orientation = glm::slerp(m_transform.orientation, m_desiredTransform.orientation,
+                                             static_cast<float>(glm::pow(Input::deltaTime(),m_rotationSmoothing)));
+
+        // calculate proper position using difference that was created by rotation and moving the target
+        glm::vec3 newActualTarget = m_transform.position + m_transform.orientation * glm::vec3(0,0,-1) * m_targetDistance;
+        m_transform.position += oldActualTarget - newActualTarget;
     }
     else if(m_mode == fps)
     {
         // movement
-        m_transform.position += movement;
+        m_desiredTransform.position += movement;
 
         // rotation
-        m_transform.orientation = glm::normalize( glm::angleAxis(m_rotationInput.x, m_world_up)
-                                    * m_transform.orientation
+        m_desiredTransform.orientation = glm::normalize( glm::angleAxis(m_rotationInput.x, m_world_up)
+                                    * m_desiredTransform.orientation
                                     * glm::angleAxis(m_rotationInput.y, glm::vec3(1, 0, 0)) );
+
+        // interpolate between transform and desiredtransform
+        m_transform.position = glm::mix(m_transform.position, m_desiredTransform.position,
+                                        static_cast<float>(glm::pow(Input::deltaTime(),m_movementSmoothing)));
+        m_transform.orientation = glm::slerp(m_transform.orientation, m_desiredTransform.orientation,
+                                             static_cast<float>(glm::pow(Input::deltaTime(),m_rotationSmoothing)));
     }
 
     m_view = glm::inverse(static_cast<glm::mat4>(m_transform));
@@ -226,24 +266,38 @@ void Camera::zoom(float dz)
         m_movementInput.z -= dz * m_zoomSpeed;
 }
 
-glm::mat4 gph::Camera::viewMatrix()
+glm::mat4 gph::Camera::viewMatrix() const
 {
   return m_view;
 }
 
-glm::mat4 gph::Camera::modelMatrix()
+glm::mat4 gph::Camera::modelMatrix() const
 {
-  return static_cast<glm::mat4>(m_transform); // inverse == transpose for orthonormalized matrices
+  return static_cast<glm::mat4>(m_transform);
 }
 
 void Camera::showDebugWindow(bool* show)
 {
     if(ImGui::Begin((m_uiPrefix+std::string("Debug Information")).c_str(),show))
     {
+        ImGui::InputFloat3("Desired Position",glm::value_ptr(m_desiredTransform.position));
+        glm::vec3 desiredtarget = m_desiredTransform.position + front() * m_desiredTargetDistance;
+        if( ImGui::InputFloat3(" Desire Target",glm::value_ptr(desiredtarget)))
+        {
+            m_desiredTransform.lookAt(desiredtarget,m_world_up);
+            m_desiredTargetDistance = glm::length(desiredtarget-m_desiredTransform.position);
+        }
+        ImGui::InputFloat("Desired Distance to Target",&m_desiredTargetDistance);
+
+        ImGui::Separator();
+
         ImGui::InputFloat3("Position",glm::value_ptr(m_transform.position));
         glm::vec3 target = m_transform.position + front() * m_targetDistance;
         if( ImGui::InputFloat3("Target",glm::value_ptr(target)))
-            setTarget(target);
+        {
+            m_transform.lookAt(target,m_world_up);
+            m_targetDistance = glm::length(target-m_transform.position);
+        }
         ImGui::InputFloat("Distance to Target",&m_targetDistance);
         ImGui::InputFloat3("World Up",glm::value_ptr(m_world_up));
         ImGui::Text("Orientation: %s",glm::to_string(m_transform.orientation).c_str());
@@ -288,6 +342,12 @@ void Camera::showDebugWindow(bool* show)
         ImGui::SliderFloat("RotateTB",&m_tbRotationSpeed,0.0005,0.1,"%.4f",2.0f);
         ImGui::SliderFloat("Pan",&m_panSpeed,0.001,.1,"%.4f",2.0f);
         ImGui::SliderFloat("Zoom",&m_zoomSpeed,0.01,2,"%.4f",2.0f);
+
+        ImGui::Separator();
+
+        ImGui::Text("Smoothing");
+        ImGui::SliderFloat("Movement",&m_movementSmoothing,0,2,"%.3f",2.0f);
+        ImGui::SliderFloat("Rotation",&m_rotationSmoothing,0,2,"%.3f",2.0f);
 
         ImGui::Separator();
 
