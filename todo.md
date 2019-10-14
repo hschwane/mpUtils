@@ -17,7 +17,6 @@
 - write some good windows, ie logging, performance display, changing keys
 
 ### 3d rendering
-- update / add new camera(s)
 - add some geometric primitives
 
 ### 2d renderer
@@ -29,6 +28,9 @@
 
 ### bit manipulation
 - add macros or constexpr functions for bit manipulation
+
+### cuda
+- stl compatible cuda memory management
 
 ### math
 - better floating point comparism modes
@@ -54,6 +56,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add new hybrid (trackball/fps) camera
 - add imgui loading animations
 - add tinyfiledialogs
 - add 2d transform 

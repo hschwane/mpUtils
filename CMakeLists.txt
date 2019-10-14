@@ -156,6 +156,7 @@ if (USE_OPENGL)
                     "src/Graphics/Opengl/Sampler.cpp"
                     "src/Graphics/Opengl/Buffer.cpp"
                     "src/Graphics/Opengl/SyncObject.cpp"
+                    "src/Graphics/Rendering/Camera.cpp"
                     "src/Graphics/Rendering/Sprite2D.cpp"
                     "src/Graphics/Rendering/SpriteInstance2D.cpp"
                     "src/Graphics/Rendering/Renderer2D.cpp"

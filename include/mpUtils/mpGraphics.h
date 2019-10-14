@@ -40,6 +40,7 @@
 #include "mpUtils/Graphics/Opengl/Sampler.h"
 #include "mpUtils/Graphics/Opengl/SyncObject.h"
 #include "mpUtils/Graphics/Rendering/ScreenFillingTri.h"
+#include "mpUtils/Graphics/Rendering/Camera.h"
 #include "mpUtils/Graphics/Rendering/SpriteInstance2D.h"
 #include "mpUtils/Graphics/Rendering/Sprite2D.h"
 #include "mpUtils/Graphics/Rendering/Renderer2D.h"
