@@ -35,7 +35,7 @@ namespace gph {
  * For the input management to work at least one window needs to be open.
  *
  * Call update() once a frame. This is where all events from the window manager are handled including input events.
- * Then you can use poling functions to check for key states as well as get information on the cursor position and
+ * Then you can use polling functions to check for key states as well as get information on the cursor position and
  * the currently active window. Please note that window specific polling is implemented in the window class as well as
  * changing a windows input mode.
  * There are also functions to set the global cursor position as well as deal with the window managers clipboard content.
@@ -44,7 +44,7 @@ namespace gph {
  * The heart of the input namespace is however managed input. This allows you to set input functions independent of hardware and later
  * create mappings to different devices. This way you can allow the end user to change the keys used to control the program.
  * Two types of inputs are available: button and axis. Button has a function that will be executed once the button is triggered, while
- * an axis also has a value that represents the rate of change of an analog input.
+ * an axis has an additional value that represents the rate of change of an analog input.
  * However axis can also be mapped to digital keys as can buttons be mapped to analog inputs.
  * Currently keyboard, mouse button, scroll events and cursor movement are supported in mappings.
  * Use generateHelpString() to generate a string with all input functions and mappings for the users information.
@@ -53,7 +53,7 @@ namespace gph {
  * The custom modifier is created as its own input function. Use the name to map a key or button to it. This button
  * is required to be down for the other input mapping to be active. Mapping a analog input to a custom modifier will have no effect.
  *
- * Changing mappings and the state of inputs might be implemented in the future. Feel free to do so yourself if you need it now ;)
+ * Changing mappings and polling the state of input functions might be implemented in the future. Feel free to do so yourself if you need it now ;)
  *
  */
 namespace Input {
@@ -66,7 +66,7 @@ enum class InputFunctionType
 {
     button, //!< the input function is a button which can have different behaviors (see ButtonBehavior)
     axis, //!< the input is an axis and float values will be passed to it
-    customModifier //!< the input is a custom modifier that activates  deactivates another input mapping
+    customModifier //!< the input is a custom modifier that activates and deactivates another input mapping
 };
 
 /**
@@ -84,13 +84,13 @@ enum class ButtonBehavior
 };
 
 /**
- * @brief Controls what happens when a is mapped to a digital input or a button to a analog input
+ * @brief Controls what happens when an axis is mapped to a digital input or a button to a analog input
+ *          negative will also invert an axis that is mapped to an analog input
  */
 enum class AxisBehavior
 {
     positive = 1, //!< positive analog input will trigger button / digital input will move axis in positive direction
     negative = -1, //!< negative analog input will trigger button / digital input will move axis in negative direction
-    defaultBehavior =0 //!< no button axis interaction (!! means no interaction between analog input with button / digital input with axis!!)
 };
 
 /**
@@ -199,7 +199,7 @@ void addAxis(std::string name, std::string description, std::function<void(Windo
  * @param customModifierName If this is not empty a custom modifer with this name will be generated. You can then map butons or keys to it. This input is only considered active when the custom modifier is pressed.
  */
 void mapKeyToInput(std::string name, int key, ButtonBehavior buttonBehavior = ButtonBehavior::onPress,
-            AxisBehavior ab = AxisBehavior::defaultBehavior, int requiredMods = 0, std::string customModifierName ="");
+            AxisBehavior ab = AxisBehavior::positive, int requiredMods = 0, std::string customModifierName ="");
 
 /**
  * @brief Map a mouse button to an input function. If you map it to a button the button will be triggered according to its behavior.
@@ -214,33 +214,33 @@ void mapKeyToInput(std::string name, int key, ButtonBehavior buttonBehavior = Bu
  * @param customModifierName If this is not empty a custom modifer with this name will be generated. You can then map butons or keys to it. This input is only considered active when the custom modifier is pressed.
  */
 void mapMouseButtonToInput(std::string name, int button, ButtonBehavior buttonBehavior = ButtonBehavior::onPress,
-                           AxisBehavior ab = AxisBehavior::defaultBehavior, int requiredMods = 0, std::string customModifierName ="");
+                           AxisBehavior ab = AxisBehavior::positive, int requiredMods = 0, std::string customModifierName ="");
 /**
  * @brief Map a scroll action to an input function. If you map it to an axis the rate of scrolling will be applied as rate of change
  *          to the axis. If you map it to a button, the button will be triggered once whenever a rate of change of getAnalogToDigitalRatio
- *          is exceeded in the direction defined by "ab". You can add multiple mappings to an input or use the scroll event in multiple mappings.
- *          If you map a scroll event to a button you MUST set "ab" or it will have no effect.
+ *          is exceeded in the direction defined by "direction". You can add multiple mappings to an input or use the scroll event in multiple mappings.
+ *          If you map a scroll event to a button you MUST set "direction" or it will have no effect.
  * @param name Name of the input this mapping should apply to.
+ * @param direction Set negative to invert axis. Also affects the direction in which this needs to be moved in order to trigger a button input.
  * @param requiredMods A bit-set of modifiers that need to be pressed while the scroll event is recorded for the input to be triggered
- * @param ab The direction in which this needs to be moved in order to trigger a button input.
- * @param axis The orientation of the scroll event (default is vertical scrolling)
  * @param customModifierName If this is not empty a custom modifer with this name will be generated. You can then map butons or keys to it. This input is only considered active when the custom modifier is pressed.
+ * @param axis The orientation of the scroll event (default is vertical scrolling)
  */
-void mapScrollToInput(std::string name, AxisBehavior direction = AxisBehavior::defaultBehavior,
+void mapScrollToInput(std::string name, AxisBehavior direction = AxisBehavior::positive,
                       int requiredMods = 0, std::string customModifierName ="", AxisOrientation axis = AxisOrientation::vertical);
 
 /**
  * @brief Map a mouse cursor move to an input function. If you map it to an axis the rate of movement will be applied as rate of change
  *          to the axis. If you map it to a button, the button will be triggered once whenever a rate of change of getAnalogToDigitalRatio
- *          is exceeded in the direction defined by "ab". You can add multiple mappings to an input or use the same cursor change in multiple mappings.
- *          If you map a cursor position change to a button you MUST set "ab" or it will have no effect.
+ *          is exceeded in the direction defined by "direction". You can add multiple mappings to an input or use the same cursor change in multiple mappings.
+ *          If you map a cursor position change to a button you MUST set "direction" or it will have no effect.
  * @param name Name of the input this mapping should apply to.
  * @param axis Select between horizontal and vertical cursor movement
+ * @param direction Set negative to invert axis. Also affects the direction in which this needs to be moved in order to trigger a button input.
  * @param requiredMods A bit-set of modifiers that need to be pressed while the cursor is moved for the input to be triggered
- * @param direction The direction in which this needs to be moved in order to trigger a button input.
  * @param customModifierName If this is not empty a custom modifer with this name will be generated. You can then map butons or keys to it. This input is only considered active when the custom modifier is pressed.
  */
-void mapCourserToInput(std::string name, AxisOrientation axis, AxisBehavior direction = AxisBehavior::defaultBehavior, int requiredMods = 0, std::string customModifierName ="");
+void mapCourserToInput(std::string name, AxisOrientation axis, AxisBehavior direction = AxisBehavior::positive, int requiredMods = 0, std::string customModifierName ="");
 
 }}}
 #endif //MPUTILS_INPUT_H

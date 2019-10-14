@@ -155,12 +155,12 @@ namespace {
 
         void handleValue(Window& wnd, double v, AxisBehavior ab) override
         {
-            function(wnd,v);
+            function(wnd, static_cast<float>(ab)*v);
         }
 
         void handleIsDown(Window &wnd, ButtonBehavior behavior, AxisBehavior ab) override
         {
-            function(wnd, static_cast<int>(ab)*m_digitalToAxisRatio*deltaTime());
+            function(wnd, static_cast<float>(ab)*m_digitalToAxisRatio*deltaTime());
         }
 
         std::function<void(Window&,double)> function;
@@ -216,10 +216,10 @@ namespace {
 
         const std::string functionName; //!< name of the mapped input function
         InputFunction* function; //!< mapped input function
-        int requiredMods; //!< required moddifiers to be pressed for this input mapping to be active
+        int requiredMods; //!< required modifiers to be pressed for this input mapping to be active
         CustomModifier* customMod; //!< points to the custom modifier added to this mapping
         ButtonBehavior buttonBehavior; //!< the button behavior when mapped to a button input function
-        AxisBehavior axisBehavior; //!< controles behavior if mapping analog input to button or digital input to axis
+        AxisBehavior axisBehavior; //!< controls behavior if mapping analog input to button or digital input to axis
     };
 
     // key maps and InputFunction handling
@@ -343,7 +343,7 @@ void update()
         if(m_keyboardInputEnabled)
             for(auto &item : m_polledKeys)
             {
-                if( item.second.readyToUse(mods) && wnd->isKeyDown(item.first))
+                if( wnd->isKeyDown(item.first) && item.second.readyToUse(mods))
                 {
                     item.second.function->handleIsDown(*wnd,item.second.buttonBehavior,item.second.axisBehavior);
                 }
@@ -352,7 +352,7 @@ void update()
         if(m_mouseInputEnabled)
             for(auto &item : m_polledMbs)
             {
-                if( item.second.readyToUse(mods) && wnd->isMouseButtonDown(item.first))
+                if( wnd->isMouseButtonDown(item.first) && item.second.readyToUse(mods))
                 {
                     item.second.function->handleIsDown(*wnd,item.second.buttonBehavior,item.second.axisBehavior);
                 }
@@ -668,13 +668,7 @@ void mapKeyToInput(std::string name, int key, ButtonBehavior buttonBehavior, Axi
         logDEBUG("InputManager") << "Mapping Key "<< key << " (\"" << ((glfwGetKeyName(key,0))? glfwGetKeyName(key,0) : " ") << "\") to input \"" << name << "\"";
     }
     else
-    logWARNING("InputManager") << "Mapping Key "<< key << " (\"" << ((glfwGetKeyName(key,0))? glfwGetKeyName(key,0) : " ") << "\") to input \"" << name << "\" that does not jet exist";
-
-    if(inputFunc && inputFunc->type == InputFunctionType::axis && ab == AxisBehavior::defaultBehavior)
-    {
-        logWARNING("InputManager") << "Mapped Key "<< key << " (\"" << ((glfwGetKeyName(key,0))? glfwGetKeyName(key,0) : " ") << "\") to axis input \"" << name
-                                   << "\" without setting Axis Behavior. Key will do nothing";
-    }
+        logWARNING("InputManager") << "Mapping Key "<< key << " (\"" << ((glfwGetKeyName(key,0))? glfwGetKeyName(key,0) : " ") << "\") to input \"" << name << "\" that does not jet exist";
 
     // create a custom mod if needed
     CustomModifier* cmod = nullptr;
@@ -707,13 +701,7 @@ void mapMouseButtonToInput(std::string name, int button, ButtonBehavior buttonBe
         logDEBUG("InputManager") << "Mapping mouse button " << button << " to input \"" << name << "\"";
     }
     else
-    logWARNING("InputManager") << "Mapping mouse button " << button << " to input \"" << name << "\" that does not jet exist";
-
-    if(inputFunc && inputFunc->type == InputFunctionType::axis && ab == AxisBehavior::defaultBehavior)
-    {
-        logWARNING("InputManager") << "Mapped button " << button << " to axis input \"" << name
-                                   << "\" without setting Axis Behavior. Key will do nothing";
-    }
+        logWARNING("InputManager") << "Mapping mouse button " << button << " to input \"" << name << "\" that does not jet exist";
 
     // create a custom mod if needed
     CustomModifier* cmod = nullptr;
@@ -908,7 +896,7 @@ void addAxis(std::string name, std::string description, std::function<void(Windo
         if(item.second.functionName == result.first->first)
         {
             item.second.function = result.first->second.get();
-            logDEBUG("InputManager") << "Found existing key mapping for button \"" << result.first->first << "\"";
+            logDEBUG("InputManager") << "Found existing key mapping for axis \"" << result.first->first << "\"";
             // check if we need to poll this
             m_polledKeys.emplace_back(item.first, item.second);
             iter = m_keymap.erase(iter);
@@ -924,7 +912,7 @@ void addAxis(std::string name, std::string description, std::function<void(Windo
         if(item.second.functionName == result.first->first)
         {
             item.second.function = result.first->second.get();
-            logDEBUG("InputManager") << "Found existing mouse button mapping for button \"" << result.first->first << "\"";
+            logDEBUG("InputManager") << "Found existing mouse button mapping for axis \"" << result.first->first << "\"";
             // check if we need to poll this
             m_polledMbs.emplace_back(item.first, item.second);
             it = m_mbmap.erase(it);
@@ -1039,7 +1027,7 @@ CustomModifier *addCustomModifier(std::string name, std::string description)
 
     logDEBUG("InputManager") << "Added CustomModifier \"" << result.first->first << "\"";
 
-    // see if there is already a key map installed thts points to this id
+    // see if there is already a key map installed that points to this id
 
     auto iter = m_keymap.begin();
     while (iter != m_keymap.end())
@@ -1191,11 +1179,11 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
     int mods = 0;
     if(wnd->isKeyDown(GLFW_KEY_LEFT_SHIFT) || wnd->isKeyDown(GLFW_KEY_RIGHT_SHIFT))
         mods |= GLFW_MOD_SHIFT;
-    if(wnd->isKeyDown(GLFW_KEY_LEFT_CONTROL) )// || wnd->isKeyDown(GLFW_KEY_RIGHT_CONTROL))
+    if(wnd->isKeyDown(GLFW_KEY_LEFT_CONTROL)  || wnd->isKeyDown(GLFW_KEY_RIGHT_CONTROL))
         mods |= GLFW_MOD_CONTROL;
-    if(wnd->isKeyDown(GLFW_KEY_LEFT_ALT) )// || wnd->isKeyDown(GLFW_KEY_RIGHT_ALT))
+    if(wnd->isKeyDown(GLFW_KEY_LEFT_ALT)  || wnd->isKeyDown(GLFW_KEY_RIGHT_ALT))
         mods |= GLFW_MOD_ALT;
-    if(wnd->isKeyDown(GLFW_KEY_LEFT_SUPER) )// || wnd->isKeyDown(GLFW_KEY_RIGHT_SUPER))
+    if(wnd->isKeyDown(GLFW_KEY_LEFT_SUPER)  || wnd->isKeyDown(GLFW_KEY_RIGHT_SUPER))
         mods |= GLFW_MOD_SUPER;
 
     // calculate the rate of change
@@ -1207,8 +1195,8 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
     yLastPos = ypos;
 
     // apply sensitivity
-    xChange *= m_scrollSensitivityX;
-    yChange *= m_scrollSensitivityY;
+    xChange *= m_mouseSensitivityX;
+    yChange *= m_mouseSensitivityY;
 
     if( std::fabs(yChange) > 0)
         for(auto &item : m_verticalCursormap)
