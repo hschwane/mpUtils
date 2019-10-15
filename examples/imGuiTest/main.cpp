@@ -11,7 +11,7 @@ void setupInputs()
     });
 
     gph::Input::mapKeyToInput("TestButton", GLFW_KEY_A, gph::Input::ButtonBehavior::onDoubleClick);
-    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_B, gph::Input::ButtonBehavior::onPress, gph::Input::AxisBehavior::defaultBehavior, GLFW_MOD_ALT);
+    gph::Input::mapKeyToInput("TestButton", GLFW_KEY_B, gph::Input::ButtonBehavior::onPress, gph::Input::AxisBehavior::positive, GLFW_MOD_ALT);
 
     // there will be a warning since we swapped the order of calls, but it will work
     gph::Input::mapKeyToInput("SecondButton", GLFW_KEY_W);
@@ -50,7 +50,7 @@ void setupInputs()
     {
         logINFO("Test") << "Axis changed by " << v;
     });
-    gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal, gph::Input::AxisBehavior::defaultBehavior, GLFW_MOD_CONTROL);
+    gph::Input::mapCourserToInput("TestAxis2",gph::Input::AxisOrientation::horizontal, gph::Input::AxisBehavior::positive, GLFW_MOD_CONTROL);
 
     gph::Input::addAxis("TestAxis3","A axis that prints its value", [](gph::Window& w, double v)
     {

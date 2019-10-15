@@ -116,21 +116,24 @@ also be used in cuda code. Some even in device functions.
 --------------------------
 ## features
 
-- doxygen style documentation
+
 - c++ wrapper for most openGl and glfw functionality
-- some utilities for graphics applications like camera handling and screen filling rendering
+- utilities for glsl shader like a c-style preprocessor as well as include files with math functions, rng and noise
+- some utilities for graphics applications like camera handling, image loading and screen filling rendering
 - ImGUI based user interface
 - mouse and keyboard input handling 
-- utilities for glsl shader like a c-style preprocessor as well as include files with math functions, rng and noise
 - building with cuda, including cuda support for the clion IDE and some cuda helping functions and utilities
 - vector and matrix math functions for cuda
-- cmake modules for handling versions and cuda code generation
 - highly customisable thread safe logger
 - ini-Style configuration file parser
 - different timers including asynchronous ones
+- template metaprogramming utilities
 - includes compile-time math functions from the gcem-library (see 3rd party code)
 - system specific dialogs (eg file open / save) using tinyfd (see 3rd party code)
 - compile and embed resources into executables using incbin (see 3rd party code)
+- cmake modules for handling versions and cuda code generation
+- doxygen style documentation
+- other small helpers
 
 ------------------------
 ## contribution / bugs / missing features

@@ -128,7 +128,7 @@ public:
     void setRotationSpeedFPS(float speed) { m_fpsRotationSpeed = speed;} //!< change rotation speed in fps mode
     void setRotationSpeedTB(float speed) { m_tbRotationSpeed = speed;} //!< change rotation speed in trackball mode
     void setMovementSpeed(float speed) {m_moveSpeed = speed;} //!< change movement speed in fps mode
-    void setPanSpeed(float speed) {m_pa     * @param m_uiPrefix A prefix to be added to input manager ids. Default is "Camera".nSpeed = speed;} //!< change pan speed in trackball mode
+    void setPanSpeed(float speed) {m_panSpeed = speed;} //!< change pan speed in trackball mode
     void setZoomSpeed(float speed) {m_zoomSpeed = speed;} //!< change zoom speed in trackball mode
     void setMovementSmoothing(float smooth) {m_movementSmoothing = smooth;} //!< set the smoothing strength for movement
     void setRotationSmoothing(float smooth) {m_movementSmoothing = smooth;} //!< set the smoothing strength for rotation
