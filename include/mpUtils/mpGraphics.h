@@ -28,17 +28,26 @@
 
 // framework graphics stuff
 //--------------------
-#include "Graphics/Window.h"
-#include "Graphics/Utils/Transform.h"
-#include "Graphics/Utils/ModelViewProjection.h"
-#include "Graphics/Utils/misc.h"
-#include "Graphics/Opengl/Buffer.h"
-#include "Graphics/Opengl/VertexArray.h"
-#include "Graphics/Opengl/Shader.h"
-#include "Graphics/Opengl/Texture.h"
-#include "Graphics/Opengl/Framebuffer.h"
-#include "Graphics/Rendering/Camera.h"
+#include "mpUtils/Graphics/Window.h"
+#include "mpUtils/Graphics/Utils/Transform.h"
+#include "mpUtils/Graphics/Utils/Transform2D.h"
+#include "mpUtils/Graphics/Utils/misc.h"
+#include "mpUtils/Graphics/Opengl/Buffer.h"
+#include "mpUtils/Graphics/Opengl/VertexArray.h"
+#include "mpUtils/Graphics/Opengl/Shader.h"
+#include "mpUtils/Graphics/Opengl/Texture.h"
+#include "mpUtils/Graphics/Opengl/Framebuffer.h"
+#include "mpUtils/Graphics/Opengl/Sampler.h"
+#include "mpUtils/Graphics/Opengl/SyncObject.h"
 #include "mpUtils/Graphics/Rendering/ScreenFillingTri.h"
+#include "mpUtils/Graphics/Rendering/Camera.h"
+#include "mpUtils/Graphics/Rendering/SpriteInstance2D.h"
+#include "mpUtils/Graphics/Rendering/Sprite2D.h"
+#include "mpUtils/Graphics/Rendering/Renderer2D.h"
+#include "mpUtils/Graphics/Gui/ImGui.h"
+#include "mpUtils/Graphics/Gui/ImGuiStyles.h"
+#include "mpUtils/Graphics/Gui/ImGuiElements.h"
+#include "mpUtils/Graphics/Input.h"
 //--------------------
 
 #endif //MPUTILS_MPGRAPHICS_H

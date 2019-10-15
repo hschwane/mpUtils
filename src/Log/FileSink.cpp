@@ -41,6 +41,8 @@ void FileSink::operator()(const LogMessage &msg)
     struct tm timeStruct;
 #ifdef __linux__
     localtime_r(&msg.timepoint, &timeStruct);
+#elif _WIN32
+    localtime_s(&timeStruct, &msg.timepoint);
 #else
 #error please implement this for your operating system
 #endif

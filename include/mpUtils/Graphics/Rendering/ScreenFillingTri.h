@@ -33,17 +33,15 @@ public:
         vao.bind(); // make sure some vertex array is bound
     }
 
-    ScreenFillingTri(std::string file)
+    explicit ScreenFillingTri(std::string file)
     {
         vao.bind();
         setScreenFillShader(file);
     }
 
-    ScreenFillingTri(const ScreenFillingTri &other)=default;
-
     void setScreenFillShader(std::string file)
     {
-        screenFillShader.rebuild({ {MPU_LIB_SHADER_PATH"screenFillingTri.vert"},
+        screenFillShader = ShaderProgram({ {MPU_LIB_SHADER_PATH"screenFillingTri.vert"},
                                                 {file} });
     }
 

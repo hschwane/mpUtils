@@ -32,7 +32,7 @@ namespace gph {
  * class transform
  *
  * usage:
- * A class which represents a full transformation including translation scale and rotation. It can be casted implicit to glm::mat4
+ * A class which represents a full transformation including translation scale and orientation. It can be casted to glm::mat4
  * and can be explicit constructed out of one.
  *
  */
@@ -40,9 +40,8 @@ class Transform
 {
 public:
     // constructor
-    Transform() = default;
     explicit Transform(glm::mat4 mat);
-    explicit Transform(glm::vec3 position, glm::quat rotation = glm::angleAxis(0.f, glm::vec3(0)), glm::vec3 scale = {1,1,1});
+    explicit Transform(glm::vec3 position={0,0,0}, glm::quat orientation = glm::angleAxis(0.f, glm::vec3(0)), glm::vec3 scale = {1, 1, 1});
 
     // comparision operators
     bool operator==(const Transform &other) const;
@@ -51,13 +50,14 @@ public:
     // cast operators
     explicit operator glm::mat4() const;
 
+    // helpfull member functions
+    void lookAt(const glm::vec3& target, const glm::vec3& up); //!< sets the rotation to face a specific target
+
     // public members for easy access
     glm::vec3 position{ 0, 0, 0 };
     glm::vec3 scale{ 1, 1, 1 };
-    glm::quat rotation = glm::angleAxis(0.f, glm::vec3(0));
+    glm::quat orientation = glm::angleAxis(0.f, glm::vec3(0));
 };
-
-
 
 }}
 #endif //MPUTILS_TRANSFORM_H

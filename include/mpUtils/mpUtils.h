@@ -48,11 +48,14 @@
 #include "Timer/Stopwatch.h"
 #include "Timer/Timer.h"
 
-// image processing
-#include "mpUtils/external/stb_image.h"
+// image loading
+#include "Misc/imageLoading.h"
 
 // compiletime math
 #include "mpUtils/external/gcem/gcem.hpp"
+
+// tinyfiledialogs
+#include "mpUtils/external/tinyfd/tinyfiledialogs.h"
 
 // matrix type might be useful without cuda
 #include "Cuda/Matrix.h"

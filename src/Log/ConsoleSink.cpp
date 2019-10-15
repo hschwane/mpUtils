@@ -31,6 +31,8 @@ void ConsoleSink::operator()(const LogMessage &msg)
     struct tm timeStruct;
 #ifdef __linux__
     localtime_r(&msg.timepoint, &timeStruct);
+#elif _WIN32
+    localtime_s(&timeStruct, &msg.timepoint);
 #else
 #error "please implement this for your operating system"
 #endif
@@ -42,17 +44,21 @@ void ConsoleSink::operator()(const LogMessage &msg)
     else
     {
         *os << "\033[1;" << levelToColor(msg.lvl) << "m"
-            << "[" << toString(msg.lvl) << "]" << "\033[m "
-            << " [" << std::put_time(&timeStruct, "%x %X") << "]";
+            << "[" << toString(msg.lvl) << "]" << "\33[1;90m"
+            << " [" << std::put_time(&timeStruct, "%x %X") << "]"
+            << "\033[m ";
 
         if(!msg.sModue.empty())
             *os << " (" << msg.sModue << "):";
 
-        *os << "\t" << msg.sMessage
-            << "\tThread: " << std::setbase(16) << msg.threadId << std::setbase(10);
+        *os << "\t" << msg.sMessage << "\33[1;90m"
+            << "\tThread: " << std::setbase(16) << msg.threadId
+            << std::setbase(10)
+            << "\033[m" ;
 
         if(!msg.sFilePosition.empty())
-            *os << "\t@File: " << msg.sFilePosition;
+            *os << "\33[1;90m"
+                << "\t@File: " << msg.sFilePosition << "\033[m";
 
         *os << std::endl;
     }

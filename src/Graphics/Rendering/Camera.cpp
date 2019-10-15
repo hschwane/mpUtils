@@ -1,23 +1,23 @@
 /*
- * mpUtils
- * camera.cpp
- *
- * Contains a camera and camera controller class to control the rendering view
+ * raptor
+ * Camera.cpp
  *
  * @author: Hendrik Schwanekamp
  * @mail:   hendrik.schwanekamp@gmx.net
  *
- * Implements the camera class
+ * Implements the Camera class
  *
- * Copyright (c) 2017 Hendrik Schwanekamp
+ * Copyright (c) 2019 Hendrik Schwanekamp
  *
  */
 
 // includes
 //--------------------
+#include <glm/ext.hpp>
 #include "mpUtils/Graphics/Rendering/Camera.h"
+#include "mpUtils/Graphics/Input.h"
 #include "mpUtils/Log/Log.h"
-#include <GL/glew.h>
+#include "mpUtils/Graphics/Gui/ImGui.h"
 //--------------------
 
 // namespace
@@ -26,155 +26,341 @@ namespace mpu {
 namespace gph {
 //--------------------
 
-// function definitions of the camera class
+// function definitions of the Camera class
 //-------------------------------------------------------------------
-Camera::Camera() : m_controller( nullptr)
+Camera::Camera(CameraMode mode, glm::vec3 position, glm::vec3 target, glm::vec3 world_up, std::string uiName)
+    : m_transform(position),
+      m_desiredTransform(position),
+      m_world_up(world_up),
+      m_mode(mode),
+      m_uiPrefix(std::move(uiName))
 {
+    setTarget(target);
+    m_view = glm::inverse(static_cast<glm::mat4>(m_transform));
 }
 
-Camera::Camera(Window* window)
-        : m_controller(std::static_pointer_cast<CameraController>(std::make_shared<DefaultCameraController>(window)))
+void Camera::addInputs()
 {
+    gph::Input::addAxis(m_uiPrefix + "RotateHorizontal", "Rotate camera horizontally.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->rotateH(v);
+                        });
+    gph::Input::addAxis(m_uiPrefix + "RotateVertical", "Rotate camera vertically.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->rotateV(v);
+                        });
+
+    gph::Input::addAxis(m_uiPrefix + "MoveSideways", "Move the camera sideways in FPS mode.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->moveX(v);
+                        });
+    gph::Input::addAxis(m_uiPrefix + "MoveForwardBackward", "Move the camera forwards and backwards in FPS mode.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->moveZ(v);
+                        });
+    gph::Input::addAxis(m_uiPrefix + "MoveUpDown", "Move the camera up and down in FPS mode.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->moveY(v);
+                        });
+
+    gph::Input::addAxis(m_uiPrefix + "Zoom", "Zoom camera in and out in trackball mode.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->zoom(v);
+                        });
+    gph::Input::addAxis(m_uiPrefix + "PanHorizontal", "Pan camera horizontally in trackball mode.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->panH(v);
+                        });
+    gph::Input::addAxis(m_uiPrefix + "PanVertical", "Pan camera vertically in trackball mode.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->panV(v);
+                        });
+
+    gph::Input::addButton(m_uiPrefix + "ToggleMode", "Toggles between fps and trackball mode.",
+                          [this](gph::Window& wnd)
+                          {
+                              this->toggleMode();
+                          });
+    gph::Input::addButton(m_uiPrefix + "FastMode", "While triggered movement speed is doubled.",
+                          [this](gph::Window& wnd)
+                          {
+                              this->fastMode();
+                          });
+    gph::Input::addButton(m_uiPrefix + "SlowMode", "While triggered movement speed is halved.",
+                          [this](gph::Window& wnd)
+                          {
+                              this->slowMode();
+                          });
+
+    gph::Input::addAxis(m_uiPrefix + "MovementSpeed", "Change cameras movement and pan/zoom speed.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                                this->setMovementSpeed(  getMovementSpeed() + v * 0.025f * getMovementSpeed());
+                                this->setPanSpeed(  getPanSpeed() + v * 0.025f * getPanSpeed());
+                                this->setZoomSpeed(  getZoomSpeed() + v * 0.025f * getZoomSpeed());
+                        });
 }
 
-Camera::Camera(std::shared_ptr<CameraController> controller) : m_controller(controller)
+void Camera::setTarget(const glm::vec3& target, bool interpolate)
 {
-}
+    m_desiredTransform.lookAt(target,m_world_up);
+    m_desiredTargetDistance = glm::length(target-m_desiredTransform.position);
 
-void Camera::update(double dt)
-{
-    m_controller->updateTransform(m_transform, dt);
-
-    if(m_mvp)
+    if(!interpolate)
     {
-        m_mvp->setView(viewMatrix());
+        m_transform.orientation = m_desiredTransform.orientation;
+        m_targetDistance = m_desiredTargetDistance;
     }
 }
 
-glm::mat4 Camera::viewMatrix() const
+void Camera::setPosition(const glm::vec3& pos, bool interpolate)
 {
-    return glm::inverse(static_cast<glm::mat4>(m_transform));
+    m_desiredTransform.position = pos;
+    if(!interpolate)
+        m_transform.position = pos;
 }
 
-glm::mat4 Camera::projectionMatrix() const
+void Camera::setMode(gph::Camera::CameraMode mode)
 {
-    return glm::perspective(m_fov, m_aspect, m_clip_near, m_clip_far);
+    m_mode = mode;
 }
 
-void Camera::setFOV(const float fovDegrees)
+Camera::CameraMode Camera::getMode() const
 {
-    m_fov = glm::radians(fovDegrees);
-    if(m_mvp)
-        m_mvp->setProjection(projectionMatrix());
+    return m_mode;
 }
 
-void Camera::setClip(const float near, const float far)
+void Camera::toggleMode()
 {
-    m_clip_far = far;
-    m_clip_near = near;
-    if(m_mvp)
-        m_mvp->setProjection(projectionMatrix());
+    if(m_mode==CameraMode::trackball)
+        setMode(CameraMode::fps);
+    else
+        setMode(CameraMode::trackball);
 }
 
-void Camera::setCNear(const float near)
+void Camera::update()
 {
-    m_clip_near = near;
-    if(m_mvp)
-        m_mvp->setProjection(projectionMatrix());
-}
+    // movement in camera coordinates
+    glm::vec3 movement = m_transform.orientation * (m_movementInput * m_movementSpeedMod);
 
-void Camera::setCFar(const float far)
-{
-    m_clip_far = far;
-    if(m_mvp)
-        m_mvp->setProjection(projectionMatrix());
-}
-
-void Camera::setMVP(ModelViewProjection *mvp)
-{
-
-    m_mvp = mvp;
-    if(m_mvp)
+    if(m_mode == trackball)
     {
-        m_mvp->setViewProjection(viewMatrix(), projectionMatrix());
+        // rotate position around target
+
+        // figure out where the old target is
+        glm::vec3 oldTarget = m_desiredTransform.position + m_desiredTransform.orientation * glm::vec3(0,0,-1) * m_desiredTargetDistance;
+
+        // rotate the camera
+        m_desiredTransform.orientation = glm::normalize( glm::angleAxis(m_rotationInput.x, m_world_up)
+                                                  * m_desiredTransform.orientation
+                                                  * glm::angleAxis(m_rotationInput.y, glm::vec3(1, 0, 0)) );
+
+        // move so old target matches new target
+        glm::vec3 newTarget = m_desiredTransform.position + m_desiredTransform.orientation * glm::vec3(0,0,-1) * m_desiredTargetDistance;
+        m_desiredTransform.position += oldTarget - newTarget;
+
+        // pan
+        // zooming, make sure distance to the target does not become negative
+        if(m_desiredTargetDistance + m_movementInput.z > 0.01f * m_zoomSpeed)
+        {
+            m_desiredTargetDistance += m_movementInput.z;
+        }
+
+        // now just apply movement
+        m_desiredTransform.position += movement;
+
+        // interpolate
+
+        // interpolate distance to target
+        m_targetDistance = glm::mix(m_targetDistance, m_desiredTargetDistance,
+                                   static_cast<float>(glm::pow(Input::deltaTime(),m_movementSmoothing)));
+
+        // interpolate current target position
+        glm::vec3 desiredTarget = m_desiredTransform.position + m_desiredTransform.orientation * glm::vec3(0,0,-1) * m_desiredTargetDistance;
+        glm::vec3 oldActualTarget = m_transform.position + m_transform.orientation * glm::vec3(0,0,-1) * m_targetDistance;
+        oldActualTarget = glm::mix(oldActualTarget, desiredTarget,
+                                   static_cast<float>(glm::pow(Input::deltaTime(),m_movementSmoothing)));
+
+        // interpolate orientation
+        m_transform.orientation = glm::slerp(m_transform.orientation, m_desiredTransform.orientation,
+                                             static_cast<float>(glm::pow(Input::deltaTime(),m_rotationSmoothing)));
+
+        // calculate proper position using difference that was created by rotation and moving the target
+        glm::vec3 newActualTarget = m_transform.position + m_transform.orientation * glm::vec3(0,0,-1) * m_targetDistance;
+        m_transform.position += oldActualTarget - newActualTarget;
     }
-}
-
-void Camera::setAspect(const float aspect)
-{
-    m_aspect = aspect;
-    if(m_mvp)
-        m_mvp->setProjection(projectionMatrix());
-}
-
-SimpleWASDController::SimpleWASDController( Window* window, float rotation_speed, float movement_speed)
-        : m_rotation_speed(rotation_speed/60), m_movement_speed(movement_speed), m_window(*window)
-{
-}
-
-void SimpleWASDController::updateTransform(Transform &transform, double dt)
-{
-    // switch input mode on right click
-    switch(m_window.getMouseButton(GLFW_MOUSE_BUTTON_RIGHT))
+    else if(m_mode == fps)
     {
-        case GLFW_PRESS:
-            if (!m_mode_changed)
-            {
-                logDEBUG("Camera") << "Changed input mode for rotation.";
-                m_last_cursor_position = m_window.getCursorPos();
-                m_window.setInputMode(GLFW_CURSOR,m_window.getInputMode(GLFW_CURSOR) != GLFW_CURSOR_DISABLED ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-                m_mode_changed = true;
-            }
-            break;
+        // movement
+        m_desiredTransform.position += movement;
 
-        default:
-        case GLFW_RELEASE:
-            m_mode_changed = false;
-            break;
-    }
+        // rotation
+        m_desiredTransform.orientation = glm::normalize( glm::angleAxis(m_rotationInput.x, m_world_up)
+                                    * m_desiredTransform.orientation
+                                    * glm::angleAxis(m_rotationInput.y, glm::vec3(1, 0, 0)) );
 
-    float mvspeed = m_movement_speed;
-    if(m_window.getKey(GLFW_KEY_SPACE) == GLFW_PRESS)
-        mvspeed*=2;
-    if(m_window.getKey(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        mvspeed*=0.5;
-
-    if(m_window.getKey(GLFW_KEY_RIGHT_BRACKET) == GLFW_PRESS)
-    {
-        m_movement_speed += m_movement_speed * 0.5 * dt;
-        logDEBUG2("Camera") << "Camera movement speed changed: " << m_movement_speed;
-    }
-    if(m_window.getKey(GLFW_KEY_SLASH) == GLFW_PRESS)
-    {
-        m_movement_speed -= m_movement_speed * 0.5 * dt;
-        logDEBUG2("Camera") << "Camera movement speed changed: " << m_movement_speed;
+        // interpolate between transform and desiredtransform
+        m_transform.position = glm::mix(m_transform.position, m_desiredTransform.position,
+                                        static_cast<float>(glm::pow(Input::deltaTime(),m_movementSmoothing)));
+        m_transform.orientation = glm::slerp(m_transform.orientation, m_desiredTransform.orientation,
+                                             static_cast<float>(glm::pow(Input::deltaTime(),m_rotationSmoothing)));
     }
 
-    // update position
-    const auto two_key_check = [this](int key_fwd, int key_bwd) {
-        return static_cast<float>(static_cast<int>(m_window.getKey(key_fwd) == GLFW_PRESS) - static_cast<int>(m_window.getKey(key_bwd) == GLFW_PRESS));
-    };
-    transform.position += glm::rotate(transform.rotation, glm::vec3{
-            two_key_check(GLFW_KEY_D, GLFW_KEY_A),
-            two_key_check(GLFW_KEY_E, GLFW_KEY_Q),
-            two_key_check(GLFW_KEY_S, GLFW_KEY_W)
-    }) * mvspeed * static_cast<float>(dt);
+    m_view = glm::inverse(static_cast<glm::mat4>(m_transform));
+    m_rotationInput = {0,0};
+    m_movementInput = {0,0,0};
+    m_movementSpeedMod = 1.0f;
+}
 
-    // update rotation
-    if(m_window.getInputMode(GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+void Camera::rotateH(float dPhi)
+{
+    m_rotationInput.x += dPhi * (m_mode==fps ? m_fpsRotationSpeed : m_tbRotationSpeed);
+}
+
+void Camera::rotateV(float dTheta)
+{
+    m_rotationInput.y += dTheta * (m_mode==fps ? m_fpsRotationSpeed : m_tbRotationSpeed);
+}
+
+void Camera::moveX(float dx)
+{
+    if(m_mode == fps || m_enableAllControls)
+        m_movementInput.x += dx * m_moveSpeed;
+}
+
+void Camera::moveY(float dy)
+{
+    if(m_mode == fps || m_enableAllControls)
+        m_movementInput.y += dy * m_moveSpeed;
+}
+
+void gph::Camera::moveZ(float dz)
+{
+    if(m_mode == fps || m_enableAllControls)
+        m_movementInput.z -= dz * m_moveSpeed;
+}
+
+void Camera::panV(float dy)
+{
+    if(m_mode == trackball || m_enableAllControls)
+        m_movementInput.y += dy * m_panSpeed;
+}
+
+void Camera::panH(float dx)
+{
+    if(m_mode == trackball || m_enableAllControls)
+        m_movementInput.x += dx * m_panSpeed;
+}
+
+void Camera::zoom(float dz)
+{
+    if(m_mode == trackball || m_enableAllControls)
+        m_movementInput.z -= dz * m_zoomSpeed;
+}
+
+glm::mat4 gph::Camera::viewMatrix() const
+{
+  return m_view;
+}
+
+glm::mat4 gph::Camera::modelMatrix() const
+{
+  return static_cast<glm::mat4>(m_transform);
+}
+
+void Camera::showDebugWindow(bool* show)
+{
+    if(ImGui::Begin((m_uiPrefix+std::string("Debug Information")).c_str(),show))
     {
-        glm::dvec2 current_position = m_window.getCursorPos();
-        const glm::dvec2 delta = m_last_cursor_position - current_position;
-        m_last_cursor_position = current_position;
+        ImGui::InputFloat3("Desired Position",glm::value_ptr(m_desiredTransform.position));
+        glm::vec3 desiredtarget = m_desiredTransform.position + front() * m_desiredTargetDistance;
+        if( ImGui::InputFloat3(" Desire Target",glm::value_ptr(desiredtarget)))
+        {
+            m_desiredTransform.lookAt(desiredtarget,m_world_up);
+            m_desiredTargetDistance = glm::length(desiredtarget-m_desiredTransform.position);
+        }
+        ImGui::InputFloat("Desired Distance to Target",&m_desiredTargetDistance);
 
+        ImGui::Separator();
 
-        transform.rotation = glm::quat(glm::vec3(0.f, glm::radians(delta.x) * m_rotation_speed, 0.f))
-                                * transform.rotation
-                             *glm::quat(glm::vec3(glm::radians(delta.y) * m_rotation_speed, 0.f, 0.f));
+        ImGui::InputFloat3("Position",glm::value_ptr(m_transform.position));
+        glm::vec3 target = m_transform.position + front() * m_targetDistance;
+        if( ImGui::InputFloat3("Target",glm::value_ptr(target)))
+        {
+            m_transform.lookAt(target,m_world_up);
+            m_targetDistance = glm::length(target-m_transform.position);
+        }
+        ImGui::InputFloat("Distance to Target",&m_targetDistance);
+        ImGui::InputFloat3("World Up",glm::value_ptr(m_world_up));
+        ImGui::Text("Orientation: %s",glm::to_string(m_transform.orientation).c_str());
 
+        ImGui::Text("Mode: "); ImGui::SameLine();
+        ImGui::RadioButton("trackball", reinterpret_cast<int*>(&m_mode), 0); ImGui::SameLine();
+        ImGui::RadioButton("fps", reinterpret_cast<int*>(&m_mode), 1);
+
+        static bool speed=false;
+        static bool slow=false;
+        bool speedEnabled = m_movementSpeedMod > 1.0f;
+        bool slowEnabled = m_movementSpeedMod < 1.0f;
+        if(speedEnabled)
+        {
+            ImGui::Checkbox("FastMode", &speedEnabled);
+        }
+        else
+        {
+            ImGui::Checkbox("FastMode", &speed);
+            if(speed)
+                fastMode();
+        }
+        ImGui::SameLine();
+        if(slowEnabled)
+        {
+            ImGui::Checkbox("SlowMode", &slowEnabled);
+        }
+        else
+        {
+            ImGui::Checkbox("SlowMode", &slow);
+            if(slow)
+                slowMode();
+        }
+
+        ImGui::Checkbox("Enable all controls", &m_enableAllControls);
+
+        ImGui::Separator();
+
+        ImGui::Text("Sensitivity");
+        ImGui::SliderFloat("RotateFPS",&m_fpsRotationSpeed,0.0005,0.1,"%.4f",2.0f);
+        ImGui::SliderFloat("Move",&m_moveSpeed,0.005,1.0f,"%.4f",2.0f);
+        ImGui::SliderFloat("RotateTB",&m_tbRotationSpeed,0.0005,0.1,"%.4f",2.0f);
+        ImGui::SliderFloat("Pan",&m_panSpeed,0.001,.1,"%.4f",2.0f);
+        ImGui::SliderFloat("Zoom",&m_zoomSpeed,0.01,2,"%.4f",2.0f);
+
+        ImGui::Separator();
+
+        ImGui::Text("Smoothing");
+        ImGui::SliderFloat("Movement",&m_movementSmoothing,0,2,"%.3f",2.0f);
+        ImGui::SliderFloat("Rotation",&m_rotationSmoothing,0,2,"%.3f",2.0f);
+
+        ImGui::Separator();
+
+        ImGui::Text("Camera coordinate System:");
+        ImGui::Text("Front: %s \nBack:  %s \nRight: %s \nLeft:   %s \nUp:     %s\nDown: %s",
+                    glm::to_string(front()).c_str(),
+                    glm::to_string(back()).c_str(),
+                    glm::to_string(right()).c_str(),
+                    glm::to_string(left()).c_str(),
+                    glm::to_string(up()).c_str(),
+                    glm::to_string(down()).c_str());
     }
-
-
+    ImGui::End();
 }
 
 }}

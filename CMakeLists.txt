@@ -18,7 +18,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # create project
 include(GetVersionFromGit)
-project(mpUtils VERSION "${VERSION_SHORT}" LANGUAGES CXX)
+project(mpUtils VERSION "${VERSION_SHORT}" LANGUAGES CXX C)
 
 # default build configuration
 include(setDefaultTypeRelease)
@@ -58,6 +58,7 @@ option(DISABLE_PPUTILS "Disable inclusion of preprocessor utils. (Note: this is 
 option(DISABLE_PATHS "Disable automatic inclusion of paths.h. (Note: this is also possible on a per project bases by defining MPU_NO_PATHS before including mpUtils.h)" OFF)
 option(BUILD_EXAMPLES "Whether or not examples should be build." OFF)
 option(EXPORT_BUILD_TREE "Enable, to export the targets from the build tree to your cmake registry. Useful for development. Use Together with FORCE_NEW_VERSION" OFF)
+option(BUILD_SHARED_LIBS "Build a shared library (.so/.dll) instead of a static one-" ON)
 
 # dependencies between features
 if(USE_OPENGL AND (NOT USE_GLM))
@@ -117,7 +118,6 @@ if (USE_CUDA)
     set(CUDA_ARCH "Auto" CACHE STRING
             "Select cuda arches for which code is produced. Auto | Common | All | list of names | number")
     CUDA_SELECT_NVCC_ARCH_FLAGS(CUDA_ARCH_FLAGS "${CUDA_ARCH}")
-    message(${CUDA_ARCH_FLAGS})
 endif()
 
 
@@ -126,7 +126,7 @@ endif()
 # -------------------------------------------------------------
 
 # create target and add general cpp files
-add_library(mpUtils SHARED "")
+add_library(mpUtils "")
 add_library(mpCudaSettings INTERFACE)
 
 # add an alias so that library can be used inside the build tree, e.g. when testing
@@ -142,20 +142,37 @@ target_sources(mpUtils PRIVATE
                 "src/Log/SyslogSink.cpp"
                 "src/Log/Log.cpp"
                 "src/Cfg/CfgFile.cpp"
-                "external/src/stb_image_impl.cpp"
+                "src/Misc/imageLoader.cpp"
+                "external/snippets/src/stb_image_impl.cpp"
+                "external/snippets/src/tinyfd/tinyfiledialogs.c"
               )
 
 # add optional source files
 if (USE_OPENGL)
     target_sources(mpUtils PRIVATE
-                    "src/Graphics/Rendering/Camera.cpp"
                     "src/Graphics/Opengl/Framebuffer.cpp"
                     "src/Graphics/Opengl/Shader.cpp"
                     "src/Graphics/Opengl/Texture.cpp"
-                    "src/Graphics/Opengl/glsl/Preprocessor.cpp"
+                    "src/Graphics/Opengl/Sampler.cpp"
+                    "src/Graphics/Opengl/Buffer.cpp"
+                    "src/Graphics/Opengl/SyncObject.cpp"
+                    "src/Graphics/Rendering/Camera.cpp"
+                    "src/Graphics/Rendering/Sprite2D.cpp"
+                    "src/Graphics/Rendering/SpriteInstance2D.cpp"
+                    "src/Graphics/Rendering/Renderer2D.cpp"
                     "src/Graphics/Utils/Transform.cpp"
-                    "src/Graphics/Utils/ModelViewProjection.cpp"
+                    "src/Graphics/Utils/Transform2D.cpp"
                     "src/Graphics/Window.cpp"
+                    "external/snippets/src/imgui/imgui.cpp"
+                    "external/snippets/src/imgui/imgui_demo.cpp"
+                    "external/snippets/src/imgui/imgui_draw.cpp"
+                    "external/snippets/src/imgui/imgui_widgets.cpp"
+                    "external/snippets/src/imgui/impl/imgui_impl_opengl3.cpp"
+                    "external/snippets/src/imgui/impl/imgui_impl_glfw.cpp"
+                    "external/snippets/src/imgui/stdlib/imgui_stdlib.cpp"
+                    "src/Graphics/Gui/ImGui.cpp"
+                    "src/Graphics/Gui/ImGuiStyles.cpp"
+                    "src/Graphics/Input.cpp"
                   )
 endif()
 
@@ -168,10 +185,13 @@ target_include_directories(mpUtils
                                 $<INSTALL_INTERFACE:include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/include>
+                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include>
                             PRIVATE
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src
-                        )
+                                ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include/mpUtils/external/imgui
+                                ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/src/imgui/impl
+                                ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include/mpUtils/external/imgui
+        )
 
 
 # -------------------------------------------------------------
@@ -192,11 +212,6 @@ set_target_properties(mpUtils PROPERTIES
                         CUDA_STANDARD 14
                         CUDA_STANDARD_REQUIRED YES
                      )
-
-# force c++17 if using opengl
-if(USE_OPENGL)
-    set_target_properties(mpUtils PROPERTIES CXX_STANDARD 17)
-endif()
 
 # set cuda specific properties and compile options
 if (USE_CUDA)
@@ -227,6 +242,9 @@ if(DISABLE_PATHS)
     target_compile_definitions(mpUtils PUBLIC MPU_NO_PATHS)
 endif()
 
+# defines for stb image
+target_compile_definitions(mpUtils PUBLIC STBI_FAILURE_USERMSG)
+
 # generate include files for version and paths
 set(MPU_CUDA_AVAILIBLE ${USE_CUDA})
 set(MPU_GLM_AVAILIBLE ${USE_GLM})
@@ -237,6 +255,7 @@ set(MPU_LIB_SHADER_PATH ${CMAKE_SOURCE_DIR}/shader/)
 set(MPU_LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources/)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/paths.h)
 
+target_compile_options(mpUtils PRIVATE "-Wa,-I${CMAKE_CURRENT_LIST_DIR}/resources")
 
 # -------------------------------------------------------------
 # link dependencies (this will also link the dependencies of dependencies and set required compiler flags)
@@ -258,7 +277,7 @@ if(USE_CUDA)
 endif()
 
 # link required external libs
-target_link_libraries(mpUtils PUBLIC stdc++fs Threads::Threads)
+target_link_libraries(mpUtils PUBLIC Threads::Threads)
 
 # link optional external libs
 if(USE_GLM)
@@ -268,6 +287,22 @@ endif()
 if(USE_OPENGL)
     target_link_libraries(mpUtils PUBLIC OpenGL::GL glfw GLEW::GLEW)
 endif()
+
+# link windows specific stuff needed for tinyfiledialogs
+if(WIN32)
+    target_link_libraries(raptor PUBLIC Comdlg32.lib Ole32.lib)
+endif()
+
+# --------------------------------------------------------
+# build and link dependencies in external/modules
+# --------------------------------------------------------
+list(APPEND LOCAL_EXPOR_TARGETS "mpUtils")
+if(USE_OPENGL)
+    add_subdirectory(external/modules/GLshader)
+    target_link_libraries(mpUtils PUBLIC glsp::glsp)
+    list(APPEND LOCAL_EXPOR_TARGETS "glsp")
+endif()
+
 
 # --------------------------------------------------------
 # installing and exporting
@@ -296,7 +331,7 @@ install(TARGETS mpUtils mpCudaSettings
 
 # install headers
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/snippets/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/version.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mpUtils/)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/installedPaths.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mpUtils/ RENAME paths.h)
 
@@ -350,10 +385,10 @@ install(FILES
 # --------------------------------------------------------
 
 # export targets from build tree
-export(EXPORT mpUtils-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsTargets.cmake NAMESPACE mpUtils::)
+export(TARGETS ${LOCAL_EXPOR_TARGETS} NAMESPACE mpUtils:: FILE ${CMAKE_CURRENT_BINARY_DIR}/mpUtilsTargets.cmake)
 
 if(EXPORT_BUILD_TREE)
-    # register package in users package registry
+#     register package in users package registry
     export(PACKAGE mpUtils)
 endif()
 

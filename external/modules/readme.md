@@ -1,0 +1,1 @@
+contains dependencies that provide a full cmake build and there own installation

@@ -25,6 +25,7 @@
 #include <atomic>
 #include <iostream>
 #include <functional>
+#include <string>
 #include "mpUtils/Misc/stringUtils.h"
 
 //--------------------
