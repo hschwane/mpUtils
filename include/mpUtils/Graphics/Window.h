@@ -40,8 +40,8 @@ namespace gph {
  * This is an object oriented wrapper for glfw Window. Use the constructor to create the window, it will also make the context current.
  * Most glfw Window functions are implemented in the wrapper, however if you need a glfw Window you can use Window::window()
  * or a cast to obtain a pointer to a glfw Window.
- * In the Windows main loop you shold call Window::update() it handles events and swaps the Framebuffer. It will return false
- * if the operating system is asking the window to be closed. It also automatically clears the framebuffer using (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT).
+ * To update the contents of your window use frameBegin and frameEnd. Inbetween you can draw things using openGL. BeginFrame will return false
+ * if the operating system is asking the window to be closed. Clearing and swapping the framebuffer using (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) is also handled automatically.
  * You can change the mask with setClearMask().
  * The window is created with the window hints for openGL Version and core profile. To request a specific version call
  * Window::setGlVersion() before creating a window. If you want to use other special options, please use glfwSetWindowHint()

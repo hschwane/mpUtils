@@ -56,6 +56,9 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+--- v0.11.1 --- 21.10.2019
+- various bug fixes including the vertexArrayObject
+
 --- v0.11.0 --- 15.10.2019
 - add new hybrid (trackball/fps) camera
 - add imgui loading animations

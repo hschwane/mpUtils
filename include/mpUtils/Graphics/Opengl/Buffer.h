@@ -142,7 +142,7 @@ public:
 
     iterator begin(); //!< get an iterator to the beginning of the buffer, "map" and "enableWrite" needs to be true
     iterator end(); //!< get an iterator to the end of the buffer, "map" and "enableWrite" needs to be true
-    const_iterator cbegin() const; //!< get a const iterator to the beginning of the buffer, "map" and needs to be true
+    const_iterator cbegin() const; //!< get a const iterator to the beginning of the buffer, "map" needs to be true
     const_iterator cend() const; //!< get a const iterator to the end of the buffer, "map" and needs to be true
 
     size_t size() const { return m_size;} //!< returns the size of the buffer
