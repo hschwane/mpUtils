@@ -103,9 +103,9 @@ void Camera::addInputs()
     gph::Input::addAxis(m_uiPrefix + "MovementSpeed", "Change cameras movement and pan/zoom speed.",
                         [this](gph::Window& wnd, double v)
                         {
-                                this->setMovementSpeed(  getMovementSpeed() + v * 0.025f * getMovementSpeed());
-                                this->setPanSpeed(  getPanSpeed() + v * 0.025f * getPanSpeed());
-                                this->setZoomSpeed(  getZoomSpeed() + v * 0.025f * getZoomSpeed());
+                                this->setMovementSpeed(  getMovementSpeed() + float(v) * 0.025f * (getMovementSpeed() + std::numeric_limits<float>::min()) );
+                                this->setPanSpeed(  getPanSpeed() + float(v) * 0.025f * (getPanSpeed() + std::numeric_limits<float>::min()));
+                                this->setZoomSpeed(  getZoomSpeed() + float(v) * 0.025f * (getZoomSpeed() + std::numeric_limits<float>::min()));
                         });
 }
 
