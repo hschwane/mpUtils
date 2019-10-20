@@ -32,7 +32,7 @@ namespace mpu {
  * Access a resource embedded into the executable.
  *
  * usage:
- * Use the ADD_RESOURCES makro to embed a resource file into a executable.
+ * Use the ADD_RESOURCES macro to embed a resource file into a executable.
  * You can set the search path by using the compiler option -Wa,-I/some/path in your cmake
  * Then use the macro below to load the resource. It will return an object of the following class.
  * You can then use the iterators as well as data and size member functions to access the data.
@@ -41,29 +41,31 @@ namespace mpu {
  * int main(void)
  * {
  *   Resource text = LOAD_RESOURCE(resources_test_txt);
- *   std::cout << std::string(text.data(), text.size()) << std::endl;
+ *   std::cout << std::string(text.signedData(), text.size()) << std::endl;
  * }
- * where the file was located at resources/test.txt relative to the cmake file from where ADD_RESOURCES was called
+ * where the file was located at resources/test.txt
  *
  */
 class Resource
 {
 public:
-    Resource(const unsigned char *start, const unsigned char *end): mData(start),
-                                                  mSize(end - start)
+    Resource(const unsigned char *start, const unsigned char *end) : m_data(start), m_signedData(reinterpret_cast<const char*>(start)),
+                                                                    mSize(end - start)
     {}
 
-    Resource(const unsigned char *start, size_t size): mData(start), mSize(size)
+    Resource(const unsigned char *start, size_t size) : m_data(start), m_signedData(reinterpret_cast<const char*>(start)), mSize(size)
     {}
 
-    const unsigned char * const &data() const { return mData; }
+    const unsigned char * const &data() const { return m_data; }
+    const char * const &signedData() const { return m_signedData; }
     const size_t &size() const { return mSize; }
 
-    const unsigned char *begin() const { return mData; }
-    const unsigned char *end() const { return mData + mSize; }
+    const unsigned char *begin() const { return m_data; }
+    const unsigned char *end() const { return m_data + mSize; }
 
 private:
-    const unsigned char *mData;
+    const unsigned char *m_data;
+    const char *m_signedData;
     size_t mSize;
 };
 
