@@ -52,7 +52,7 @@ bool SyncObject::waitReady(unsigned long timeout, bool flush)
     {
         logERROR("SyncObject") << "Error while waiting on sync object.";
         logFlush();
-        std::runtime_error("Error while waiting on sync object");
+        throw std::runtime_error("Error while waiting on sync object");
     }
 }
 
