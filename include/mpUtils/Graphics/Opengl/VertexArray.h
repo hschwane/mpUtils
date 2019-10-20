@@ -170,13 +170,12 @@ private:
 
 inline VertexArray::VertexArray()
 {
-    glGenVertexArrays(1,&m_vaoHandle);
+    glCreateVertexArrays(1,&m_vaoHandle);
 }
 
 inline VertexArray::~VertexArray()
 {
-    if(m_vaoHandle != 0)
-        glDeleteVertexArrays(1,&m_vaoHandle);
+    glDeleteVertexArrays(1,&m_vaoHandle);
 }
 
 inline VertexArray::operator uint32_t() const
