@@ -290,7 +290,7 @@ endif()
 
 # link windows specific stuff needed for tinyfiledialogs
 if(WIN32)
-    target_link_libraries(raptor PUBLIC Comdlg32.lib Ole32.lib)
+    target_link_libraries(mpUtils PUBLIC Comdlg32.lib Ole32.lib)
 endif()
 
 # --------------------------------------------------------
