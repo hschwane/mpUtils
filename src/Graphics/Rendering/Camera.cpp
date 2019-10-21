@@ -278,87 +278,144 @@ glm::mat4 gph::Camera::modelMatrix() const
 
 void Camera::showDebugWindow(bool* show)
 {
-    if(ImGui::Begin((m_uiPrefix+std::string("Debug Information")).c_str(),show))
+    if(ImGui::Begin((m_uiPrefix+std::string(" Debug Information")).c_str(),show))
     {
-        ImGui::InputFloat3("Desired Position",glm::value_ptr(m_desiredTransform.position));
-        glm::vec3 desiredtarget = m_desiredTransform.position + front() * m_desiredTargetDistance;
-        if( ImGui::InputFloat3(" Desire Target",glm::value_ptr(desiredtarget)))
+        if(ImGui::CollapsingHeader("Movement"))
         {
-            m_desiredTransform.lookAt(desiredtarget,m_world_up);
-            m_desiredTargetDistance = glm::length(desiredtarget-m_desiredTransform.position);
+            static glm::vec3 newPos(0, 0, 1);
+            static glm::vec3 newTar(0, 0, 0);
+            static bool interpolate = false;
+            ImGui::DragFloat3("##1", glm::value_ptr(newPos),0.1);
+            ImGui::SameLine();
+            if(ImGui::Button("set position"))
+                setPosition(newPos, interpolate);
+            ImGui::DragFloat3("##2", glm::value_ptr(newTar),0.1);
+            ImGui::SameLine();
+            if(ImGui::Button("set target"))
+                setTarget(newTar, interpolate);
+            ImGui::Checkbox("Interpolate",&interpolate);
+
+            ImGui::Separator();
+
+            static glm::vec2 rotate(0,0);
+            ImGui::DragFloat2("##3", glm::value_ptr(rotate),0.1);
+            ImGui::SameLine();
+            if(ImGui::Button("rotate"))
+            {
+                rotateH(rotate.x);
+                rotateV(rotate.y);
+            }
+
+            static glm::vec3 move(0,0,0);
+            ImGui::DragFloat3("##4", glm::value_ptr(move),0.1);
+            ImGui::SameLine();
+            if(ImGui::Button("move"))
+            {
+                moveX(move.x);
+                moveY(move.y);
+                moveZ(move.z);
+            }
+
+            static glm::vec2 pan(0,0);
+            ImGui::DragFloat2("##5", glm::value_ptr(pan),0.1);
+            ImGui::SameLine();
+            if(ImGui::Button("pan"))
+            {
+                panH(pan.x);
+                panV(pan.y);
+            }
+
+            static float zm=0;
+            ImGui::DragFloat("##6", &zm,0.1);
+            ImGui::SameLine();
+            if(ImGui::Button("zoom"))
+                zoom(zm);
         }
-        ImGui::InputFloat("Desired Distance to Target",&m_desiredTargetDistance);
 
-        ImGui::Separator();
-
-        ImGui::InputFloat3("Position",glm::value_ptr(m_transform.position));
-        glm::vec3 target = m_transform.position + front() * m_targetDistance;
-        if( ImGui::InputFloat3("Target",glm::value_ptr(target)))
+        if(ImGui::CollapsingHeader("State"))
         {
-            m_transform.lookAt(target,m_world_up);
-            m_targetDistance = glm::length(target-m_transform.position);
+            ImGui::DragFloat3("Desired Position", glm::value_ptr(m_desiredTransform.position),0.1f);
+            glm::vec3 desiredtarget = m_desiredTransform.position + m_desiredTransform.orientation * glm::vec3(0,0,-1) * m_desiredTargetDistance;
+            if(ImGui::DragFloat3("Desired Target", glm::value_ptr(desiredtarget),0.1f))
+            {
+                m_desiredTransform.lookAt(desiredtarget, m_world_up);
+                m_desiredTargetDistance = glm::length(desiredtarget - m_desiredTransform.position);
+            }
+            ImGui::DragFloat("Desired Distance to Target", &m_desiredTargetDistance,0.1f);
+
+            ImGui::Separator();
+
+            ImGui::DragFloat3("Position", glm::value_ptr(m_transform.position),0.1f);
+            glm::vec3 target = m_transform.position + front() * m_targetDistance;
+            if(ImGui::DragFloat3("Target", glm::value_ptr(target),0.1f))
+            {
+                m_transform.lookAt(target, m_world_up);
+                m_targetDistance = glm::length(target - m_transform.position);
+            }
+            ImGui::DragFloat("Distance to Target", &m_targetDistance,0.1f);
+            ImGui::DragFloat3("World Up", glm::value_ptr(m_world_up),0.1f);
+            ImGui::Text("Orientation: %s", glm::to_string(m_transform.orientation).c_str());
+
+            ImGui::Text("Mode: ");
+            ImGui::SameLine();
+            ImGui::RadioButton("trackball", reinterpret_cast<int*>(&m_mode), 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("fps", reinterpret_cast<int*>(&m_mode), 1);
+
+            static bool speed = false;
+            static bool slow = false;
+            bool speedEnabled = m_movementSpeedMod > 1.0f;
+            bool slowEnabled = m_movementSpeedMod < 1.0f;
+            if(speedEnabled)
+            {
+                ImGui::Checkbox("FastMode", &speedEnabled);
+            } else
+            {
+                ImGui::Checkbox("FastMode", &speed);
+                if(speed)
+                    fastMode();
+            }
+            ImGui::SameLine();
+            if(slowEnabled)
+            {
+                ImGui::Checkbox("SlowMode", &slowEnabled);
+            } else
+            {
+                ImGui::Checkbox("SlowMode", &slow);
+                if(slow)
+                    slowMode();
+            }
+
+            ImGui::Checkbox("Enable all controls", &m_enableAllControls);
         }
-        ImGui::InputFloat("Distance to Target",&m_targetDistance);
-        ImGui::InputFloat3("World Up",glm::value_ptr(m_world_up));
-        ImGui::Text("Orientation: %s",glm::to_string(m_transform.orientation).c_str());
 
-        ImGui::Text("Mode: "); ImGui::SameLine();
-        ImGui::RadioButton("trackball", reinterpret_cast<int*>(&m_mode), 0); ImGui::SameLine();
-        ImGui::RadioButton("fps", reinterpret_cast<int*>(&m_mode), 1);
-
-        static bool speed=false;
-        static bool slow=false;
-        bool speedEnabled = m_movementSpeedMod > 1.0f;
-        bool slowEnabled = m_movementSpeedMod < 1.0f;
-        if(speedEnabled)
+        if(ImGui::CollapsingHeader("Sensitivity"))
         {
-            ImGui::Checkbox("FastMode", &speedEnabled);
+            ImGui::SliderFloat("RotateFPS", &m_fpsRotationSpeed, 0.0005, 0.1, "%.4f", 2.0f);
+            ImGui::SliderFloat("Move", &m_moveSpeed, 0.005, 1.0f, "%.4f", 2.0f);
+            ImGui::SliderFloat("RotateTB", &m_tbRotationSpeed, 0.0005, 0.1, "%.4f", 2.0f);
+            ImGui::SliderFloat("Pan", &m_panSpeed, 0.001, .1, "%.4f", 2.0f);
+            ImGui::SliderFloat("Zoom", &m_zoomSpeed, 0.01, 2, "%.4f", 2.0f);
         }
-        else
+
+        if(ImGui::CollapsingHeader("Smoothing"))
         {
-            ImGui::Checkbox("FastMode", &speed);
-            if(speed)
-                fastMode();
+            ImGui::SliderFloat("Movement", &m_movementSmoothing, 0, 2, "%.3f", 2.0f);
+            ImGui::SliderFloat("Rotation", &m_rotationSmoothing, 0, 2, "%.3f", 2.0f);
         }
-        ImGui::SameLine();
-        if(slowEnabled)
+
+        if(ImGui::CollapsingHeader("Camera coordinate System"))
         {
-            ImGui::Checkbox("SlowMode", &slowEnabled);
+            ImGui::Text("Position: %s",glm::to_string(m_transform.position).c_str());
+            ImGui::Text("Orientation: %s",glm::to_string(m_transform.orientation).c_str());
+            ImGui::Text("Front: %s \nBack:  %s \nRight: %s \nLeft:   %s \nUp:     %s\nDown: %s",
+                        glm::to_string(front()).c_str(),
+                        glm::to_string(back()).c_str(),
+                        glm::to_string(right()).c_str(),
+                        glm::to_string(left()).c_str(),
+                        glm::to_string(up()).c_str(),
+                        glm::to_string(down()).c_str());
         }
-        else
-        {
-            ImGui::Checkbox("SlowMode", &slow);
-            if(slow)
-                slowMode();
-        }
-
-        ImGui::Checkbox("Enable all controls", &m_enableAllControls);
-
-        ImGui::Separator();
-
-        ImGui::Text("Sensitivity");
-        ImGui::SliderFloat("RotateFPS",&m_fpsRotationSpeed,0.0005,0.1,"%.4f",2.0f);
-        ImGui::SliderFloat("Move",&m_moveSpeed,0.005,1.0f,"%.4f",2.0f);
-        ImGui::SliderFloat("RotateTB",&m_tbRotationSpeed,0.0005,0.1,"%.4f",2.0f);
-        ImGui::SliderFloat("Pan",&m_panSpeed,0.001,.1,"%.4f",2.0f);
-        ImGui::SliderFloat("Zoom",&m_zoomSpeed,0.01,2,"%.4f",2.0f);
-
-        ImGui::Separator();
-
-        ImGui::Text("Smoothing");
-        ImGui::SliderFloat("Movement",&m_movementSmoothing,0,2,"%.3f",2.0f);
-        ImGui::SliderFloat("Rotation",&m_rotationSmoothing,0,2,"%.3f",2.0f);
-
-        ImGui::Separator();
-
-        ImGui::Text("Camera coordinate System:");
-        ImGui::Text("Front: %s \nBack:  %s \nRight: %s \nLeft:   %s \nUp:     %s\nDown: %s",
-                    glm::to_string(front()).c_str(),
-                    glm::to_string(back()).c_str(),
-                    glm::to_string(right()).c_str(),
-                    glm::to_string(left()).c_str(),
-                    glm::to_string(up()).c_str(),
-                    glm::to_string(down()).c_str());
     }
     ImGui::End();
 }
