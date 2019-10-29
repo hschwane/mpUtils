@@ -28,13 +28,15 @@ std::string timestamp(std::string sFormat)
     time_t timeRaw = time(NULL);
     struct tm timeStruct;
 #ifdef __linux__
-    localtime_r(&timeRaw, &timeStruct);
+	localtime_r(&timeRaw, &timeStruct);
+#elif _WIN32
+	localtime_s(&timeStruct, &timeRaw);
 #else
-#error please implement timestamp for your operating system
 #endif
-    char a_cResult[sFormat.length() + 100];
-    strftime(a_cResult, sFormat.length() + 100, sFormat.c_str(), &timeStruct);
-    return std::string(a_cResult);
+	const char* cstr = sFormat.c_str();
+	std::ostringstream ss;
+	ss << std::put_time(&timeStruct, cstr);
+    return ss.str();
 }
 
 std::string &removeWhite(std::string &s)

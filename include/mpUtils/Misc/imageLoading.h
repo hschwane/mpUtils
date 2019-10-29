@@ -14,6 +14,7 @@
 // includes
 //--------------------
 #include <memory>
+#include <string>
 #include "mpUtils/external/stb_image.h"
 //--------------------
 
