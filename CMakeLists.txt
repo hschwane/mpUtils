@@ -251,8 +251,8 @@ set(MPU_GLM_AVAILIBLE ${USE_GLM})
 set(MPU_OPENGL_AVAILIBLE ${USE_OPENGL})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/version.h)
 
-set(MPU_LIB_SHADER_PATH ${CMAKE_SOURCE_DIR}/shader/)
-set(MPU_LIB_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources/)
+set(MPU_LIB_SHADER_PATH ${CMAKE_CURRENT_LIST_DIR}/shader/)
+set(MPU_LIB_RESOURCE_PATH ${CMAKE_CURRENT_LIST_DIR}/resources/)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/CmakeConfigureTemplates/paths.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/mpUtils/paths.h)
 
 #target_compile_options(mpUtils PRIVATE "-Wa,-I${CMAKE_CURRENT_LIST_DIR}/resources")
