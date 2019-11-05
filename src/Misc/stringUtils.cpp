@@ -25,13 +25,14 @@ namespace mpu {
 
 std::string timestamp(std::string sFormat)
 {
-    time_t timeRaw = time(NULL);
+    time_t timeRaw = time(nullptr);
     struct tm timeStruct;
 #ifdef __linux__
 	localtime_r(&timeRaw, &timeStruct);
 #elif _WIN32
 	localtime_s(&timeStruct, &timeRaw);
 #else
+	#error please implement timestamp for your operating system
 #endif
 	const char* cstr = sFormat.c_str();
 	std::ostringstream ss;

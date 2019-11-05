@@ -71,10 +71,9 @@ The following options are availible:
                        defining `MPU_NO_PATHS` before inclusion of mpUtils.h and mpGraphics.h.
 - `BUILD_EXAMPLES` if enabled, the examples folder is searched for executables and they are also compiled.
 - `EXPORT_BUILD_TREE` if enabled, the build tree will be added to your cmake package registry. That enables other projects to find the library without installing it.
-                        mainly used during development and testing. Consider using FORCE_NEW_VERSION as well.
 - `FORCE_NEW_VERSION` if enabled a instead of using the version number of the git commit, the version is increased by one.
                         This is mainly used during development and testing to not screw with existing mpUtils installations
-                        on the development system. Often used together with EXPORT_BUILD_TREE.
+                        on the development system.
 
 --------------------------
 ## usage
