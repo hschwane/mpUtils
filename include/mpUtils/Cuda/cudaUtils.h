@@ -91,6 +91,30 @@ inline __device__ Range<int> gridStrideRange(int firstElement, int problemSize)
 }
 
 /**
+ * @brief generates a Range to be used in a for each loop inside a kernel to decouple the block size from the data size
+ *          indices will run in the range [0,problemSize)
+ * @param problemSize the size of the data to process
+ * @return a mpu::Range object to be used inside a for each loop
+ */
+inline __device__ Range<int> blockStrideRange(int problemSize)
+{
+    return Range<int>(threadIdx.x, problemSize, blockDim.x);
+}
+
+/**
+ * @brief generates a Range to be used in a for each loop inside a kernel to decouple the block size from the data size
+ *          indices will run in the range [firstElement,problemSize)
+ * @param firstElement the first element of the dataset to process
+ * @param problemSize the size of the data to process
+ * @return a mpu::Range object to be used inside a for each loop
+ */
+inline __device__ Range<int> blockStrideRange(int firstElement, int problemSize)
+{
+    firstElement += threadIdx.x;
+    return Range<int>(firstElement, problemSize, blockDim.x);
+}
+
+/**
  * @brief calculates the number of cuda blocks to be launched
  * @param problemSize number of things that needs to be published
  * @return the number of cuda blocks that should be launched
