@@ -83,6 +83,9 @@ public:
     explicit Buffer(std::vector<T> data);
     Buffer(T* data, size_t count);
 
+    Buffer& operator=(Buffer&& other) = default;
+    Buffer(Buffer&& other) = default;
+
     ~Buffer() override;
 
     /**
