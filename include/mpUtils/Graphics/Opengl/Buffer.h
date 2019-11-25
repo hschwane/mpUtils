@@ -198,7 +198,8 @@ Buffer<T, map, enableWrite>::Buffer(T* data, size_t count) : BufferBase(), m_siz
 template <typename T, bool map, bool enableWrite>
 Buffer<T, map, enableWrite>::~Buffer()
 {
-    glUnmapNamedBuffer(*this);
+    if(map)
+        glUnmapNamedBuffer(*this);
 }
 
 template <typename T, bool enableWrite, bool map>
