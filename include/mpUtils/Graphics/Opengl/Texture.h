@@ -184,7 +184,7 @@ public:
      * @brief binds the txture to a texture unit, after activating that unit
      * @param textureUnit
      */
-    void bind(GLenum textureUnit) const;
+    void bind(GLuint textureUnit) const;
 
     /**
      * @brief Bind Texture to an image object for wirte access in the shader

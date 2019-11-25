@@ -151,10 +151,9 @@ void Texture::generateMipmaps()
     glGenerateTextureMipmap(*this);
 }
 
-void Texture::bind(GLenum textureUnit) const
+void Texture::bind(GLuint textureUnit) const
 {
-    glActiveTexture(textureUnit);
-    glBindTexture(static_cast<GLenum>(m_type), *this);
+    glBindTextureUnit(textureUnit, *this);
 }
 
 void Texture::bindImage(GLuint bindingIndex, GLenum access, GLenum format, GLint level, bool layered, GLint layer) const
