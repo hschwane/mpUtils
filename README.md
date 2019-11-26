@@ -161,3 +161,5 @@ tiny file dialogs (ysengrin.com)
 This software contains source code provided by Guillaume Vareille.
 
 Test textures by Thomas Schmall (https://www.oxpal.com/uv-checker-texture.html)  
+
+GLShader by Johannes Braun (https://github.com/johannes-braun/GLshader)
