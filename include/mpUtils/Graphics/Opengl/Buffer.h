@@ -79,7 +79,7 @@ template <typename T, bool enableWrite = false, bool map = false>
 class Buffer : public BufferBase
 {
 public:
-    explicit Buffer(size_t size);
+    explicit Buffer(size_t size=0);
     explicit Buffer(std::vector<T> data);
     Buffer(T* data, size_t count);
 
