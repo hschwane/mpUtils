@@ -151,6 +151,8 @@ This product includes software developed by Keith O'Hara (http://www.kthohr.com)
 This software contains source code
 provided by NVIDIA Corporation.
 
+CUB by nvlabs (https://nvlabs.github.io/cub/)
+
 stb_image (https://github.com/nothings/stb)
 This software contains source code provided by Sean T. Barrett.
 
