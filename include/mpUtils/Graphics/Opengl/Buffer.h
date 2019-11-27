@@ -162,8 +162,8 @@ private:
 //-------------------------------------------------------------------
 // definitions of template functions of the Buffer class
 
-template <typename T, bool map, bool enableWrite>
-Buffer<T, map, enableWrite>::Buffer(size_t size) : BufferBase(), m_size(size), m_mapped_data(nullptr)
+template <typename T, bool enableWrite, bool map>
+Buffer<T, enableWrite, map>::Buffer(size_t size) : BufferBase(), m_size(size), m_mapped_data(nullptr)
 {
     glNamedBufferStorage(*this, size*sizeof(T), nullptr, storageFlags());
     if(map)
@@ -173,8 +173,8 @@ Buffer<T, map, enableWrite>::Buffer(size_t size) : BufferBase(), m_size(size), m
     }
 }
 
-template <typename T, bool map, bool enableWrite>
-Buffer<T, map, enableWrite>::Buffer(const std::vector<T>& data) : BufferBase(), m_size(data.size), m_mapped_data(nullptr)
+template <typename T, bool enableWrite, bool map>
+Buffer<T, enableWrite, map>::Buffer(const std::vector<T>& data) : BufferBase(), m_size(data.size), m_mapped_data(nullptr)
 {
     glNamedBufferStorage(*this, data.size() * sizeof(T), data.data(), storageFlags());
     if(map)
@@ -184,8 +184,8 @@ Buffer<T, map, enableWrite>::Buffer(const std::vector<T>& data) : BufferBase(), 
     }
 }
 
-template <typename T, bool map, bool enableWrite>
-Buffer<T, map, enableWrite>::Buffer(T* data, size_t count) : BufferBase(), m_size(count), m_mapped_data(nullptr)
+template <typename T, bool enableWrite, bool map>
+Buffer<T, enableWrite, map>::Buffer(T* data, size_t count) : BufferBase(), m_size(count), m_mapped_data(nullptr)
 {
     glNamedBufferStorage(*this, count * sizeof(T), data, storageFlags());
     if(map)
@@ -195,8 +195,8 @@ Buffer<T, map, enableWrite>::Buffer(T* data, size_t count) : BufferBase(), m_siz
     }
 }
 
-template <typename T, bool map, bool enableWrite>
-Buffer<T, map, enableWrite>::~Buffer()
+template <typename T, bool enableWrite, bool map>
+Buffer<T, enableWrite, map>::~Buffer()
 {
     if(map)
         glUnmapNamedBuffer(*this);
@@ -219,8 +219,8 @@ Buffer<T, enableWrite, map> Buffer<T, enableWrite, map>::clone()
     return clone;
 }
 
-template <typename T, bool map, bool enableWrite>
-void Buffer<T, map, enableWrite>::write(const std::vector<T>& data, size_t offset)
+template <typename T, bool enableWrite, bool map>
+void Buffer<T, enableWrite, map>::write(const std::vector<T>& data, size_t offset)
 {
     static_assert(enableWrite,"To use write to the buffer you need to set the template parameter \"enableWrite\" to true.");
     if(map)
@@ -232,8 +232,8 @@ void Buffer<T, map, enableWrite>::write(const std::vector<T>& data, size_t offse
     }
 }
 
-template <typename T, bool map, bool enableWrite>
-void Buffer<T, map, enableWrite>::write(T* data, size_t count, size_t offset)
+template <typename T, bool enableWrite, bool map>
+void Buffer<T, enableWrite, map>::write(T* data, size_t count, size_t offset)
 {
     static_assert(enableWrite,"To use write to the buffer you need to set the template parameter \"enableWrite\" to true.");
     if(map)
@@ -245,8 +245,8 @@ void Buffer<T, map, enableWrite>::write(T* data, size_t count, size_t offset)
     }
 }
 
-template <typename T, bool map, bool enableWrite>
-std::vector<T> Buffer<T, map, enableWrite>::read(size_t count, size_t offset) const
+template <typename T, bool enableWrite, bool map>
+std::vector<T> Buffer<T, enableWrite, map>::read(size_t count, size_t offset) const
 {
     std::vector<T> data(count);
     if(map)
@@ -259,8 +259,8 @@ std::vector<T> Buffer<T, map, enableWrite>::read(size_t count, size_t offset) co
     return data;
 }
 
-template <typename T, bool map, bool enableWrite>
-void Buffer<T, map, enableWrite>::read(T* data, size_t count, size_t offset) const
+template <typename T, bool enableWrite, bool map>
+void Buffer<T, enableWrite, map>::read(T* data, size_t count, size_t offset) const
 {
     if(map)
     {
@@ -316,8 +316,8 @@ typename Buffer<T, enableWrite, map>::const_iterator Buffer<T, enableWrite, map>
     return m_mapped_data + size();
 }
 
-template <typename T, bool map, bool enableWrite>
-GLbitfield Buffer<T, map, enableWrite>::storageFlags()
+template <typename T, bool enableWrite, bool map>
+GLbitfield Buffer<T, enableWrite, map>::storageFlags()
 {
     GLbitfield flags = 0;
 
@@ -331,8 +331,8 @@ GLbitfield Buffer<T, map, enableWrite>::storageFlags()
     return flags;
 }
 
-template <typename T, bool map, bool enableWrite>
-GLbitfield Buffer<T, map, enableWrite>::mapAccesFlags()
+template <typename T, bool enableWrite, bool map>
+GLbitfield Buffer<T, enableWrite, map>::mapAccesFlags()
 {
     GLbitfield flags = GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
