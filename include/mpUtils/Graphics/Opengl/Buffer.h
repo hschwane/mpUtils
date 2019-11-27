@@ -80,7 +80,7 @@ class Buffer : public BufferBase
 {
 public:
     explicit Buffer(size_t size=0);
-    explicit Buffer(std::vector<T> data);
+    explicit Buffer(const std::vector<T>& data);
     Buffer(T* data, size_t count);
 
     Buffer& operator=(Buffer&& other) = default;
@@ -109,7 +109,7 @@ public:
      * @param data the vector used as the source for the data
      * @param offset offset inside the buffer where writing starts
      */
-    void write( std::vector<T> data, size_t offset = 0);
+    void write( const std::vector<T>& data, size_t offset = 0);
 
     /**
      * @brief write data to the buffer
@@ -174,7 +174,7 @@ Buffer<T, map, enableWrite>::Buffer(size_t size) : BufferBase(), m_size(size), m
 }
 
 template <typename T, bool map, bool enableWrite>
-Buffer<T, map, enableWrite>::Buffer(std::vector<T> data) : BufferBase(), m_size(data.size), m_mapped_data(nullptr)
+Buffer<T, map, enableWrite>::Buffer(const std::vector<T>& data) : BufferBase(), m_size(data.size), m_mapped_data(nullptr)
 {
     glNamedBufferStorage(*this, data.size() * sizeof(T), data.data(), storageFlags());
     if(map)
@@ -220,7 +220,7 @@ Buffer<T, enableWrite, map> Buffer<T, enableWrite, map>::clone()
 }
 
 template <typename T, bool map, bool enableWrite>
-void Buffer<T, map, enableWrite>::write(std::vector<T> data, size_t offset)
+void Buffer<T, map, enableWrite>::write(const std::vector<T>& data, size_t offset)
 {
     static_assert(enableWrite,"To use write to the buffer you need to set the template parameter \"enableWrite\" to true.");
     if(map)
