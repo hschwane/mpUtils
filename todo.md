@@ -5,6 +5,9 @@
 
 ## medium priority
 
+### cmake
+- https://cmake.org/pipermail/cmake/2017-December/066768.html
+
 ### finish the input manager
 - print used keys
 - functions to change keys afterwards
@@ -55,6 +58,11 @@
 
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
+
+- add missing references to third party software
+- make openGL buffer copyable
+- addBlockStrideRange for cuda utils
+- various bux fixes (camera, texture, buffer, ...)
 
 --- v0.11.1 --- 21.10.2019
 - various bug fixes including the vertexArrayObject
