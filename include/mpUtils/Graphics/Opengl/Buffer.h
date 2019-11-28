@@ -56,6 +56,9 @@ public:
      */
     void bindBase( uint32_t binding, GLenum target) const;
 
+    void friend swap(BufferBase& first, BufferBase& second)
+    { using std::swap; swap(first.m_bufferHandle,second.m_bufferHandle); }
+
 private:
     uint32_t m_bufferHandle;
 };
@@ -83,8 +86,10 @@ public:
     explicit Buffer(const std::vector<T>& data);
     Buffer(T* data, size_t count);
 
-    Buffer& operator=(Buffer&& other) = default;
-    Buffer(Buffer&& other) = default;
+    // implement copy swap idom
+    Buffer(const Buffer& other);
+    Buffer& operator=(Buffer other);
+    Buffer(Buffer&& other) noexcept;
 
     ~Buffer() override;
 
@@ -102,7 +107,7 @@ public:
      * @brief create a clone of this buffer
      * @return the new buffer
      */
-    Buffer clone();
+    Buffer clone() const;
 
     /**
      * @brief write data from an std vector to the buffer
@@ -150,6 +155,15 @@ public:
 
     size_t size() const { return m_size;} //!< returns the size of the buffer
 
+    //!< swap for copy swap idom
+    friend void swap(Buffer& first, Buffer& second)
+    {
+        using std::swap;
+        swap(first.m_size,second.m_size);
+        swap(first.m_mapped_data,second.m_mapped_data);
+        swap(static_cast<BufferBase&>(first), static_cast<BufferBase&>(second));
+    }
+
 private:
 
     GLbitfield storageFlags(); //!< generates bufferStorage flags based on template parameters
@@ -196,6 +210,26 @@ Buffer<T, enableWrite, map>::Buffer(T* data, size_t count) : BufferBase(), m_siz
 }
 
 template <typename T, bool enableWrite, bool map>
+Buffer<T, enableWrite, map>::Buffer(const Buffer& other)
+{
+    *this = other.clone();
+}
+
+template <typename T, bool enableWrite, bool map>
+Buffer<T, enableWrite, map>::Buffer(Buffer&& other) noexcept
+        : Buffer(0)
+{
+    swap(*this,other);
+}
+
+template <typename T, bool enableWrite, bool map>
+Buffer<T, enableWrite, map>& Buffer<T, enableWrite, map>::operator=(Buffer other)
+{
+    swap(*this,other);
+    return *this;
+}
+
+template <typename T, bool enableWrite, bool map>
 Buffer<T, enableWrite, map>::~Buffer()
 {
     if(map)
@@ -212,7 +246,7 @@ void Buffer<T, enableWrite, map>::copy(const Buffer<T,isWrite,isMapped>& source,
 }
 
 template <typename T, bool enableWrite, bool map>
-Buffer<T, enableWrite, map> Buffer<T, enableWrite, map>::clone()
+Buffer<T, enableWrite, map> Buffer<T, enableWrite, map>::clone() const
 {
     Buffer clone(this->size());
     glCopyNamedBufferSubData(*this,clone,0,0,size());
