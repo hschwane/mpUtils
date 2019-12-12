@@ -32,6 +32,7 @@
 #include "Cuda/helper_math_missing.h"
 #include "Cuda/Matrix.h"
 #include "Cuda/MatrixMath.h"
+#include "Cuda/MemoryModifiers.h"
 #include "mpUtils/external/cub/cub.cuh"
 #include "Cuda/clionCudaHelper.h"
 //--------------------

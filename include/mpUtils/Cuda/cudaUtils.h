@@ -21,9 +21,9 @@
 
 // some defines
 //--------------------
-// wrap cuda function calls in this to check for errors
+//!< wrap cuda function calls in this to check for errors
 #define assert_cuda(CODE) mpu::_cudaAssert((CODE),MPU_FILEPOS)
-// use this to define a function as usable on host and device
+//!< use this to define a function as usable on host and device
 #ifndef CUDAHOSTDEV
 #define CUDAHOSTDEV __host__ __device__
 #endif
@@ -31,6 +31,9 @@
 
 namespace mpu {
 
+/**
+ * @brief  called by the macro above to evaluate cuda errors
+ */
 inline void _cudaAssert(cudaError_t code, std::string &&filepos)
 {
     if(code != cudaSuccess)
@@ -47,24 +50,6 @@ inline void _cudaAssert(cudaError_t code, std::string &&filepos)
         throw std::runtime_error(message);
     }
 }
-
-class Managed
-{
-public:
-    void *operator new(size_t len)
-    {
-        void *ptr;
-        assert_cuda(cudaMallocManaged(&ptr, len));
-        assert_cuda(cudaDeviceSynchronize());
-        return ptr;
-    }
-
-    void operator delete(void *ptr)
-    {
-        assert_cuda(cudaDeviceSynchronize());
-        assert_cuda(cudaFree(ptr));
-    }
-};
 
 /**
  * @brief generates a Range to be used in a for each loop inside a kernel to decouple the grid size from the data size
