@@ -33,7 +33,6 @@ public:
     {
         void* ptr;
         assert_cuda(cudaMallocManaged(&ptr, len));
-        assert_cuda(cudaDeviceSynchronize());
         return ptr;
     }
 
@@ -41,18 +40,15 @@ public:
     {
         void* ptr;
         assert_cuda(cudaMallocManaged(&ptr, len));
-        assert_cuda(cudaDeviceSynchronize());
         return ptr;
     }
 
     void operator delete(void* ptr)
     {
-        assert_cuda(cudaDeviceSynchronize());
         assert_cuda(cudaFree(ptr));
     }
     void operator delete[](void* ptr)
     {
-        assert_cuda(cudaDeviceSynchronize());
         assert_cuda(cudaFree(ptr));
     }
 };
@@ -67,7 +63,6 @@ public:
     {
         void* ptr;
         assert_cuda(cudaMallocHost(&ptr, len));
-        assert_cuda(cudaDeviceSynchronize());
         return ptr;
     }
 
@@ -75,19 +70,16 @@ public:
     {
         void* ptr;
         assert_cuda(cudaMallocHost(&ptr, len));
-        assert_cuda(cudaDeviceSynchronize());
         return ptr;
     }
 
     void operator delete(void* ptr)
     {
-        assert_cuda(cudaDeviceSynchronize());
         assert_cuda(cudaFree(ptr));
     }
 
     void operator delete[](void* ptr)
     {
-        assert_cuda(cudaDeviceSynchronize());
         assert_cuda(cudaFree(ptr));
     }
 };
