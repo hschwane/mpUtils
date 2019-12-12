@@ -64,6 +64,8 @@ public:
     // access
     CUDAHOSTDEV T& operator[](int idx) {return m_data[idx];} //!< access an element in the buffer, "map" and "enableWrite" needs to be true
     CUDAHOSTDEV const T& operator[](int idx) const {return m_data[idx];} //!< access an element in the buffer readonly, "map" and needs to be true
+    T* data() { return m_data;} //!< direct data access
+    const T* data() const { return m_data;} //!< direct data access
 
     // iterators
     typedef T* iterator;
