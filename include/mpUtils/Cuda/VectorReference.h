@@ -26,14 +26,6 @@
 namespace mpu {
 //--------------------
 
-template< class T >
-struct remove_cvref {
-    typedef std::remove_cv_t<std::remove_reference_t<T>> type;
-};
-
-template< class T >
-using remove_cvref_t = typename remove_cvref<T>::type;
-
 //-------------------------------------------------------------------
 /**
  * class template VectorReference
@@ -64,8 +56,8 @@ public:
     // access
     CUDAHOSTDEV T& operator[](int idx) {return m_data[idx];} //!< access an element in the buffer, "map" and "enableWrite" needs to be true
     CUDAHOSTDEV const T& operator[](int idx) const {return m_data[idx];} //!< access an element in the buffer readonly, "map" and needs to be true
-    T* data() { return m_data;} //!< direct data access
-    const T* data() const { return m_data;} //!< direct data access
+    CUDAHOSTDEV T* data() { return m_data;} //!< direct data access
+    CUDAHOSTDEV const T* data() const { return m_data;} //!< direct data access
 
     // iterators
     typedef T* iterator;
@@ -77,8 +69,8 @@ public:
     CUDAHOSTDEV const_iterator cend() const { return m_data+size();} //!< get a const iterator to the end
 
     // check size
-    int size() const {return m_size;} //!< the number of elements of value_type stored in this vector
-    bool empty() const {return m_size >0;} //!< check if the original vector is empty
+    CUDAHOSTDEV int size() const {return m_size;} //!< the number of elements of value_type stored in this vector
+    CUDAHOSTDEV bool empty() const {return m_size >0;} //!< check if the original vector is empty
 
 private:
     T* m_data;
