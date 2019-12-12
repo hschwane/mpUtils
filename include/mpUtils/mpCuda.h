@@ -33,6 +33,7 @@
 #include "Cuda/Matrix.h"
 #include "Cuda/MatrixMath.h"
 #include "Cuda/MemoryModifiers.h"
+#include "Cuda/VectorReference.h"
 #include "mpUtils/external/cub/cub.cuh"
 #include "Cuda/clionCudaHelper.h"
 //--------------------
