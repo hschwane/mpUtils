@@ -24,62 +24,18 @@
 
 using namespace mpu;
 
-inline __device__ int warpReduceSum(int val)
+struct ManagedData : mpu::Managed
 {
-    for (int offset = warpSize/2; offset > 0; offset /= 2)
-        val += __shfl_down_sync(FULL_MASK,val, offset);
-    return val;
-}
+    int i;
+};
 
-inline __device__ int blockReduceSum(int val)
-{
-
-    static __shared__ int shared[32]; // Shared mem for 32 partial sums
-    int lane = threadIdx.x % warpSize;
-    int wid = threadIdx.x / warpSize;
-
-    val = warpReduceSum(val);     // Each warp performs partial reduction
-
-    if (lane==0) shared[wid]=val; // Write reduced value to shared memory
-
-    __syncthreads();              // Wait for all partial reductions
-
-    //read from shared memory only if that warp existed
-    val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
-
-    if (wid==0) val = warpReduceSum(val); //Final reduce within first warp
-
-    return val;
-}
-
-__global__ void deviceReduceWarpAtomicKernel(int *in, int* out, int N)
-{
-    int sum = int(0);
-    for(int i = blockIdx.x * blockDim.x + threadIdx.x;
-        i < N;
-        i += blockDim.x * gridDim.x)
-    {
-        sum += in[i];
-    }
-
-//    typedef cub::WarpReduce<int> WarpReduce;
-//    __shared__ typename WarpReduce::TempStorage temp_storage[16];
-//    int warp_id = threadIdx.x / 32;
-//    sum = WarpReduce(temp_storage[warp_id]).Sum(sum);
-//
-    sum = warpReduceSum(sum);
-
-    if ( (threadIdx.x & (warpSize - 1)) == 0)
-        atomicAdd(out, sum);
-}
-
-__global__ void init(int *i, int* res, int N)
+__global__ void init(ManagedData *v, ManagedData* res, int N)
 {
     if(threadIdx.x == 0 && blockIdx.x == 0)
-        *res = 0;
+        res->i = 25;
     for( int idx : gridStrideRange(N))
     {
-        i[idx] = 2;
+        v[idx].i = 2;
     }
 }
 
@@ -90,24 +46,21 @@ int main()
 
     int N = 32000;
 
-    int *i;
-    int *res;
-    cudaMalloc(&i,N*sizeof(int));
-    cudaMalloc(&res,sizeof(int));
+    ManagedData *i = new ManagedData[N];
+    ManagedData *res = new ManagedData;
+//    cudaMalloc(&i,N*sizeof(int));
+//    cudaMalloc(&res,sizeof(int));
 
     init<<<numBlocks(N,512),512>>>(i,res,N);
 
 //    mpu::SimpleStopwatch sw;
-
-    deviceReduceWarpAtomicKernel<<<numBlocks(N/4,512),512>>>(i,res,N);
-
-//    cudaDeviceSynchronize()
+    assert_cuda(cudaDeviceSynchronize());
 //    sw.pause();
 
     int resCPU = 0;
-    cudaMemcpy(&resCPU,res,sizeof(int),cudaMemcpyDeviceToHost);
+//    cudaMemcpy(&resCPU,res,sizeof(int),cudaMemcpyDeviceToHost);
 
-    myLog.print(LogLvl::INFO) << "result: " << resCPU;
+    myLog.print(LogLvl::INFO) << "result: " << res->i;
 
 
     return 0;

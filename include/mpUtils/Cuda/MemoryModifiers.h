@@ -18,25 +18,80 @@
 #include "cudaUtils.h"
 //--------------------
 
+// namespace
+//--------------------
+namespace mpu {
+//--------------------
+
 /**
  * @brief Deriving from this class will ensure every instance of the derived class is created using cuda managed memory
  */
 class Managed
 {
 public:
-    void *operator new(size_t len)
+    void* operator new(size_t len)
     {
-        void *ptr;
+        void* ptr;
         assert_cuda(cudaMallocManaged(&ptr, len));
         assert_cuda(cudaDeviceSynchronize());
         return ptr;
     }
 
-    void operator delete(void *ptr)
+    void* operator new[](size_t len)
+    {
+        void* ptr;
+        assert_cuda(cudaMallocManaged(&ptr, len));
+        assert_cuda(cudaDeviceSynchronize());
+        return ptr;
+    }
+
+    void operator delete(void* ptr)
+    {
+        assert_cuda(cudaDeviceSynchronize());
+        assert_cuda(cudaFree(ptr));
+    }
+    void operator delete[](void* ptr)
     {
         assert_cuda(cudaDeviceSynchronize());
         assert_cuda(cudaFree(ptr));
     }
 };
+
+/**
+ * @brief Deriving from this class will ensure every instance of the derived class is created using cuda pinned memory
+ */
+class Pinned
+{
+public:
+    void* operator new(size_t len)
+    {
+        void* ptr;
+        assert_cuda(cudaMallocHost(&ptr, len));
+        assert_cuda(cudaDeviceSynchronize());
+        return ptr;
+    }
+
+    void* operator new[](size_t len)
+    {
+        void* ptr;
+        assert_cuda(cudaMallocHost(&ptr, len));
+        assert_cuda(cudaDeviceSynchronize());
+        return ptr;
+    }
+
+    void operator delete(void* ptr)
+    {
+        assert_cuda(cudaDeviceSynchronize());
+        assert_cuda(cudaFree(ptr));
+    }
+
+    void operator delete[](void* ptr)
+    {
+        assert_cuda(cudaDeviceSynchronize());
+        assert_cuda(cudaFree(ptr));
+    }
+};
+
+}
 
 #endif //MPUTILS_MEMORYMODIFIERS_H
