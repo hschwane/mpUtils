@@ -29,13 +29,13 @@ struct ManagedData : mpu::Managed
     int i;
 };
 
-__global__ void init(ManagedData *v, ManagedData* res, int N)
+__global__ void init(mpu::VectorReference<int> data, ManagedData* res, int N)
 {
     if(threadIdx.x == 0 && blockIdx.x == 0)
         res->i = 25;
-    for( int idx : gridStrideRange(N))
+    for( int idx : gridStrideRange(data.size()))
     {
-        v[idx].i = 2;
+        data[idx] = 2;
     }
 }
 
@@ -46,12 +46,11 @@ int main()
 
     int N = 32000;
 
-    ManagedData *i = new ManagedData[N];
-    ManagedData *res = new ManagedData;
-//    cudaMalloc(&i,N*sizeof(int));
-//    cudaMalloc(&res,sizeof(int));
+    mpu::ManagedVector<int> data(N);
 
-    init<<<numBlocks(N,512),512>>>(i,res,N);
+    ManagedData *res = new ManagedData;
+
+    init<<<numBlocks(N,512),512>>>( make_vectorReference(data), res,N);
 
 //    mpu::SimpleStopwatch sw;
     assert_cuda(cudaDeviceSynchronize());
@@ -60,7 +59,11 @@ int main()
     int resCPU = 0;
 //    cudaMemcpy(&resCPU,res,sizeof(int),cudaMemcpyDeviceToHost);
 
-    myLog.print(LogLvl::INFO) << "result: " << res->i;
+//    mpu::PinnedVector<int> hostData = data;
+
+    myLog.print(LogLvl::INFO) << "result: " << res->i << " value[10] " << data[10];
+
+
 
 
     return 0;

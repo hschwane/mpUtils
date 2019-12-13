@@ -69,6 +69,20 @@ bool operator!=(const PinnedAllocator<T>&, const PinnedAllocator<T>&) { return f
 template <typename T>
 using PinnedVector = std::vector<T,PinnedAllocator<T>>;
 
+//!< create a pinned vector from a std vector
+template <typename T>
+PinnedVector<T> make_pinnedVector(const std::vector<T>& v)
+{
+    return PinnedVector<T>(v.begin(),v.end());
+}
+
+//!< create a std vector from a pinned vector
+template <typename T>
+std::vector<T> to_stdvector(const PinnedVector<T>& v)
+{
+    return std::vector<T>(v.begin(),v.end());
+}
+
 //-------------------------------------------------------------------
 // function definitions of managed allocator class
 

@@ -17,6 +17,7 @@
 // includes
 //--------------------
 #include <type_traits>
+#include <mpUtils/mpUtils.h>
 #include "clionCudaHelper.h"
 #include "cudaUtils.h"
 #include "VectorReference.h"
@@ -69,6 +70,20 @@ bool operator!=(const ManagedAllocator<T>&, const ManagedAllocator<T>&) { return
 template <typename T>
 using ManagedVector = std::vector<T,ManagedAllocator<T>>;
 
+//!< create a managed vector from a std vector
+template <typename T>
+ManagedVector<T> make_managedVector(const std::vector<T>& v)
+{
+    return ManagedVector<T>(v.begin(),v.end());
+}
+
+//!< create a std vector from a managed vector
+template <typename T>
+std::vector<T> to_stdvector(const ManagedAllocator<T>& v)
+{
+    return std::vector<T>(v.begin(),v.end());
+}
+
 /**
  * @brief Creates a vector reference for use on the device from a managed vector
  * @param vec the managed vector
@@ -89,6 +104,16 @@ template <typename T>
 VectorReference<const T> make_vectorReference(const ManagedVector<T>& vec)
 {
     return VectorReference<const T>(vec.data(),vec.size());
+}
+
+/**
+ * @brief Make sure vector references are not generated from a temporary
+ * @param vec the managed vector
+ */
+template <typename T>
+VectorReference<const T> make_vectorReference(ManagedVector<T>&& vec)
+{
+    static_assert(mpu::always_false_v<T>,"Do not create a vector reference from a temporary! There would be segfaults...");
 }
 
 //-------------------------------------------------------------------
