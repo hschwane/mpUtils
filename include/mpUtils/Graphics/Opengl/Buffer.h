@@ -144,6 +144,9 @@ public:
     T& operator[](std::size_t idx); //!< access an element in the buffer, "map" and "enableWrite" needs to be true
     const T& operator[](std::size_t idx) const; //!< access an element in the buffer readonly, "map" and needs to be true
 
+    T* data(); //!< direct access to internal storage, "map" and "enableWrite" needs to be true
+    const T* data() const; //!< direct read access to internal storage, "map" needs to be true
+
     // iterators
     typedef T* iterator;
     typedef const T* const_iterator;
@@ -318,6 +321,21 @@ const T& Buffer<T, enableWrite, map>::operator[](std::size_t idx) const
 {
     static_assert(map,"To use array access operators on a buffer you must set it to mapped.");
     return *(m_mapped_data+idx);
+}
+
+template <typename T, bool enableWrite, bool map>
+T* Buffer<T, enableWrite, map>::data()
+{
+    static_assert(map,"To get access to internal storage on a buffer you must set the template parameter \"map\" to true.");
+    static_assert(enableWrite,"To use write to the buffer you need to set the template parameter \"enableWrite\" to true.");
+    return m_mapped_data;
+}
+
+template <typename T, bool enableWrite, bool map>
+const T* Buffer<T, enableWrite, map>::data() const
+{
+    static_assert(map,"To get access to internal storage on a buffer you must set the template parameter \"map\" to true.");
+    return m_mapped_data;
 }
 
 template <typename T, bool enableWrite, bool map>
