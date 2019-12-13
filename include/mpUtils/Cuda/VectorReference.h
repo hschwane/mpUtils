@@ -19,6 +19,7 @@
 #include "clionCudaHelper.h"
 #include "mpUtils/external/cuda/helper_math.h"
 #include "cudaUtils.h"
+#include "mpUtils/external/cub/cub.cuh"
 //--------------------
 
 // namespace
@@ -54,8 +55,14 @@ public:
     CUDAHOSTDEV operator VectorReference<const T>() {return VectorReference<const T>(m_data,m_size); } //!< implicitly convert to a reference to const
 
     // access
+    CUDAHOSTDEV T& at(int idx); //!< access element idx with bounds checking
+    CUDAHOSTDEV const T& at(int idx) const; //!< access element idx with bounds checking
     CUDAHOSTDEV T& operator[](int idx) {return m_data[idx];} //!< access an element in the buffer, "map" and "enableWrite" needs to be true
     CUDAHOSTDEV const T& operator[](int idx) const {return m_data[idx];} //!< access an element in the buffer readonly, "map" and needs to be true
+    CUDAHOSTDEV T& front() {return m_data[0];} //!< access first element
+    CUDAHOSTDEV const T& front() const {return m_data[0];} //!< access first element
+    CUDAHOSTDEV T& back() {return m_data[m_size];} //!< access last element
+    CUDAHOSTDEV const T& back() const {return m_data[m_size];} //!< access last element
     CUDAHOSTDEV T* data() { return m_data;} //!< direct data access
     CUDAHOSTDEV const T* data() const { return m_data;} //!< direct data access
 
@@ -76,6 +83,36 @@ private:
     T* m_data;
     int m_size;
 };
+
+template <typename T>
+T& VectorReference<T>::at(int idx)
+{
+    if(idx < 0 || idx > m_size)
+    {
+    #if defined(__CUDA_ARCH__)
+        assert(false && "Vector reference access out of bounds!");
+        cub::ThreadTrap();
+    #else
+        assert_critical(false,"VectorReference","Vector reference access out of bounds!");
+    #endif
+    }
+    return m_data[idx];
+}
+
+template <typename T>
+const T& VectorReference<T>::at(int idx) const
+{
+    if(idx < 0 || idx > m_size)
+    {
+    #if defined(__CUDA_ARCH__)
+        assert(false && "Vector reference access out of bounds!");
+        cub::ThreadTrap();
+    #else
+        assert_critical(false,"VectorReference","Vector reference access out of bounds!");
+    #endif
+    }
+    return m_data[idx];
+}
 
 }
 

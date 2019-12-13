@@ -17,6 +17,7 @@
 #include <GL/glew.h>
 #include <utility>
 #include <vector>
+#include <mpUtils/Log/Log.h>
 //--------------------
 
 // namespace
@@ -140,10 +141,15 @@ public:
      */
     void read( T* data, size_t count, size_t offset = 0) const;
 
-    // element access
+    // access
+    T& at(int idx); //!< access element idx with bounds checking
+    const T& at(int idx) const; //!< access element idx with bounds checking
     T& operator[](std::size_t idx); //!< access an element in the buffer, "map" and "enableWrite" needs to be true
     const T& operator[](std::size_t idx) const; //!< access an element in the buffer readonly, "map" and needs to be true
-
+    T& front(); //!< access first element
+    const T& front() const; //!< access first element
+    T& back(); //!< access last element
+    const T& back() const; //!< access last element
     T* data(); //!< direct access to internal storage, "map" and "enableWrite" needs to be true
     const T* data() const; //!< direct read access to internal storage, "map" needs to be true
 
@@ -306,6 +312,53 @@ void Buffer<T, enableWrite, map>::read(T* data, size_t count, size_t offset) con
     {
         glGetNamedBufferSubData(*this,offset*sizeof(T), count* sizeof(T), data());
     }
+}
+
+template <typename T, bool enableWrite, bool map>
+T& Buffer<T, enableWrite, map>::at(int idx)
+{
+    static_assert(map,"To use array access operators on a buffer you must set the template parameter \"map\" to true.");
+    static_assert(enableWrite,"To use write to the buffer you need to set the template parameter \"enableWrite\" to true.");
+    assert_critical(idx>0&&idx<m_size,"Buffer","Access out of bounds!");
+    return m_mapped_data[idx];
+}
+
+template <typename T, bool enableWrite, bool map>
+const T& Buffer<T, enableWrite, map>::at(int idx) const
+{
+    static_assert(map,"To use array access operators on a buffer you must set the template parameter \"map\" to true.");
+    assert_critical(idx>0&&idx<m_size,"Buffer","Access out of bounds!");
+    return m_mapped_data[idx];
+}
+
+template <typename T, bool enableWrite, bool map>
+T& Buffer<T, enableWrite, map>::front()
+{
+    static_assert(map,"To use array access operators on a buffer you must set the template parameter \"map\" to true.");
+    static_assert(enableWrite,"To use write to the buffer you need to set the template parameter \"enableWrite\" to true.");
+    return m_mapped_data[0];
+}
+
+template <typename T, bool enableWrite, bool map>
+const T& Buffer<T, enableWrite, map>::front() const
+{
+    static_assert(map,"To use array access operators on a buffer you must set the template parameter \"map\" to true.");
+    return m_mapped_data[0];
+}
+
+template <typename T, bool enableWrite, bool map>
+T& Buffer<T, enableWrite, map>::back()
+{
+    static_assert(map,"To use array access operators on a buffer you must set the template parameter \"map\" to true.");
+    static_assert(enableWrite,"To use write to the buffer you need to set the template parameter \"enableWrite\" to true.");
+    return m_mapped_data[m_size];
+}
+
+template <typename T, bool enableWrite, bool map>
+const T& Buffer<T, enableWrite, map>::back() const
+{
+    static_assert(map,"To use array access operators on a buffer you must set the template parameter \"map\" to true.");
+    return m_mapped_data[m_size];
 }
 
 template <typename T, bool enableWrite, bool map>
