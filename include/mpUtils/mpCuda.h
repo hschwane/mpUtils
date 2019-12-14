@@ -36,6 +36,7 @@
 #include "Cuda/VectorReference.h"
 #include "Cuda/ManagedAllocator.h"
 #include "Cuda/PinnedAllocator.h"
+#include "Cuda/DeviceVector.h"
 #include "mpUtils/external/cub/cub.cuh"
 #include "Cuda/clionCudaHelper.h"
 //--------------------

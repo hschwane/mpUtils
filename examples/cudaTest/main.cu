@@ -35,7 +35,7 @@ __global__ void init(mpu::VectorReference<int> data, ManagedData* res, int N)
         res->i = 25;
     for( int idx : gridStrideRange(data.size()))
     {
-        data[idx] = 2;
+        data[idx] += 2;
     }
 }
 
@@ -46,7 +46,8 @@ int main()
 
     int N = 32000;
 
-    mpu::ManagedVector<int> data(N);
+
+    mpu::DeviceVector<int> data(N,5);
 
     ManagedData *res = new ManagedData;
 
@@ -56,14 +57,21 @@ int main()
     assert_cuda(cudaDeviceSynchronize());
 //    sw.pause();
 
-    int resCPU = 0;
+//    int resCPU = 0;
 //    cudaMemcpy(&resCPU,res,sizeof(int),cudaMemcpyDeviceToHost);
 
 //    mpu::PinnedVector<int> hostData = data;
 
-    myLog.print(LogLvl::INFO) << "result: " << res->i << " value[10] " << data[10];
+//    int i = 10;
+//    const int& ref = i;
+
+//    const  mpu::DeviceVector<int>& ref = data;
 
 
+    DeviceVector<int> copy(30,10);
+    copy[25] += 25;
+
+    myLog.print(LogLvl::INFO) << "result: " << res->i << " value[10]=" << data[10] << " copy[25]=" << copy[25];
 
 
     return 0;
