@@ -97,7 +97,7 @@ T* PinnedAllocator<T>::allocate(std::size_t n)
 template <typename T>
 void PinnedAllocator<T>::deallocate(T* p, std::size_t)
 {
-    assert_cuda(cudaFree(p));
+    assert_cuda(cudaFreeHost(p));
 }
 
 
