@@ -2,6 +2,8 @@
 
 ## high priority
 
+- add possibility of mapping a gl buffer 
+- clean up cuda includes
 
 ## medium priority
 
@@ -32,13 +34,14 @@
 ### bit manipulation
 - add macros or constexpr functions for bit manipulation
 
-### cuda
-- stl compatible cuda memory management
+### bugfix
+- make timers use a steady clock
 
 ### math
 - better floating point comparism modes
 
 ## low priority / ideas / long term projects
+- better + safer handling of uniforms for shaders
 - add utility to parse command line input
 - add networking capabilities
 - add serial port capabilities
@@ -59,6 +62,10 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add cuda device vector
+- add access functions to buffer (mirroring std::vector)
+- add vector reference to access vectors managing gpu memory from the gpu
+- add allocators for using managed and pinned memory in std vectors
 - add missing references to third party software
 - make openGL buffer copyable
 - addBlockStrideRange for cuda utils

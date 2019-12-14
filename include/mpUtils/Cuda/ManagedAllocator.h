@@ -72,7 +72,7 @@ using ManagedVector = std::vector<T,ManagedAllocator<T>>;
 
 //!< create a managed vector from a std vector
 template <typename T>
-ManagedVector<T> make_managedVector(const std::vector<T>& v)
+ManagedVector<T> to_managedVector(const std::vector<T>& v)
 {
     return ManagedVector<T>(v.begin(),v.end());
 }

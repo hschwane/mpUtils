@@ -71,7 +71,7 @@ using PinnedVector = std::vector<T,PinnedAllocator<T>>;
 
 //!< create a pinned vector from a std vector
 template <typename T>
-PinnedVector<T> make_pinnedVector(const std::vector<T>& v)
+PinnedVector<T> to_pinnedVector(const std::vector<T>& v)
 {
     return PinnedVector<T>(v.begin(),v.end());
 }
