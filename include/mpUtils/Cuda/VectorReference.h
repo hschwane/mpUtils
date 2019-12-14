@@ -87,7 +87,7 @@ private:
 template <typename T>
 T& VectorReference<T>::at(int idx)
 {
-    if(idx < 0 || idx > m_size)
+    if(idx < 0 || idx >= m_size)
     {
     #if defined(__CUDA_ARCH__)
         assert(false && "Vector reference access out of bounds!");
@@ -102,7 +102,7 @@ T& VectorReference<T>::at(int idx)
 template <typename T>
 const T& VectorReference<T>::at(int idx) const
 {
-    if(idx < 0 || idx > m_size)
+    if(idx < 0 || idx >= m_size)
     {
     #if defined(__CUDA_ARCH__)
         assert(false && "Vector reference access out of bounds!");
