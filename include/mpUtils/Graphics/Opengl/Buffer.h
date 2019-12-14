@@ -351,14 +351,14 @@ T& Buffer<T, enableWrite, map>::back()
 {
     static_assert(map,"To use array access operators on a buffer you must set the template parameter \"map\" to true.");
     static_assert(enableWrite,"To use write to the buffer you need to set the template parameter \"enableWrite\" to true.");
-    return m_mapped_data[m_size];
+    return m_mapped_data[m_size-1];
 }
 
 template <typename T, bool enableWrite, bool map>
 const T& Buffer<T, enableWrite, map>::back() const
 {
     static_assert(map,"To use array access operators on a buffer you must set the template parameter \"map\" to true.");
-    return m_mapped_data[m_size];
+    return m_mapped_data[m_size-1];
 }
 
 template <typename T, bool enableWrite, bool map>

@@ -61,8 +61,8 @@ public:
     CUDAHOSTDEV const T& operator[](int idx) const {return m_data[idx];} //!< access an element in the buffer readonly, "map" and needs to be true
     CUDAHOSTDEV T& front() {return m_data[0];} //!< access first element
     CUDAHOSTDEV const T& front() const {return m_data[0];} //!< access first element
-    CUDAHOSTDEV T& back() {return m_data[m_size];} //!< access last element
-    CUDAHOSTDEV const T& back() const {return m_data[m_size];} //!< access last element
+    CUDAHOSTDEV T& back() {return m_data[m_size-1];} //!< access last element
+    CUDAHOSTDEV const T& back() const {return m_data[m_size-1];} //!< access last element
     CUDAHOSTDEV T* data() { return m_data;} //!< direct data access
     CUDAHOSTDEV const T* data() const { return m_data;} //!< direct data access
 
