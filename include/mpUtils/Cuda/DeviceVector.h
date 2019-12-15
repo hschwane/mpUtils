@@ -180,7 +180,7 @@ private:
  * of the related algorithms like erase_if and compare operators are not implemented. Feel free to implement them yourself ;).
  *
  * usage:
- * Use like std vector. Call make_vectorReference to use the vector data inside of a cuda kernel function.
+ * Use like std vector. Call getVectorReference() to use the vector data inside of a cuda kernel function.
  * Value initialization can be turned of when using resize(int) or DeviceVector(int), by passing false as the second argument.
  * assignFromDeviceMem() and insertFromDeviceMem() can be used to copy values that are already in the gpu memory into the vector.
  * Also see notes!
