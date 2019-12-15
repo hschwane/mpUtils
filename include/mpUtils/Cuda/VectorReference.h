@@ -52,7 +52,8 @@ public:
     CUDAHOSTDEV VectorReference() : m_data(nullptr), m_size(0) {}
     CUDAHOSTDEV VectorReference(T* data, int size) : m_data(data), m_size(size) {}
 
-    CUDAHOSTDEV operator VectorReference<const T>() {return VectorReference<const T>(m_data,m_size); } //!< implicitly convert to a reference to const
+    template <typename U=T, class = std::enable_if_t< !std::is_const<U>::value> >
+    operator VectorReference<const T>() {return VectorReference<const T>(m_data,m_size); } //!< implicitly convert to a reference to const
 
     // access
     CUDAHOSTDEV T& at(int idx); //!< access element idx with bounds checking
