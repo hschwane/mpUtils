@@ -29,13 +29,13 @@ struct ManagedData : mpu::Managed
     int i;
 };
 
-__global__ void init(mpu::VectorReference<const int> data, ManagedData* res, int N)
+__global__ void init(mpu::VectorReference<int> data, ManagedData* res, int N)
 {
     if(threadIdx.x == 0 && blockIdx.x == 0)
         res->i = 25;
     for( int idx : gridStrideRange(data.size()))
     {
-//        data[idx] += 2;
+        data[idx] += 2;
     }
 }
 

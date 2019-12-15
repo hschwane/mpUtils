@@ -176,7 +176,8 @@ private:
  * Vector class, should feature the same methods as std vector and is used in the same way. Except memory lives in gpu global memory.
  * It does not provide any iterators to access internal data as those would also need to be cuda aware.
  * Some functions are missing from the original vector. Eg emplace, emplace back as well as move operations do not make sense as data needs to be
- * copied to the gpu anyways. Iterators are also not implemented as they would need to be cuda aware and would likely be slow. Feel free to implement them yourself ;).
+ * copied to the gpu anyways. Iterators are also not implemented as they would need to be cuda aware and would likely be slow. Also some
+ * of the related algorithms like erase_if and compare operators are not implemented. Feel free to implement them yourself ;).
  *
  * usage:
  * Use like std vector. Call make_vectorReference to use the vector data inside of a cuda kernel function.
