@@ -21,6 +21,7 @@
 #include "clionCudaHelper.h"
 #include "cudaUtils.h"
 #include "VectorReference.h"
+#include "DeviceVector.h"
 //--------------------
 
 // namespace
@@ -56,65 +57,52 @@ public:
 };
 
 //-------------------------------------------------------------------
-// some helper functions and aliases
+/**
+ * class ManagedVector
+ *
+ * Behaves like an std vector but uses cuda unified / managed memory internally. Also adds some conversions and assignments.
+ *
+ * usage:
+ * Use like std vector. Call getVectorReference() to use the vector data inside of a cuda kernel function.
+ *
+ */
+template <typename T>
+class ManagedVector : public std::vector<T,ManagedAllocator<T>>
+{
+public:
+    // inherit all constructors
+    using parent = std::vector<T,ManagedAllocator<T>>;
+    using parent::parent;
+
+    ManagedVector() : parent() {}
+
+    // usage in device code over Vector reference
+    VectorReference<T> getVectorReference() &; //!< allow creation of vectorReference only from lvalues
+    VectorReference<const T> getVectorReference() const &; //!< create a vector reference to const from const lvalues
+
+    // convert to / from std vector
+    explicit ManagedVector(const std::vector<T>& vec); //!< upload data from a std vector
+    explicit operator std::vector<T>() const; //!< download data into a newly constructed std vector
+    void assign(const std::vector<T>& vec); //!< assign data from an std vector
+
+    // assign data from device memory
+    void assignFromDeviceMem(const T* first, int count); //!< copy count elements into the vector, first needs to point to global device memory
+
+    // convert from device vector
+    template<bool b>
+    explicit ManagedVector(const DeviceVector<T,b>& vec); //!< construct from a device vector
+    template<bool b>
+    void assign(const DeviceVector<T,b>& vec); //!< assign values from a device vector
+};
+
+//-------------------------------------------------------------------
+// some helper functions
 
 template <typename T>
 bool operator==(const ManagedAllocator<T>&, const ManagedAllocator<T>&) { return true; }
 
 template <typename T>
 bool operator!=(const ManagedAllocator<T>&, const ManagedAllocator<T>&) { return false; }
-
-/**
- * @brief specialization of std vector, but memory is allocated as cuda managed memory
- */
-template <typename T>
-using ManagedVector = std::vector<T,ManagedAllocator<T>>;
-
-//!< create a managed vector from a std vector
-template <typename T>
-ManagedVector<T> to_managedVector(const std::vector<T>& v)
-{
-    return ManagedVector<T>(v.begin(),v.end());
-}
-
-//!< create a std vector from a managed vector
-template <typename T>
-std::vector<T> to_stdvector(const ManagedAllocator<T>& v)
-{
-    return std::vector<T>(v.begin(),v.end());
-}
-
-/**
- * @brief Creates a vector reference for use on the device from a managed vector
- * @param vec the managed vector
- * @returns the VectorReference which references the device vector
- */
-template <typename T>
-VectorReference<T> make_vectorReference(ManagedVector<T>& vec)
-{
-    return VectorReference<T>(vec.data(),vec.size());
-}
-
-/**
- * @brief Creates a vector reference to const for use on the device from a const managed vector
- * @param vec the managed vector
- * @returns the VectorReference which references the device vector
- */
-template <typename T>
-VectorReference<const T> make_vectorReference(const ManagedVector<T>& vec)
-{
-    return VectorReference<const T>(vec.data(),vec.size());
-}
-
-/**
- * @brief Make sure vector references are not generated from a temporary
- * @param vec the managed vector
- */
-template <typename T>
-VectorReference<const T> make_vectorReference(ManagedVector<T>&& vec)
-{
-    static_assert(mpu::always_false_v<T>,"Do not create a vector reference from a temporary! There would be segfaults...");
-}
 
 //-------------------------------------------------------------------
 // function definitions of managed allocator class
@@ -131,6 +119,60 @@ template <typename T>
 void ManagedAllocator<T>::deallocate(T* p, std::size_t)
 {
     assert_cuda(cudaFree(p));
+}
+
+//-------------------------------------------------------------------
+// function definitions of ManagedVector class
+
+template <typename T>
+VectorReference<T> ManagedVector<T>::getVectorReference()&
+{
+    return VectorReference<T>(parent::data(),parent::size());
+}
+
+template <typename T>
+VectorReference<const T> ManagedVector<T>::getVectorReference() const&
+{
+    return VectorReference<const T>(parent::data(),parent::size());
+}
+
+template <typename T>
+ManagedVector<T>::ManagedVector(const std::vector<T>& vec) : parent(vec.begin(),vec.end())
+{
+}
+
+template <typename T>
+ManagedVector<T>::operator std::vector<T>() const
+{
+    return std::vector<T>(parent::begin(),parent::end());
+}
+
+template <typename T>
+void ManagedVector<T>::assign(const std::vector<T>& vec)
+{
+    parent::assign(vec.begin(),vec.end());
+}
+
+template <typename T>
+void ManagedVector<T>::assignFromDeviceMem(const T* first, int count)
+{
+    parent::resize(count);
+    assert_cuda(cudaMemcpy(parent::data(),first,count,cudaMemcpyDefault));
+}
+
+template <typename T>
+template <bool b>
+ManagedVector<T>::ManagedVector(const DeviceVector<T,b>& vec) : parent(vec.size())
+{
+    assert_cuda(cudaMemcpy(parent::data(),vec.data(),vec.size(),cudaMemcpyDefault));
+}
+
+template <typename T>
+template <bool b>
+void ManagedVector<T>::assign(const DeviceVector<T,b>& vec)
+{
+    parent::resize(vec.size());
+    assert_cuda(cudaMemcpy(parent::data(),vec.data(),vec.size(),cudaMemcpyDefault));
 }
 
 }

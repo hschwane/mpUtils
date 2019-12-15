@@ -25,12 +25,16 @@
 #include "mpUtils/Misc/templateUtils.h"
 #include "VectorReference.h"
 #include "PinnedAllocator.h"
-#include "ManagedAllocator.h"
 //--------------------
 
 // namespace
 //--------------------
 namespace mpu {
+//--------------------
+
+// forward declerations
+//--------------------
+template <typename T> class ManagedVector;
 //--------------------
 
 //-------------------------------------------------------------------
@@ -224,7 +228,6 @@ public:
     explicit DeviceVector(const PinnedVector<T>& vec); //!< upload data from a pinned vector
     explicit operator PinnedVector<T>() const; //!< download data into a pinned vector
     explicit DeviceVector(const ManagedVector<T>& vec); //!< read data from unified memory
-    explicit operator ManagedVector<T>() const; //!< write data to unified memory
 
     // assign functions
     void assign(int count, const T& value); //!< assign count values of value to the vector
@@ -306,6 +309,11 @@ private:
     // vector helper functions
     void reallocateStorage(int newCap); //!< allocates new storage of size newCap and copys over all data that fits
 };
+
+// include forward declared classes
+// ----------------
+#include "ManagedAllocator.h"
+// ----------------
 
 //-------------------------------------------------------------------
 // template function definitions for the device vector
@@ -489,14 +497,6 @@ template <typename T, bool constructOnDevice>
 DeviceVector<T, constructOnDevice>::DeviceVector(const ManagedVector<T>& vec) : DeviceVector(vec.size(),false)
 {
     assert_cuda(cudaMemcpy(m_data,vec.data(),m_size,cudaMemcpyDefault));
-}
-
-template <typename T, bool constructOnDevice>
-DeviceVector<T, constructOnDevice>::operator ManagedVector<T>() const
-{
-    ManagedVector<T> v(m_size);
-    assert_cuda(cudaMemcpy(v.data(),m_data,m_size,cudaMemcpyDefault));
-    return v;
 }
 
 template <typename T, bool constructOnDevice>

@@ -71,7 +71,12 @@ int main()
     DeviceVector<int> copy(30,10);
     copy[25] += 25;
 
-    myLog.print(LogLvl::INFO) << "result: " << res->i << " value[10]=" << data[10] << " copy[25]=" << copy[25];
+    ManagedVector<int> managed(data);
+    ManagedVector<int> managed2;
+    managed2 = managed;
+
+
+    myLog.print(LogLvl::INFO) << "result: " << res->i << " value[10]=" << data[10] << " copy[25]=" << copy[25] << " managed[13]= " << managed2[13];
 
 
     return 0;
