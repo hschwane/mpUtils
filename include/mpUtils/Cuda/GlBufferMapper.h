@@ -19,6 +19,7 @@
 #include "clionCudaHelper.h"
 #include "cudaUtils.h"
 #include "mpUtils/Log/Log.h"
+#include "VectorReference.h"
 //--------------------
 
 // namespace
@@ -56,6 +57,9 @@ public:
 
     T* data(); //!< get device pointer to the mapped data
     int size(); //!< size of the mapped buffer
+
+    VectorReference<T> getVectorReference() &; //!< allow creation of vectorReference only from lvalues
+    VectorReference<const T> getVectorReference() const &; //!< create a vector reference to const from const lvalues
 
 private:
     T* m_mappedData{nullptr};
@@ -119,6 +123,18 @@ int GlBufferMapper<T>::size()
 {
     assert_true(m_mappedData, "GlBufferMapper", "Call map() before accessing the pointer or the size");
     return m_size;
+}
+
+template <typename T>
+VectorReference<T> GlBufferMapper<T>::getVectorReference()&
+{
+    return VectorReference<T>(data(),size());
+}
+
+template <typename T>
+VectorReference<const T> GlBufferMapper<T>::getVectorReference() const&
+{
+    return VectorReference<const T>(data(),size());
 }
 
 }
