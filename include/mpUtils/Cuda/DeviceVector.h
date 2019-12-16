@@ -24,7 +24,6 @@
 #include "cudaUtils.h"
 #include "mpUtils/Misc/templateUtils.h"
 #include "VectorReference.h"
-#include "PinnedAllocator.h"
 //--------------------
 
 // namespace
@@ -34,98 +33,110 @@ namespace mpu {
 
 // forward declerations
 //--------------------
-template <typename T> class ManagedVector;
+template <typename T>
+class ManagedVector;
+
+template <typename T>
+class PinnedVector;
 //--------------------
 
 //-------------------------------------------------------------------
 /**
  * @brief references data in gpu memory from the cpu. Will update value in its destructor if it was changed. This should always only be a tempoary
  */
-template<typename T>
+template <typename T>
 class cudaAwareReference
 {
 public:
-    explicit cudaAwareReference(T* gpuAdress) : m_gpuAdress(gpuAdress) {assert_cuda(cudaMemcpy(&m_cpuCopy,m_gpuAdress,sizeof(T),cudaMemcpyDeviceToHost));}
-    ~cudaAwareReference() {if(m_changed) assert_cuda(cudaMemcpy(m_gpuAdress,&m_cpuCopy,sizeof(T),cudaMemcpyHostToDevice)); }
+    explicit cudaAwareReference(T* gpuAdress) : m_gpuAdress(gpuAdress)
+    {
+        assert_cuda(cudaMemcpy(&m_cpuCopy, m_gpuAdress, sizeof(T), cudaMemcpyDeviceToHost));
+    }
 
-    cudaAwareReference& operator=(T other )
+    ~cudaAwareReference()
+    {
+        if(m_changed)
+            assert_cuda(cudaMemcpy(m_gpuAdress, &m_cpuCopy, sizeof(T), cudaMemcpyHostToDevice));
+    }
+
+    cudaAwareReference& operator=(T other)
     {
         m_changed = true;
         m_cpuCopy = other;
         return *this;
     }
 
-    const cudaAwareReference& operator+=(T other )
+    const cudaAwareReference& operator+=(T other)
     {
         m_changed = true;
         m_cpuCopy += other;
         return *this;
     }
 
-    const cudaAwareReference& operator-=(T other )
+    const cudaAwareReference& operator-=(T other)
     {
         m_changed = true;
         m_cpuCopy -= other;
         return *this;
     }
 
-    const cudaAwareReference& operator*=(T other )
+    const cudaAwareReference& operator*=(T other)
     {
         m_changed = true;
         m_cpuCopy *= other;
         return *this;
     }
 
-    const cudaAwareReference& operator/=(T other )
+    const cudaAwareReference& operator/=(T other)
     {
         m_changed = true;
         m_cpuCopy /= other;
         return *this;
     }
 
-    const cudaAwareReference& operator%=(T other )
+    const cudaAwareReference& operator%=(T other)
     {
         m_changed = true;
         m_cpuCopy %= other;
         return *this;
     }
 
-    const cudaAwareReference& operator^=(T other )
+    const cudaAwareReference& operator^=(T other)
     {
         m_changed = true;
         m_cpuCopy ^= other;
         return *this;
     }
 
-    const cudaAwareReference& operator|=(T other )
+    const cudaAwareReference& operator|=(T other)
     {
         m_changed = true;
         m_cpuCopy |= other;
         return *this;
     }
 
-    const cudaAwareReference& operator&=(T other )
+    const cudaAwareReference& operator&=(T other)
     {
         m_changed = true;
         m_cpuCopy &= other;
         return *this;
     }
 
-    const cudaAwareReference& operator>>=(T other )
+    const cudaAwareReference& operator>>=(T other)
     {
         m_changed = true;
         m_cpuCopy >>= other;
         return *this;
     }
 
-    const cudaAwareReference& operator<<=(T other )
+    const cudaAwareReference& operator<<=(T other)
     {
         m_changed = true;
         m_cpuCopy <<= other;
         return *this;
     }
 
-    const cudaAwareReference& operator!=(T other )
+    const cudaAwareReference& operator!=(T other)
     {
         m_changed = true;
         m_cpuCopy != other;
@@ -204,13 +215,16 @@ template <typename T, bool constructOnDevice = true>
 class DeviceVector
 {
 public:
-    static_assert(std::is_trivially_copyable<T>::value,"Device vector can only be used with types that are TriviallyCopyable!");
+    static_assert(std::is_trivially_copyable<T>::value,
+                  "Device vector can only be used with types that are TriviallyCopyable!");
 
     // constructors
     DeviceVector(); //!< construct empty device vector
     DeviceVector(int count, const T& value); //!< construct device vector and fill it with count elements of value
-    explicit DeviceVector(int count, bool valueInitialize = true); //!< construct vector with count elements, valueInitialize determains if they are initialized/constructed or not (using value initialization)
-    DeviceVector( const T* first, int count); //!< construct vector and upload count elements starting with first to the gpu
+    explicit DeviceVector(int count,
+                          bool valueInitialize = true); //!< construct vector with count elements, valueInitialize determains if they are initialized/constructed or not (using value initialization)
+    DeviceVector(const T* first,
+                 int count); //!< construct vector and upload count elements starting with first to the gpu
 
     // destructor
     ~DeviceVector();
@@ -218,7 +232,7 @@ public:
     // copy and move
     DeviceVector(const DeviceVector& other);
     DeviceVector(DeviceVector&& other) noexcept;
-    DeviceVector& operator=(DeviceVector other) noexcept ;
+    DeviceVector& operator=(DeviceVector other) noexcept;
 
     // conversion
     DeviceVector(std::initializer_list<T> ilist); //!< construct with values from an initialization list
@@ -226,14 +240,14 @@ public:
     explicit DeviceVector(const std::vector<T>& vec); //!< upload data from a std vector
     explicit operator std::vector<T>() const; //!< download data into a newly constructed std vector
     explicit DeviceVector(const PinnedVector<T>& vec); //!< upload data from a pinned vector
-    explicit operator PinnedVector<T>() const; //!< download data into a pinned vector
     explicit DeviceVector(const ManagedVector<T>& vec); //!< read data from unified memory
 
     // assign functions
     void assign(int count, const T& value); //!< assign count values of value to the vector
     void assign(const T* first, int count); //!< upload count elements starting with first to the gpu
     void assign(std::initializer_list<T> ilist); //!< assign values from initializer list
-    void assignFromDeviceMem(const T* first, int count); //!< copy count elements into the vector, first needs to point to global device memory
+    void assignFromDeviceMem(const T* first,
+                             int count); //!< copy count elements into the vector, first needs to point to global device memory
     void assign(const std::vector<T>& vec); //!< upload data from a std vector
     void assign(const PinnedVector<T>& vec); //!< upload data from a pinned vector
     void assign(const ManagedVector<T>& vec); //!< assign data from managed (unified) memory
@@ -251,41 +265,49 @@ public:
     const T* data() const; //!< direct access to pointer (GPU memory!)
 
     // usage in device code over Vector reference
-    VectorReference<T> getVectorReference() &; //!< allow creation of vectorReference only from lvalues
-    VectorReference<const T> getVectorReference() const &; //!< create a vector reference to const from const lvalues
+    VectorReference<T> getVectorReference()&; //!< allow creation of vectorReference only from lvalues
+    VectorReference<const T> getVectorReference() const&; //!< create a vector reference to const from const lvalues
 
     // interators
     // not supported (yet) as they would have to be cuda aware as well and upload to the gpu after every store which would not be very fast
-    int end() const {return m_size;} //!< since iterators are not supported right now this returns an id and can be used to insert elements at the end of the vector
+    int
+    end() const { return m_size; } //!< since iterators are not supported right now this returns an id and can be used to insert elements at the end of the vector
 
     // capacity
     bool empty() const noexcept; //!< check if vector is empty
     int size() const; //!< returns number of elements in the container
     int max_size() const; //!< max number of elements that can be stored (in practice gpu ram is smaller anyways)
-    void reserve(int new_cap); //!< increase the capacity if new_cap is bigger then current capacity (does not increase size!)
-    int capacity() const noexcept ; //!< returns current capacity before vector is resized
+    void
+    reserve(int new_cap); //!< increase the capacity if new_cap is bigger then current capacity (does not increase size!)
+    int capacity() const noexcept; //!< returns current capacity before vector is resized
     void shrink_to_fit(); //!< non binding request to reduce capacity down to size
 
     // modifiers
     void clear() noexcept; //!< erases all items from the container
     int insert(int pos, const T& value); //!< insert element before pos (use end() to insert at the end)
-    int insert(int pos, int count, const T& value); //!< insert count elements with value before pos (use end() to insert at the end)
-    int insert(int pos, T* first, int count); //!< insert count elements starting with first before pos (use end() to insert at the end)
-    int insert(int pos, std::initializer_list<T> ilist); //!< insert elements from initializer list before pos (use end() to insert at the end)
-    int insertFromDeviceMem(int pos, T* first, int count); //!< insert count elements starting with first before pos (use end() to insert at the end). first is assumed to point to gpu memory
+    int insert(int pos, int count,
+               const T& value); //!< insert count elements with value before pos (use end() to insert at the end)
+    int insert(int pos, T* first,
+               int count); //!< insert count elements starting with first before pos (use end() to insert at the end)
+    int insert(int pos,
+               std::initializer_list<T> ilist); //!< insert elements from initializer list before pos (use end() to insert at the end)
+    int insertFromDeviceMem(int pos, T* first,
+                            int count); //!< insert count elements starting with first before pos (use end() to insert at the end). first is assumed to point to gpu memory
     int erase(int pos); //!< erase element pos from the container
     int erase(int first, int last); //! erase all elements in range [first,last) (so last itself is not erased!)
     void push_back(const T& value); //!< copy construct element into the end of vector
     void pop_back(); //!< removes the last element from the vector
-    void resize(int count, bool valueInitialize = true); //!< sets size of container to a size of count. If elements are added valueInitialize determains if they are initialized/constructed or not (using value initialization)
-    void resize(int count, const T& value); //!< sets size of container to a size of count. If elements are added they are initialized from value
+    void resize(int count,
+                bool valueInitialize = true); //!< sets size of container to a size of count. If elements are added valueInitialize determains if they are initialized/constructed or not (using value initialization)
+    void resize(int count,
+                const T& value); //!< sets size of container to a size of count. If elements are added they are initialized from value
 
     friend DeviceVector swap(const DeviceVector& first, const DeviceVector& second) noexcept
     {
         using std::swap;
-        swap(first.m_data,second.m_data);
-        swap(first.m_size,second.m_size);
-        swap(first.m_capacity,second.m_capacity);
+        swap(first.m_data, second.m_data);
+        swap(first.m_size, second.m_size);
+        swap(first.m_capacity, second.m_capacity);
     }
 
 private:
@@ -303,7 +325,7 @@ private:
     void upload(T* dev, const T* host, int count); //!< download data from gpu to cpu memory
 
     // construction (call with device memory pointer)
-    template<typename ... Args>
+    template <typename ... Args>
     void construct(T* p, int count, Args...args); //!< construct count elements of T starting at localtion p
 
     // vector helper functions
@@ -312,7 +334,10 @@ private:
 
 // include forward declared classes
 // ----------------
+}
 #include "ManagedAllocator.h"
+#include "PinnedAllocator.h"
+namespace mpu {
 // ----------------
 
 //-------------------------------------------------------------------
@@ -483,14 +508,6 @@ DeviceVector<T, constructOnDevice>::operator std::vector<T>() const
 template <typename T, bool constructOnDevice>
 DeviceVector<T, constructOnDevice>::DeviceVector(const PinnedVector<T>& vec) : DeviceVector(vec.data(),vec.size())
 {
-}
-
-template <typename T, bool constructOnDevice>
-DeviceVector<T, constructOnDevice>::operator PinnedVector<T>() const
-{
-    PinnedVector<T> v(m_size);
-    download(v.data(),m_data,m_size);
-    return v;
 }
 
 template <typename T, bool constructOnDevice>

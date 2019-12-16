@@ -17,7 +17,6 @@
 // includes
 //--------------------
 #include <type_traits>
-#include <mpUtils/mpUtils.h>
 #include "clionCudaHelper.h"
 #include "cudaUtils.h"
 #include "VectorReference.h"
