@@ -15,7 +15,7 @@
 //--------------------
 #include "clionCudaHelper.h"
 #include "mpUtils/external/cuda/helper_math.h"
-#include "../Log/Log.h"
+#include "mpUtils/Log/Log.h"
 #include "mpUtils/Misc/Range.h"
 //--------------------
 
