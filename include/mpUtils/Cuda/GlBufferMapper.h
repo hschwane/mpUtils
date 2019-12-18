@@ -16,6 +16,7 @@
 
 // includes
 //--------------------
+#include <cuda_gl_interop.h>
 #include "clionCudaHelper.h"
 #include "cudaUtils.h"
 #include "mpUtils/Log/Log.h"
@@ -97,7 +98,7 @@ template <typename T>
 void GlBufferMapper<T>::map()
 {
     assert_true(m_graphicsResource,"GlBufferMapper","Register a Buffer bevore ")
-    int bufferSize;
+    size_t bufferSize;
     assert_cuda(cudaGraphicsMapResources(1, &m_graphicsResource));
     assert_cuda(cudaGraphicsResourceGetMappedPointer((void **)&m_mappedData, &bufferSize, m_graphicsResource));
     m_size = bufferSize / sizeof(T);

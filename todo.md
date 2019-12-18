@@ -2,7 +2,6 @@
 
 ## high priority
 
-- add possibility of mapping a gl buffer 
 - clean up cuda includes
 
 ## medium priority
@@ -62,6 +61,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add wrapper to map a openGL buffer to cuda
 - add cuda device vector
 - add access functions to buffer (mirroring std::vector)
 - add vector reference to access vectors managing gpu memory from the gpu
