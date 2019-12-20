@@ -293,6 +293,12 @@ if(WIN32)
     target_link_libraries(mpUtils PUBLIC Comdlg32.lib Ole32.lib)
 endif()
 
+# link unix specific stuff
+if(UNIX)
+    target_link_libraries(mpUtils PUBLIC Threads::Threads stdc++fs)
+endif()
+
+
 # --------------------------------------------------------
 # build and link dependencies in external/modules
 # --------------------------------------------------------
