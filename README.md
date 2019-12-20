@@ -123,6 +123,7 @@ also be used in cuda code. Some even in device functions.
 - mouse and keyboard input handling 
 - building with cuda, including cuda support for the clion IDE and some cuda helping functions and utilities
 - vector and matrix math functions for cuda
+- memory management and glInteroperability wrapper for cuda
 - highly customisable thread safe logger
 - ini-Style configuration file parser
 - different timers including asynchronous ones
