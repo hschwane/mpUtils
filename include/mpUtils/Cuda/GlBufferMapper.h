@@ -16,6 +16,11 @@
 
 // includes
 //--------------------
+#include "mpUtils/version.h"
+#ifdef MPU_OPENGL_AVAILIBLE
+    #include <GL/glew.h>
+    #include "mpUtils/Graphics/Opengl/Buffer.h"
+#endif
 #include <cuda_gl_interop.h>
 #include "clionCudaHelper.h"
 #include "cudaUtils.h"
@@ -39,7 +44,7 @@ namespace mpu {
  * After usage call unmap to unmap the buffer again.
  *
  */
- template <typename T>
+template <typename T>
 class GlBufferMapper
 {
 public:
@@ -69,6 +74,18 @@ private:
 };
 
 //-------------------------------------------------------------------
+
+#ifdef MPU_OPENGL_AVAILIBLE
+/**
+ * @brief Creates a GlBufferMapper from an openGL Buffer obejct. Only availible if openGL is found during cmake configuration
+ * @return the buffer mapper used to map the opengl buffer to cuda
+ */
+template <typename T, bool enableWrite, bool map>
+GlBufferMapper<T> mapBufferToCuda(const gph::Buffer<T,enableWrite,map>& buffer)
+{
+    return GlBufferMapper<T>( static_cast<uint32_t>(buffer) );
+}
+#endif
 
 template <typename T>
 GlBufferMapper<T>::GlBufferMapper(uint32_t glBufferId, cudaGraphicsMapFlags flags)
