@@ -302,7 +302,7 @@ public:
     void resize(int count,
                 const T& value); //!< sets size of container to a size of count. If elements are added they are initialized from value
 
-    friend DeviceVector swap(const DeviceVector& first, const DeviceVector& second) noexcept
+    friend DeviceVector swap(DeviceVector& first, DeviceVector& second) noexcept
     {
         using std::swap;
         swap(first.m_data, second.m_data);
@@ -391,8 +391,10 @@ template <typename T, bool constructOnDevice>
 template <typename... Args>
 void DeviceVector<T, constructOnDevice>::construct(T* p, int count, Args... args)
 {
+    assert_true(count > 0, "DeviceVector", "Tried to construct less then one element.")
     if(constructOnDevice)
     {
+        logDEBUG("DeviceVector") << "Calling construction kernel with bs " << 128 << " and gs " << numBlocks(count/2,128);
         detail::deviceVector_constructor_helper<T><<< numBlocks(count/2,128),128 >>>(p, count, args...);
         assert_cuda(cudaGetLastError());
 
@@ -429,6 +431,9 @@ DeviceVector<T,constructOnDevice>::DeviceVector() : m_size(0), m_capacity(0), m_
 template <typename T, bool constructOnDevice>
 DeviceVector<T, constructOnDevice>::DeviceVector(const T* first, int count) : m_size(count), m_capacity(count)
 {
+    if(count < 1)
+        return;
+
     m_data = allocate(count);
     upload(m_data,first,count);
 }
@@ -436,6 +441,9 @@ DeviceVector<T, constructOnDevice>::DeviceVector(const T* first, int count) : m_
 template <typename T, bool constructOnDevice>
 DeviceVector<T, constructOnDevice>::DeviceVector(int count, const T& value)
 {
+    if(count < 1)
+        return;
+
     m_data = allocate(count);
     construct(m_data, count, value);
     m_capacity = count;
@@ -446,6 +454,9 @@ DeviceVector<T, constructOnDevice>::DeviceVector(int count, const T& value)
 template <typename T, bool constructOnDevice>
 DeviceVector<T, constructOnDevice>::DeviceVector(int count, bool valueInitialize) : DeviceVector()
 {
+    if(count < 1)
+        return;
+
     m_data = allocate(count);
     if(valueInitialize)
         construct(m_data, count);
@@ -531,6 +542,9 @@ VectorReference<const T> DeviceVector<T, constructOnDevice>::getVectorReference(
 template <typename T, bool constructOnDevice>
 void DeviceVector<T, constructOnDevice>::assign(int count, const T& value)
 {
+    if(count < 1)
+        return;
+
     if(m_capacity < count)
     {
         // don't use reallocate() because that would copy data
@@ -546,6 +560,9 @@ void DeviceVector<T, constructOnDevice>::assign(int count, const T& value)
 template <typename T, bool constructOnDevice>
 void DeviceVector<T, constructOnDevice>::assign(const T* first, int count)
 {
+    if(count < 1)
+        return;
+
     if(m_capacity < count)
     {
         // don't use reallocate() because that would copy data
@@ -594,6 +611,9 @@ void DeviceVector<T, constructOnDevice>::assign(const ManagedVector<T>& vec)
 template <typename T, bool constructOnDevice>
 void DeviceVector<T, constructOnDevice>::assignFromDeviceMem(const T* first, int count)
 {
+    if(count < 1)
+        return;
+
     if(m_capacity < count)
     {
         // don't use reallocate() because that would copy data
@@ -668,6 +688,9 @@ int DeviceVector<T, constructOnDevice>::insert(int pos, const T& value)
 template <typename T, bool constructOnDevice>
 int DeviceVector<T, constructOnDevice>::insert(int pos, int count, const T& value)
 {
+    if(count < 1)
+        return pos;
+
     // if we insert somewhere inbetween or capacity runs out we need new memory and copy everything over
     if(m_size+count < m_capacity || pos < end())
     {
@@ -696,6 +719,9 @@ int DeviceVector<T, constructOnDevice>::insert(int pos, int count, const T& valu
 template <typename T, bool constructOnDevice>
 int DeviceVector<T, constructOnDevice>::insert(int pos, T* first, int count)
 {
+    if(count < 1)
+        return pos;
+
     // if we insert somewhere inbetween or capacity runs out we need new memory and copy everything over
     if(m_size+count < m_capacity || pos < end())
     {
@@ -730,6 +756,9 @@ int DeviceVector<T, constructOnDevice>::insert(int pos, std::initializer_list<T>
 template <typename T, bool constructOnDevice>
 int DeviceVector<T, constructOnDevice>::insertFromDeviceMem(int pos, T* first, int count)
 {
+    if(count < 1)
+        return pos;
+
     // if we insert somewhere inbetween or capacity runs out we need new memory and copy everything over
     if(m_size+count < m_capacity || pos < end())
     {
@@ -850,6 +879,8 @@ const T* DeviceVector<T, constructOnDevice>::data() const
 template <typename T, bool constructOnDevice>
 void DeviceVector<T, constructOnDevice>::resize(int count, bool valueInitialize)
 {
+    if(count < 0)
+        return;
 
     if(m_capacity < count)
         reallocateStorage(count);
@@ -863,6 +894,9 @@ void DeviceVector<T, constructOnDevice>::resize(int count, bool valueInitialize)
 template <typename T, bool constructOnDevice>
 void DeviceVector<T, constructOnDevice>::resize(int count, const T& value)
 {
+    if(count < 0)
+        return;
+
     if(m_capacity < count)
         reallocateStorage(count);
 
