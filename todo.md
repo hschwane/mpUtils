@@ -39,6 +39,8 @@
 ### math
 - better floating point comparism modes
 
+- various bugs fixed in the new cuda memory management
+
 ## low priority / ideas / long term projects
 - better + safer handling of uniforms for shaders
 - add utility to parse command line input

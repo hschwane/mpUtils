@@ -302,7 +302,7 @@ public:
     void resize(int count,
                 const T& value); //!< sets size of container to a size of count. If elements are added they are initialized from value
 
-    friend DeviceVector swap(DeviceVector& first, DeviceVector& second) noexcept
+    friend void swap(DeviceVector& first, DeviceVector& second) noexcept
     {
         using std::swap;
         swap(first.m_data, second.m_data);

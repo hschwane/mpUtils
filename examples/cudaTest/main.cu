@@ -79,5 +79,15 @@ int main()
     myLog.print(LogLvl::INFO) << "result: " << res->i << " value[10]=" << data[10] << " copy[25]=" << copy[25] << " managed[13]= " << managed2[13];
 
 
+    DeviceVector<float> a(128);
+    DeviceVector<float> b(a);
+    DeviceVector<float> c(16000);
+    DeviceVector<float> d(32000);
+    DeviceVector<float> e(64000);
+    c=d;
+    e=a;
+    d=c;
+    swap(a,e);
+
     return 0;
 }
