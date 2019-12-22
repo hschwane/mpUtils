@@ -108,13 +108,14 @@ GlBufferMapper<T>::~GlBufferMapper()
 {
     if(m_mappedData)
         unmap();
-    assert_cuda(cudaGraphicsUnregisterResource(m_graphicsResource));
+    if(m_graphicsResource)
+        assert_cuda(cudaGraphicsUnregisterResource(m_graphicsResource));
 }
 
 template <typename T>
 void GlBufferMapper<T>::map()
 {
-    assert_true(m_graphicsResource,"GlBufferMapper","Register a Buffer bevore ")
+    assert_true(m_graphicsResource,"GlBufferMapper","Register a Buffer before mapping it.")
     size_t bufferSize;
     assert_cuda(cudaGraphicsMapResources(1, &m_graphicsResource));
     assert_cuda(cudaGraphicsResourceGetMappedPointer((void **)&m_mappedData, &bufferSize, m_graphicsResource));
