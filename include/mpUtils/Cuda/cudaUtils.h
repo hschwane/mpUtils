@@ -110,6 +110,42 @@ constexpr size_t numBlocks(size_t problemSize, size_t blockSize)
     return gcem::max((problemSize + blockSize - 1) / blockSize, 1);
 }
 
+/**
+ * @brief Uploads data to gpu memory.
+ * @param dest pointer to gpu memory where data is written
+ * @param src pointer to cpu memory where data is read
+ * @param count number of elements (NOT bytes) of type T to be copied
+ */
+template <typename T>
+void cudaUpload(T* dst, const T* src, size_t count)
+{
+    assert_cuda(cudaMemcpy(dst,src,count* sizeof(T),cudaMemcpyHostToDevice));
+}
+
+/**
+ * @brief Uploads data to gpu memory.
+ * @param dest pointer to gpu memory where data is written
+ * @param src pointer to cpu memory where data is read
+ * @param count number of elements (NOT bytes) of type T to be copied
+ */
+template <typename T>
+void cudaDownload(T* dst, const T* src, size_t count)
+{
+    assert_cuda(cudaMemcpy(dst,src,count* sizeof(T),cudaMemcpyDeviceToHost));
+}
+
+/**
+ * @brief Uploads data to gpu memory.
+ * @param dest pointer to gpu memory where data is written
+ * @param src pointer to cpu memory where data is read
+ * @param count number of elements (NOT bytes) of type T to be copied
+ */
+template <typename T>
+void cudaCopy(T* dst, const T* src, size_t count)
+{
+    assert_cuda(cudaMemcpy(dst,src,count* sizeof(T),cudaMemcpyDeviceToDevice));
+}
+
 }
 
 //--------------------

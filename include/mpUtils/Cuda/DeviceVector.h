@@ -319,11 +319,6 @@ private:
     T* allocate(int count) const; //!< allocate cuda device memory for count elements of T
     void deallocate(T* ptr) const; //!< deallocate ptr
 
-    // data movement
-    void copy(T* dst, const T* src, int count) const; //!< copy count elements of type T from src to dst on device memory
-    void download(T* host, const T* dev, int count) const; //!< download data from gpu to cpu memory
-    void upload(T* dev, const T* host, int count) const; //!< download data from gpu to cpu memory
-
     // construction (call with device memory pointer)
     template <typename ... Args>
     void construct(T* p, int count, Args...args); //!< construct count elements of T starting at localtion p
@@ -370,24 +365,6 @@ void DeviceVector<T,constructOnDevice>::deallocate(T* ptr) const
 }
 
 template <typename T, bool constructOnDevice>
-void DeviceVector<T,constructOnDevice>::copy(T* dst, const T* src, int count) const
-{
-    assert_cuda(cudaMemcpy(dst,src,sizeof(T)*count,cudaMemcpyDeviceToDevice));
-}
-
-template <typename T, bool constructOnDevice>
-void DeviceVector<T, constructOnDevice>::download(T* host, const T* dev, int count) const
-{
-    assert_cuda(cudaMemcpy(host,dev,sizeof(T)*count,cudaMemcpyDeviceToHost));
-}
-
-template <typename T, bool constructOnDevice>
-void DeviceVector<T, constructOnDevice>::upload(T* dev, const T* host, int count) const
-{
-    assert_cuda(cudaMemcpy(dev,host,sizeof(T)*count,cudaMemcpyHostToDevice));
-}
-
-template <typename T, bool constructOnDevice>
 template <typename... Args>
 void DeviceVector<T, constructOnDevice>::construct(T* p, int count, Args... args)
 {
@@ -405,7 +382,7 @@ void DeviceVector<T, constructOnDevice>::construct(T* p, int count, Args... args
         for(int i=0; i < count; i++)
             new(temp+i) T(std::forward<Args>(args)...);
 
-        upload(p,temp,count);
+        cudaUpload(p,temp,count);
         ::operator delete((void*)(temp));
     }
 }
@@ -416,7 +393,7 @@ void DeviceVector<T,constructOnDevice>::reallocateStorage(int newCap)
     T* newMemory = allocate(newCap);
 
     if(m_data)
-        copy(newMemory,m_data,min(m_capacity,newCap));
+        cudaCopy(newMemory,m_data,min(m_capacity,newCap));
 
     deallocate(m_data);
     m_data = newMemory;
@@ -435,7 +412,7 @@ DeviceVector<T, constructOnDevice>::DeviceVector(const T* first, int count) : m_
         return;
 
     m_data = allocate(count);
-    upload(m_data,first,count);
+    cudaUpload(m_data,first,count);
 }
 
 template <typename T, bool constructOnDevice>
@@ -475,7 +452,7 @@ template <typename T, bool constructOnDevice>
 DeviceVector<T, constructOnDevice>::DeviceVector(const DeviceVector& other) : m_size(other.size()), m_capacity(other.size())
 {
     m_data = allocate(other.size());
-    copy(m_data,other.data(),other.size());
+    cudaCopy(m_data,other.data(),other.size());
 }
 
 template <typename T, bool constructOnDevice>
@@ -512,7 +489,7 @@ template <typename T, bool constructOnDevice>
 DeviceVector<T, constructOnDevice>::operator std::vector<T>() const
 {
     std::vector<T> v(m_size);
-    download(v.data(),m_data,m_size);
+    cudaDownload(v.data(),m_data,m_size);
     return v;
 }
 
@@ -571,7 +548,7 @@ void DeviceVector<T, constructOnDevice>::assign(const T* first, int count)
         m_capacity = count;
     }
 
-    copy(m_data,first,count);
+    cudaCopy(m_data,first,count);
     m_size = count;
 }
 
@@ -622,7 +599,7 @@ void DeviceVector<T, constructOnDevice>::assignFromDeviceMem(const T* first, int
         m_capacity = count;
     }
 
-    upload(m_data,first,count);
+    cudaUpload(m_data,first,count);
     m_size = count;
 }
 
@@ -669,7 +646,7 @@ void DeviceVector<T, constructOnDevice>::push_back(const T& value)
     if(m_size+1 > m_capacity)
         reallocateStorage(m_capacity*2 +1);
 
-    upload(m_data+m_size,&value,1);
+    cudaUpload(m_data+m_size,&value,1);
     m_size++;
 }
 
@@ -697,13 +674,13 @@ int DeviceVector<T, constructOnDevice>::insert(int pos, int count, const T& valu
         int newCap = min(m_size + count, m_capacity);
         T* newData = allocate(newCap);
         if(pos > 0)
-            copy(newData, m_data, pos);
+            cudaCopy(newData, m_data, pos);
 
         // insert elements
         construct(newData+pos,count,value);
 
         // copy the rest
-        copy(newData+pos+count,m_data+pos,m_size-pos);
+        cudaCopy(newData+pos+count,m_data+pos,m_size-pos);
         m_data = newData;
         m_capacity = newCap;
     } else
@@ -728,13 +705,13 @@ int DeviceVector<T, constructOnDevice>::insert(int pos, T* first, int count)
         int newCap = min(m_size + count, m_capacity);
         T* newData = allocate(newCap);
         if(pos > 0)
-            copy(newData, m_data, pos);
+            cudaCopy(newData, m_data, pos);
 
         // insert elements
-        upload(newData+pos,first,count);
+        cudaUpload(newData+pos,first,count);
 
         // copy the rest
-        copy(newData+pos+count,m_data+pos,m_size-pos);
+        cudaCopy(newData+pos+count,m_data+pos,m_size-pos);
         m_data = newData;
         m_capacity = newCap;
     } else
@@ -765,19 +742,19 @@ int DeviceVector<T, constructOnDevice>::insertFromDeviceMem(int pos, T* first, i
         int newCap = min(m_size + count, m_capacity);
         T* newData = allocate(newCap);
         if(pos > 0)
-            copy(newData, m_data, pos);
+            cudaCopy(newData, m_data, pos);
 
         // insert elements
-        copy(newData+pos,first,count);
+        cudaCopy(newData+pos,first,count);
 
         // copy the rest
-        copy(newData+pos+count,m_data+pos,m_size-pos);
+        cudaCopy(newData+pos+count,m_data+pos,m_size-pos);
         m_data = newData;
         m_capacity = newCap;
     } else
     {
         // we have enough capacity and need to insert to the end
-        copy(m_data+pos,first,count);
+        cudaCopy(m_data+pos,first,count);
     }
 
     m_size += count;
@@ -797,8 +774,8 @@ int DeviceVector<T, constructOnDevice>::erase(int first, int last)
     {
         // removing from somewhere inbetween, so everything after last must be moved to fill the gap
         T* tmp = allocate(m_size-last);
-        copy(tmp,last,m_size-last);
-        copy(first,tmp,m_size-last);
+        cudaCopy(tmp,last,m_size-last);
+        cudaCopy(first,tmp,m_size-last);
         deallocate(tmp);
     }
 
@@ -836,7 +813,7 @@ template <typename T, bool constructOnDevice>
 const T& DeviceVector<T, constructOnDevice>::operator[](int idx) const
 {
     T v;
-    download(&v,m_data+idx,1);
+    cudaDownload(&v,m_data+idx,1);
     return v;
 }
 

@@ -39,6 +39,7 @@
 ### math
 - better floating point comparism modes
 
+- add cuda memory transfer helper functions
 - various bugs fixed in the new cuda memory management
 
 ## low priority / ideas / long term projects
