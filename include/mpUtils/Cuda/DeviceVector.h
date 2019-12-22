@@ -316,13 +316,13 @@ private:
     int m_capacity;
 
     // allocation / deallocation
-    T* allocate(int count); //!< allocate cuda device memory for count elements of T
-    void deallocate(T* ptr); //!< deallocate ptr
+    T* allocate(int count) const; //!< allocate cuda device memory for count elements of T
+    void deallocate(T* ptr) const; //!< deallocate ptr
 
     // data movement
-    void copy(T* dst, const T* src, int count); //!< copy count elements of type T from src to dst on device memory
-    void download(T* host, const T* dev, int count); //!< download data from gpu to cpu memory
-    void upload(T* dev, const T* host, int count); //!< download data from gpu to cpu memory
+    void copy(T* dst, const T* src, int count) const; //!< copy count elements of type T from src to dst on device memory
+    void download(T* host, const T* dev, int count) const; //!< download data from gpu to cpu memory
+    void upload(T* dev, const T* host, int count) const; //!< download data from gpu to cpu memory
 
     // construction (call with device memory pointer)
     template <typename ... Args>
@@ -356,7 +356,7 @@ namespace detail {
 }
 
 template <typename T, bool constructOnDevice>
-T* DeviceVector<T,constructOnDevice>::allocate(int count)
+T* DeviceVector<T,constructOnDevice>::allocate(int count) const
 {
     T* ptr;
     assert_cuda(cudaMalloc(&ptr, sizeof(T)*count));
@@ -364,25 +364,25 @@ T* DeviceVector<T,constructOnDevice>::allocate(int count)
 }
 
 template <typename T, bool constructOnDevice>
-void DeviceVector<T,constructOnDevice>::deallocate(T* ptr)
+void DeviceVector<T,constructOnDevice>::deallocate(T* ptr) const
 {
     assert_cuda(cudaFree(ptr));
 }
 
 template <typename T, bool constructOnDevice>
-void DeviceVector<T,constructOnDevice>::copy(T* dst, const T* src, int count)
+void DeviceVector<T,constructOnDevice>::copy(T* dst, const T* src, int count) const
 {
     assert_cuda(cudaMemcpy(dst,src,sizeof(T)*count,cudaMemcpyDeviceToDevice));
 }
 
 template <typename T, bool constructOnDevice>
-void DeviceVector<T, constructOnDevice>::download(T* host, const T* dev, int count)
+void DeviceVector<T, constructOnDevice>::download(T* host, const T* dev, int count) const
 {
     assert_cuda(cudaMemcpy(host,dev,sizeof(T)*count,cudaMemcpyDeviceToHost));
 }
 
 template <typename T, bool constructOnDevice>
-void DeviceVector<T, constructOnDevice>::upload(T* dev, const T* host, int count)
+void DeviceVector<T, constructOnDevice>::upload(T* dev, const T* host, int count) const
 {
     assert_cuda(cudaMemcpy(dev,host,sizeof(T)*count,cudaMemcpyHostToDevice));
 }
