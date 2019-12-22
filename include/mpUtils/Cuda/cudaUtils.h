@@ -17,6 +17,7 @@
 #include "mpUtils/external/cuda/helper_math.h"
 #include "mpUtils/Log/Log.h"
 #include "mpUtils/Misc/Range.h"
+#include "mpUtils/external/gcem/gcem.hpp"
 //--------------------
 
 // some defines
@@ -106,7 +107,7 @@ inline __device__ Range<int> blockStrideRange(int firstElement, int problemSize)
  */
 constexpr size_t numBlocks(size_t problemSize, size_t blockSize)
 {
-    return (problemSize + blockSize - 1) / blockSize;
+    return gcem::max((problemSize + blockSize - 1) / blockSize, 1);
 }
 
 }
