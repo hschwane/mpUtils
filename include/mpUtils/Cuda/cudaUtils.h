@@ -77,6 +77,54 @@ inline __device__ Range<int> gridStrideRange(int firstElement, int problemSize)
 }
 
 /**
+ * @brief generates a Range to be used in a for each loop inside a kernel to decouple the grid size from the data size
+ *          in y direction. indices will run in the range [0,problemSize)
+ * @param problemSize the size of the data to process
+ * @return a mpu::Range object to be used inside a for each loop
+ */
+inline __device__ Range<int> gridStrideRangeY(int problemSize)
+{
+    return Range<int>(blockIdx.y * blockDim.y + threadIdx.y, problemSize, gridDim.y * blockDim.y);
+}
+
+/**
+ * @brief generates a Range to be used in a for each loop inside a kernel to decouple the grid size from the data size
+ *          in y direction. indices will run in the range [firstElement,problemSize)
+ * @param firstElement the first element of the dataset to process
+ * @param problemSize the size of the data to process
+ * @return a mpu::Range object to be used inside a for each loop
+ */
+inline __device__ Range<int> gridStrideRangeY(int firstElement, int problemSize)
+{
+    firstElement += blockIdx.y * blockDim.y + threadIdx.y;
+    return Range<int>(firstElement, problemSize, gridDim.y * blockDim.y);
+}
+
+/**
+ * @brief generates a Range to be used in a for each loop inside a kernel to decouple the grid size from the data size
+ *          in z direction. indices will run in the range [0,problemSize)
+ * @param problemSize the size of the data to process
+ * @return a mpu::Range object to be used inside a for each loop
+ */
+inline __device__ Range<int> gridStrideRangeZ(int problemSize)
+{
+    return Range<int>(blockIdx.z * blockDim.z + threadIdx.z, problemSize, gridDim.z * blockDim.z);
+}
+
+/**
+ * @brief generates a Range to be used in a for each loop inside a kernel to decouple the grid size from the data size
+ *          in z direction. indices will run in the range [firstElement,problemSize)
+ * @param firstElement the first element of the dataset to process
+ * @param problemSize the size of the data to process
+ * @return a mpu::Range object to be used inside a for each loop
+ */
+inline __device__ Range<int> gridStrideRangeZ(int firstElement, int problemSize)
+{
+    firstElement += blockIdx.z * blockDim.z + threadIdx.z;
+    return Range<int>(firstElement, problemSize, gridDim.z * blockDim.z);
+}
+
+/**
  * @brief generates a Range to be used in a for each loop inside a kernel to decouple the block size from the data size
  *          indices will run in the range [0,problemSize)
  * @param problemSize the size of the data to process
