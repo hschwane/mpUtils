@@ -548,7 +548,7 @@ void DeviceVector<T, constructOnDevice>::assign(const T* first, int count)
         m_capacity = count;
     }
 
-    cudaCopy(m_data,first,count);
+    cudaUpload(m_data,first,count);
     m_size = count;
 }
 
@@ -599,7 +599,7 @@ void DeviceVector<T, constructOnDevice>::assignFromDeviceMem(const T* first, int
         m_capacity = count;
     }
 
-    cudaUpload(m_data,first,count);
+    cudaCopy(m_data,first,count);
     m_size = count;
 }
 

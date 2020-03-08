@@ -90,6 +90,9 @@ T& VectorReference<T>::at(int idx)
 {
     if(idx < 0 || idx >= m_size)
     {
+    #if !defined(NODEBUG)
+            printf("Tried to access index %i, but is out of bounds.", idx);
+    #endif
     #if defined(__CUDA_ARCH__)
         assert(false && "Vector reference access out of bounds!");
         cub::ThreadTrap();
