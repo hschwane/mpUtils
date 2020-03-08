@@ -716,4 +716,108 @@ inline __device__ __host__ double4 smoothstep(double4 a, double4 b, double4 x)
     return (y*y*(make_double4(3.0) - (make_double4(2.0)*y)));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// compare operators
+////////////////////////////////////////////////////////////////////////////////
+
+inline __host__ __device__ bool operator==(float2 a, float2 b)
+{
+    return a.x == b.x && a.y == b.y;
+}
+inline __host__ __device__ bool operator!=(float2 a, float2 b)
+{
+    return a.x != b.x || a.y != b.y;
+}
+inline __host__ __device__ bool operator==(float3 a, float3 b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+inline __host__ __device__ bool operator!=(float3 a, float3 b)
+{
+    return a.x != b.x || a.y != b.y || a.z != b.z;
+}
+inline __host__ __device__ bool operator==(float4 a, float4 b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+inline __host__ __device__ bool operator!=(float4 a, float4 b)
+{
+    return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+}
+
+inline __host__ __device__ bool operator==(double2 a, double2 b)
+{
+    return a.x == b.x && a.y == b.y;
+}
+inline __host__ __device__ bool operator!=(double2 a, double2 b)
+{
+    return a.x != b.x || a.y != b.y;
+}
+inline __host__ __device__ bool operator==(double3 a, double3 b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+inline __host__ __device__ bool operator!=(double3 a, double3 b)
+{
+    return a.x != b.x || a.y != b.y || a.z != b.z;
+}
+inline __host__ __device__ bool operator==(double4 a, double4 b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+inline __host__ __device__ bool operator!=(double4 a, double4 b)
+{
+    return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+}
+
+inline __host__ __device__ bool operator==(int2 a, int2 b)
+{
+    return a.x == b.x && a.y == b.y;
+}
+inline __host__ __device__ bool operator!=(int2 a, int2 b)
+{
+    return a.x != b.x || a.y != b.y;
+}
+inline __host__ __device__ bool operator==(int3 a, int3 b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+inline __host__ __device__ bool operator!=(int3 a, int3 b)
+{
+    return a.x != b.x || a.y != b.y || a.z != b.z;
+}
+inline __host__ __device__ bool operator==(int4 a, int4 b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+inline __host__ __device__ bool operator!=(int4 a, int4 b)
+{
+    return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+}
+
+inline __host__ __device__ bool operator==(uint2 a, uint2 b)
+{
+    return a.x == b.x && a.y == b.y;
+}
+inline __host__ __device__ bool operator!=(uint2 a, uint2 b)
+{
+    return a.x != b.x || a.y != b.y;
+}
+inline __host__ __device__ bool operator==(uint3 a, uint3 b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+inline __host__ __device__ bool operator!=(uint3 a, uint3 b)
+{
+    return a.x != b.x || a.y != b.y || a.z != b.z;
+}
+inline __host__ __device__ bool operator==(uint4 a, uint4 b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+inline __host__ __device__ bool operator!=(uint4 a, uint4 b)
+{
+    return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+}
+
 #endif
