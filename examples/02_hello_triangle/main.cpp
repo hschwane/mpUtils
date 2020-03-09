@@ -64,7 +64,7 @@ int main()
         // draw triangle
         minimalShader.use();
         vao.bind();
-        glDrawArrays(GL_TRIANGLES,0,3); // draw one triangle, starting with the first
+        glDrawArrays(GL_TRIANGLES,0,3); // draw 3 vertices, starting with the first
 
         // end the frame and display everything we have drawn to the screen
         window.frameEnd();
