@@ -59,7 +59,7 @@ void Renderer2D::render()
     {
         m_spriteShader.uniform4f("spriteColor",sprite.second->getColor());
         m_spriteShader.uniformMat4("model",sprite.first);
-        sprite.second->getSprite().getTexture().bind(GL_TEXTURE0);
+        sprite.second->getSprite().getTexture().bind(0);
 
         // draw (positions are calculated in the shader)
         glDrawArrays(GL_TRIANGLE_STRIP,0,4);
