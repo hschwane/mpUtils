@@ -130,7 +130,7 @@ public:
      * @param type the type of the input data, GL_FLOAT mostly. Integer are converted into floating point
      * @param normalize enable normalization when passing integers or unsigned integers that are converted to float
      */
-    void addAttributeBufferArray(GLuint attribIndex, GLuint bindingIndex, const BufferBase& buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset, GLenum type=GL_FLOAT, GLboolean normalize = GL_FALSE);
+    void addAttributeBufferArray(GLuint attribIndex, GLuint bindingIndex, const BufferBase& buffer, GLintptr offset, GLsizei stride, GLint vecSize, GLuint relativeOffset=0, GLenum type=GL_FLOAT, GLboolean normalize = GL_FALSE);
 
     /**
      * @brief Enable a atrribute index and configure it. Bind "buffer" at bindingIndex and set it as the data source.
