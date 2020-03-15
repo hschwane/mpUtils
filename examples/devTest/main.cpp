@@ -29,7 +29,7 @@ int main()
 
     for(int i = 0; i < 10; ++i)
     {
-        logINFO("Test") << "Testing log things";
+        logINFO("Test") << fromString<bool>("true");
         debugMark();
         sleep(1);
     }

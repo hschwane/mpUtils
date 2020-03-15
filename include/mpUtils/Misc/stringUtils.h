@@ -41,7 +41,7 @@ std::string &escapeString(std::string &s, std::string sToEscape, const char cEsc
 std::string &unescapeString(std::string &s, const char cEscapeChar = '\\'); //!< removes all cEscapeChars from the string but allow the escapeChar
 
 template<typename T>
-T fromString(const std::string &s); //!< extract a value from a string, bool is extracted with std::boolalpha on, used on string, the whole string is returned, usable on any class with << / >> overload
+inline T fromString(const std::string &s); //!< extract a value from a string, bool is extracted with std::boolalpha on, used on string, the whole string is returned, usable on any class with << / >> overload
 
 template<typename T>
 std::string toString(const T &v); //!< converts value to string, bool is extracted with std::boolalpha on, usable on any class with << / >> overload
@@ -54,7 +54,7 @@ auto makeFuncCopyable( F&& f ); //!< makes a moveable functor copyable using a s
 // global template function definitions
 //--------------------
 template<typename T>
-T fromString(const std::string &s)
+inline T fromString(const std::string &s)
 {
     T value;
     std::istringstream ss(s);
@@ -62,8 +62,8 @@ T fromString(const std::string &s)
     return value;
 }
 
-template<typename>
-bool fromString(const std::string &s)
+template<>
+inline bool fromString<bool>(const std::string &s)
 {
     bool value;
     std::istringstream ss(s);
@@ -72,7 +72,7 @@ bool fromString(const std::string &s)
 }
 
 template<typename>
-tm fromString(const std::string &s, const std::string& format)
+inline tm fromString(const std::string &s, const std::string& format)
 {
     tm value;
     std::istringstream ss(s);
@@ -80,8 +80,8 @@ tm fromString(const std::string &s, const std::string& format)
     return value;
 }
 
-template<typename>
-const std::string& fromString(const std::string &s)
+template<>
+inline std::string fromString<std::string>(const std::string &s)
 {
     return s;
 }
