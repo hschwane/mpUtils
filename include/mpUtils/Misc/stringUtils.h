@@ -87,23 +87,23 @@ inline std::string fromString<std::string>(const std::string &s)
 }
 
 template<typename T>
-std::string toString(const T &v)
+inline std::string toString(const T &v)
 {
     std::ostringstream ss;
     ss << v;
     return ss.str();
 }
 
-template<typename>
-std::string toString(const bool &v)
+template<>
+inline std::string toString<bool>(const bool &v)
 {
     std::ostringstream ss;
     ss << std::boolalpha << v;
     return ss.str();
 }
 
-template<typename>
-const std::string& toString(const std::string &v)
+template<>
+inline std::string toString<std::string>(const std::string &v)
 {
     return v;
 }

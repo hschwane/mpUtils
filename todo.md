@@ -64,6 +64,11 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- fix bugs in string utils
+- add cuda copy helper functions
+- add compare operators to helper math
+- fix bugs in cuda vectors
+
 --- v0.12.0 -- 20.12.2019 
 - add wrapper to map a openGL buffer to cuda
 - add cuda device vector
