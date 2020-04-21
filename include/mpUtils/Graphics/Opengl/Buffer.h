@@ -197,7 +197,7 @@ Buffer<T, enableWrite, map>::Buffer(size_t size) : BufferBase(), m_size(size), m
 }
 
 template <typename T, bool enableWrite, bool map>
-Buffer<T, enableWrite, map>::Buffer(const std::vector<T>& data) : BufferBase(), m_size(data.size), m_mapped_data(nullptr)
+Buffer<T, enableWrite, map>::Buffer(const std::vector<T>& data) : BufferBase(), m_size(data.size()), m_mapped_data(nullptr)
 {
     glNamedBufferStorage(*this, data.size() * sizeof(T), data.data(), storageFlags());
     if(map)
