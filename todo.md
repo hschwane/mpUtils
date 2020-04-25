@@ -64,6 +64,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- fix bugs for opengl buffer
 - fix bugs in string utils
 - add cuda copy helper functions
 - add compare operators to helper math
