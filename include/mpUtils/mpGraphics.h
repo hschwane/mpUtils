@@ -41,7 +41,6 @@
 #include "mpUtils/Graphics/Opengl/SyncObject.h"
 #include "mpUtils/Graphics/Rendering/ScreenFillingTri.h"
 #include "mpUtils/Graphics/Rendering/Camera.h"
-#include "mpUtils/Graphics/Rendering2D/SpriteInstance2D.h"
 #include "mpUtils/Graphics/Rendering2D/Sprite2D.h"
 #include "mpUtils/Graphics/Rendering2D/Renderer2D.h"
 #include "mpUtils/Graphics/Gui/ImGui.h"

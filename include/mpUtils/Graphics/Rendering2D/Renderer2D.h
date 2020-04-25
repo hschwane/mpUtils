@@ -19,7 +19,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include "mpUtils/Graphics/Utils/Transform2D.h"
-#include "SpriteInstance2D.h"
+#include "Sprite2D.h"
 #include "mpUtils/paths.h"
 #include "mpUtils/Graphics/Opengl/Shader.h"
 #include "mpUtils/Graphics/Opengl/VertexArray.h"
@@ -68,11 +68,12 @@ public:
 
     /**
      * @brief add a sprite to be rendered this frame
-     * @param sprite the sprite to be rendered
+     * @param sprite the sprite to be rendered, sprite must be valid until render() is called
      * @param transform the transform that is applied to the sprite before rendering
      * @param layer the layer the sprite should be rendered in
+     * @param color add tint color
      */
-    void addSprite(const SpriteInstance2D& sprite, const glm::mat4& transform=glm::mat4(1.0f), int layer=0);
+    void addSprite(const Sprite2D* sprite, const glm::mat4& transform=glm::mat4(1.0f), int layer=0, const glm::vec4& color=glm::vec4(1.0f));
 
     /**
      * @brief render everything queued up for this frame then clear queue
@@ -81,7 +82,7 @@ public:
 
 private:
     ShaderProgram m_spriteShader;
-    std::vector< std::pair<glm::mat4,const SpriteInstance2D*>> m_sprites;
+    std::vector< std::tuple<glm::mat4,const Sprite2D*, glm::vec4>> m_sprites;
     VertexArray vao;
 };
 

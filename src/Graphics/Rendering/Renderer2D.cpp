@@ -44,12 +44,12 @@ void Renderer2D::setProjection(const glm::mat4& projection)
     m_spriteShader.uniformMat4("projection", projection);
 }
 
-void Renderer2D::addSprite(const SpriteInstance2D& sprite, const glm::mat4& transform, int layer)
+void Renderer2D::addSprite(const Sprite2D* sprite, const glm::mat4& transform, int layer, const glm::vec4& color)
 {
-    glm::mat4 model = transform * sprite.getSprite().getBaseTransform();
+    glm::mat4 model = transform * sprite->getBaseTransform();
     model[3][2] = -layer;
 
-    m_sprites.emplace_back(model,&sprite);
+    m_sprites.emplace_back(model,sprite,color);
 }
 
 void Renderer2D::render()
@@ -57,9 +57,9 @@ void Renderer2D::render()
     m_spriteShader.use();
     for(const auto& sprite : m_sprites)
     {
-        m_spriteShader.uniform4f("spriteColor",sprite.second->getColor());
-        m_spriteShader.uniformMat4("model",sprite.first);
-        sprite.second->getSprite().getTexture().bind(0);
+        m_spriteShader.uniform4f("spriteColor",std::get<2>(sprite));
+        m_spriteShader.uniformMat4("model",std::get<0>(sprite));
+        std::get<1>(sprite)->getTexture().bind(0);
 
         // draw (positions are calculated in the shader)
         glDrawArrays(GL_TRIANGLE_STRIP,0,4);

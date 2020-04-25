@@ -158,7 +158,6 @@ if (USE_OPENGL)
                     "src/Graphics/Opengl/SyncObject.cpp"
                     "src/Graphics/Rendering/Camera.cpp"
                     "src/Graphics/Rendering/Sprite2D.cpp"
-                    "src/Graphics/Rendering/SpriteInstance2D.cpp"
                     "src/Graphics/Rendering/Renderer2D.cpp"
                     "src/Graphics/Utils/Transform.cpp"
                     "src/Graphics/Utils/Transform2D.cpp"
