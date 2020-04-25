@@ -50,7 +50,8 @@ int main()
     // Main loop
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
-        renderer.addSprite( &testSprite, glm::mat4(1.0f),2);
+        renderer.addSprite( &testSprite, glm::mat4(1.0f),0);
+        renderer.addRect( {0.5,1.0,0,1.0}, {1.0,1.0}, glm::scale(glm::vec3(0.75)), 3);
 
         ImGui::Begin("DebugWindow");
         ImGui::SliderFloat2("position", glm::value_ptr(tf.position), -1.0f,1.0f);
@@ -62,7 +63,7 @@ int main()
         if(lookAtCenter)
             tf.orientation = gph::lookAt2D(tf.position,glm::vec2(0,0));
 
-        renderer.addSprite( &testSprite2, glm::mat4(tf));
+        renderer.addSprite( &testSprite2, glm::mat4(tf),5);
         renderer.render();
     }
 

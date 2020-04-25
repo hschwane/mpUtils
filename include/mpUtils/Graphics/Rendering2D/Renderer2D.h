@@ -67,6 +67,14 @@ public:
     void setProjection(float left, float right, float bottom, float top, int minLayer, int maxLayer);
 
     /**
+     * @brief draws a filled rectangle
+     * @param transform the transform that is applied to the sprite before rendering
+     * @param layer the layer the sprite should be rendered in
+     * @param color add tint color
+     */
+    void addRect(const glm::vec4& color=glm::vec4(1.0f), const glm::vec2& size=glm::vec2(1.0f), const glm::mat4& transform=glm::mat4(1.0f), int layer=0);
+
+    /**
      * @brief add a sprite to be rendered this frame
      * @param sprite the sprite to be rendered, sprite must be valid until render() is called
      * @param transform the transform that is applied to the sprite before rendering
@@ -81,8 +89,10 @@ public:
     void render();
 
 private:
+    std::unique_ptr<Texture> m_rectTexture;
+
     ShaderProgram m_spriteShader;
-    std::vector< std::tuple<glm::mat4,const Sprite2D*, glm::vec4>> m_sprites;
+    std::vector< std::tuple<glm::mat4,const Texture*, glm::vec4>> m_sprites;
     VertexArray vao;
 };
 
