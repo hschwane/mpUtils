@@ -19,7 +19,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include "mpUtils/Graphics/Utils/Transform2D.h"
-#include "mpUtils/Graphics/Rendering/SpriteInstance2D.h"
+#include "SpriteInstance2D.h"
 #include "mpUtils/paths.h"
 #include "mpUtils/Graphics/Opengl/Shader.h"
 #include "mpUtils/Graphics/Opengl/VertexArray.h"

@@ -13,7 +13,7 @@
 
 // includes
 //--------------------
-#include "mpUtils/Graphics/Rendering/Sprite2D.h"
+#include "mpUtils/Graphics/Rendering2D/Sprite2D.h"
 //--------------------
 
 // namespace

@@ -16,7 +16,7 @@
 
 // includes
 //--------------------
-#include "mpUtils/Graphics/Rendering/Sprite2D.h"
+#include "Sprite2D.h"
 #include <memory>
 //--------------------
 
