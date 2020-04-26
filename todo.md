@@ -28,7 +28,6 @@
 - add a rendering engine for sprites and animated sprites
 
 ### graphics in general
-- add double / triple buffering helper
 
 ### bit manipulation
 - add macros or constexpr functions for bit manipulation
@@ -43,15 +42,16 @@
 - various bugs fixed in the new cuda memory management
 
 ## low priority / ideas / long term projects
+- add double / triple buffering helper
 - better + safer handling of uniforms for shaders
 - add utility to parse command line input
 - add networking capabilities
 - add serial port capabilities
 - timer set for profiling apps
 - jason and/or xml and easy serializing
-- a argument parser for command line apps
 - util for handling general settings
 - tests
+- profiling / visual profiling tools
 - improvements to the log (lock-free-queue, more sinks with better format, different depths for messages)
 - support for different ogl versions / have a manager to check for versions and extensions
 - maybe add an openGL state / context wrapper?
@@ -64,6 +64,9 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add EnTT ECS
+- better sprite rendering
+- add 2d camera
 - fix bugs for opengl buffer
 - fix bugs in string utils
 - add cuda copy helper functions
