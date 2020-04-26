@@ -56,6 +56,11 @@ public:
     void setProjection(const glm::mat4& projection);
 
     /**
+     * @brief enable / disable linear sampling for filtering (default enabled)
+     */
+    void setSamplingLinear(bool min, bool mag);
+
+    /**
      * @brief Create am orthographic projection matrix to be used when rendering.
      * @param left where the left edge of the viewport should be in world coordinates
      * @param right where the right edge of the viewport should be in world coordinates
@@ -104,13 +109,11 @@ private:
 
     Sampler m_sampler; //!< the sampler used to sample textures
     std::unique_ptr<Texture> m_rectTexture; //!< white texture for colored rectangles
-    uint64_t m_rectTextureHandle; //!< bindless handle of the rect texture
+    glm::uvec2 m_rectTextureHandle; //!< bindless handle of the rect texture
 
     ShaderProgram m_spriteShader; //!< shader to be used for rendering quads
     std::vector<spriteData> m_sprites;
     VertexArray vao;
-
-
 };
 
 }}

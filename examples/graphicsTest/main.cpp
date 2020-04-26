@@ -42,7 +42,7 @@ int main()
     renderer.setProjection(-1,1,-1,1,0,10);
 
     gph::Sprite2D testSprite( MPU_LIB_RESOURCE_PATH"checker-map.png",glm::vec2(0.5f,0.5f),glm::radians(90.0f) );
-    gph::Sprite2D testSprite2( MPU_LIB_RESOURCE_PATH"checker-map_vertical.png",glm::vec2(0.5f,0.25f),glm::radians(90.0f) );
+    gph::Sprite2D testSprite2( MPU_LIB_RESOURCE_PATH"checker-map_vertical.png",glm::vec2(0.5f,0.25f),glm::radians(90.0f),2 );
 
     gph::Transform2D tf;
     bool lookAtCenter=false;
