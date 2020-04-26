@@ -57,6 +57,9 @@
 // tinyfiledialogs
 #include "mpUtils/external/tinyfd/tinyfiledialogs.h"
 
+// EnTT entity component system
+#include "mpUtils/external/entt/entt.hpp"
+
 // matrix type might be useful without cuda
 #include "Cuda/Matrix.h"
 #include "Cuda/MatrixMath.h"
