@@ -206,6 +206,14 @@ public:
     GLuint64 getTextureHandle(const Sampler& sampler);
 
     /**
+     * @brief Generates a texture handle to access this texture in bindless mode using the sampling settings from "sampler"
+     *          Do not forget to make your handle resident using makeTextureResident() !
+     * @param sampler the sampler to use the settings from
+     * @return the texture handle to use in the shader
+     */
+    glm::uvec2 getTexturehandleUvec2(const Sampler& sampler);
+
+    /**
      * @brief makes the texture resident on the device for bindless mode if a handle was already created
      */
     void makeTextureResident();

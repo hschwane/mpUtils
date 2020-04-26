@@ -188,6 +188,11 @@ GLuint64 Texture::getTextureHandle(const Sampler& sampler)
     return m_bindlessTextureHandle;
 }
 
+glm::uvec2 Texture::getTexturehandleUvec2(const Sampler& sampler)
+{
+    return handleToUvec2(getTextureHandle(sampler));
+}
+
 GLuint64 Texture::getImageHandle(GLenum format, GLint level, bool layered, GLint layer)
 {
     return glGetImageHandleARB(m_textureHandle, level, layered, layer, format);
