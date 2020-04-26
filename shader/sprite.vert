@@ -5,7 +5,6 @@ struct spriteData
     mat4 model;
     vec4 color;
     uvec2 bindlessTexture;
-    uint textureArrayIndex;
     float tileFactor;
 };
 

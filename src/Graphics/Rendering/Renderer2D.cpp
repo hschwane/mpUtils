@@ -74,7 +74,7 @@ void Renderer2D::addRect(const glm::vec4& color, const glm::vec2& size, const gl
 {
     glm::mat4 model = transform * glm::scale(glm::vec3(size/2,1.0f));
     model[3][2] = -layer;
-    m_sprites.emplace_back(model,color,m_rectTextureHandle,0,1);
+    m_sprites.emplace_back(model,color,m_rectTextureHandle,1);
 }
 
 void Renderer2D::addSprite(const Sprite2D* sprite, const glm::mat4& transform, int layer, const glm::vec4& color)
@@ -82,7 +82,7 @@ void Renderer2D::addSprite(const Sprite2D* sprite, const glm::mat4& transform, i
     glm::mat4 model = transform * sprite->getBaseTransform();
     model[3][2] = -layer;
 
-    m_sprites.emplace_back(model,color, sprite->getTexture().getTexturehandleUvec2(m_sampler),0,sprite->getTileFactor());
+    m_sprites.emplace_back(model,color, sprite->getTexture().getTexturehandleUvec2(m_sampler),sprite->getTileFactor());
     sprite->getTexture().makeTextureResident();
 }
 

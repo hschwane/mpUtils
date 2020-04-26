@@ -98,12 +98,11 @@ private:
     //!< internally stores all data needed for rendering of a sprite
     struct spriteData
     {
-        spriteData(const glm::mat4& m, const glm::vec4& c, const glm::uvec2& texAdr, int texIdx, float tf)
-                : model(m), color(c), bindlessTexture(texAdr), textureArrayIndex(texIdx), tileFactor(tf) {}
+        spriteData(const glm::mat4& m, const glm::vec4& c, const glm::uvec2& texAdr, float tf)
+                : model(m), color(c), bindlessTexture(texAdr), tileFactor(tf) {}
         glm::mat4 model;
         glm::vec4 color;
         glm::uvec2 bindlessTexture;
-        unsigned int textureArrayIndex;
         float tileFactor;
     };
 
