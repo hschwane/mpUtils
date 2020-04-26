@@ -82,7 +82,7 @@ public:
 
     void set(GLenum parameter, GLint value) const; //!< set a parameter of type glint
     void set(GLenum parameter, const float* values) const; //!< set a paramter which requires multiple floats
-    void bind(GLuint unit) const; //!< bind samler to a texture unit
+    void bind(GLuint unit) const; //!< bind sampler to a texture unit
 
 private:
     uint32_t m_handle;

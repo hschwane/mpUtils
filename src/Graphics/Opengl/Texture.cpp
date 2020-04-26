@@ -174,12 +174,48 @@ inline uint32_t Texture::maxMipmaps(const uint32_t width, const uint32_t height,
 
 GLuint64 Texture::getTextureHandle(const Sampler& sampler)
 {
-    return glGetTextureHandleARB(m_textureHandle);
+    if(!m_hasBindlessTextureHandle)
+    {
+        m_bindlessTextureHandle = glGetTextureSamplerHandleARB(m_textureHandle,sampler);
+        m_hasBindlessTextureHandle = true;
+        m_currentBindlessSampler = &sampler;
+    }
+    else if( m_currentBindlessSampler != &sampler)
+    {
+        logERROR("Texture") << "Creating bindless texture handles with different samplers is not supported!";
+    }
+
+    return m_bindlessTextureHandle;
 }
 
 GLuint64 Texture::getImageHandle(GLenum format, GLint level, bool layered, GLint layer)
 {
     return glGetImageHandleARB(m_textureHandle, level, layered, layer, format);
+}
+
+glm::vec2 Texture::handleToUvec2(GLuint64 handle)
+{
+    return glm::uvec2(static_cast<GLuint>(handle & 0xFFFFFFFF), handle >> 32);
+}
+
+void Texture::makeTextureResident()
+{
+    if(!m_isTextureResident && m_hasBindlessTextureHandle)
+    {
+        glMakeTextureHandleResidentARB(m_bindlessTextureHandle);
+        m_isTextureResident = true;
+    }
+    else if(!m_isTextureResident && !m_hasBindlessTextureHandle)
+        logERROR("Texture") << "Tried to make texture resident before creating texture handle";
+}
+
+void Texture::makeTextureNonResident()
+{
+    if(m_isTextureResident)
+    {
+        glMakeTextureHandleNonResidentARB(m_bindlessTextureHandle);
+        m_isTextureResident = false;
+    }
 }
 
 // texture factory functions

@@ -199,11 +199,22 @@ public:
 
     /**
      * @brief Generates a texture handle to access this texture in bindless mode using the sampling settings from "sampler"
-     *          Do not forget to make your handle resident using glMakeTextureHandleResidentARB !
+     *          Do not forget to make your handle resident using makeTextureResident() !
      * @param sampler the sampler to use the settings from
      * @return the texture handle to use in the shader
      */
     GLuint64 getTextureHandle(const Sampler& sampler);
+
+    /**
+     * @brief makes the texture resident on the device for bindless mode if a handle was already created
+     */
+    void makeTextureResident();
+
+    /**
+     * @brief makes texture non resident for bindless mode if a handle was already created
+     */
+    void makeTextureNonResident();
+
 
     /**
      * @brief Generates a handle to access this texture for storing data in bindless mode#
@@ -224,6 +235,7 @@ public:
     GLenum internalFormat() const { return m_internalFormat;} //!< get the internal format
 
     static uint32_t maxMipmaps(uint32_t width, uint32_t height, uint32_t depth); //!< calculates the maximum number of mipmaps for given image dimensions
+    static glm::vec2 handleToUvec2(GLuint64 handle); //!< converts texture handle to glm::uvec2
 
 private:
     uint32_t m_textureHandle;
@@ -234,6 +246,11 @@ private:
     GLint m_levels; //!< the amount of mipmap levels
     TextureTypes m_type; //!< the target this texture will be bound to when binding
     GLenum m_internalFormat; //!< the internal format of the texture
+
+    GLuint64 m_bindlessTextureHandle; //!< chache bindless texture handle
+    const Sampler * m_currentBindlessSampler{nullptr}; // store sampler for error checking only
+    bool m_hasBindlessTextureHandle{false};
+    bool m_isTextureResident{false}; //!< is the texture currently resident on the gpu?
 };
 
 
