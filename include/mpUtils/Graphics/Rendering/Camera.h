@@ -80,7 +80,7 @@ public:
      *
      * ToggleMode : button, toggles between fps and trackball mode
      * FastMode : button, activates fast mode for one frame when triggered
-     * SlolwMode : button, activates fast mode for one frame when triggered
+     * SlowMode : button, activates fast mode for one frame when triggered
      * MovementSpeed : axis, changes movement and pan/zoom speed
      *
      */
