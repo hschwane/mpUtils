@@ -104,6 +104,7 @@ private:
         glm::vec4 color;
         glm::uvec2 bindlessTexture;
         float tileFactor;
+        float pad;
     };
 
     Sampler m_sampler; //!< the sampler used to sample textures
