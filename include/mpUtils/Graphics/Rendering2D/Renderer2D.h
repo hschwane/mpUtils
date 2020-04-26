@@ -49,27 +49,24 @@ public:
     explicit Renderer2D(const std::string& shaderPath = MPU_LIB_SHADER_PATH);
 
     /**
-     * @brief Sets a (orthographic) projection matrix to be used when rendering.
-     *          Layers outside your clipping planes values will not be shown.
-     * @param projection the matrix to use for rendering
-     */
-    void setProjection(const glm::mat4& projection);
-
-    /**
      * @brief enable / disable linear sampling for filtering (default enabled)
      */
     void setSamplingLinear(bool min, bool mag);
 
     /**
      * @brief Create am orthographic projection matrix to be used when rendering.
-     * @param left where the left edge of the viewport should be in world coordinates
-     * @param right where the right edge of the viewport should be in world coordinates
-     * @param bottom where the left edge of the viewport should be in world coordinates
-     * @param top where the top edge of the viewport should be in world coordinates
-     * @param minLayer smallest layer id to be drawn
-     * @param maxLayer biggest layer id to be drawn
+     * @param left where the left edge of the viewport should be in view (camera) coordinates
+     * @param right where the right edge of the viewport should be in view (camera) coordinates
+     * @param bottom where the left edge of the viewport should be in view (camera) coordinates
+     * @param top where the top edge of the viewport should be in view (camera) coordinates
      */
-    void setProjection(float left, float right, float bottom, float top, int minLayer, int maxLayer);
+    void setProjection(float left, float right, float bottom, float top);
+
+    /**
+     * @brief set view (camera) matrix to be used when rendering
+     * @param view
+     */
+    void setView(glm::mat4 view);
 
     /**
      * @brief draws a filled rectangle
@@ -112,8 +109,11 @@ private:
     glm::uvec2 m_rectTextureHandle; //!< bindless handle of the rect texture
 
     ShaderProgram m_spriteShader; //!< shader to be used for rendering quads
-    std::vector<spriteData> m_sprites;
-    VertexArray vao;
+    std::vector<spriteData> m_sprites; //!< all sprites added to the current frame
+    VertexArray vao; //!< dummy vao
+
+    glm::mat4 m_view{1.0}; //!< view matrix
+    glm::mat4 m_projection{1.0}; //!< projection matrix
 };
 
 }}

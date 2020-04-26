@@ -31,6 +31,7 @@ Renderer2D::Renderer2D(const std::string& shaderPath)
     addShaderIncludePath(shaderPath+"include/");
     m_spriteShader = ShaderProgram({{shaderPath+"sprite.vert"},
                                     {shaderPath+"sprite.frag"}});
+    m_spriteShader.uniformMat4("viewProjMat", m_projection * m_view);
 
     m_sampler.setWrap(GL_REPEAT,GL_REPEAT,GL_CLAMP_TO_EDGE);
     setSamplingLinear(true,true);
@@ -40,16 +41,16 @@ Renderer2D::Renderer2D(const std::string& shaderPath)
     m_rectTextureHandle = m_rectTexture->getTexturehandleUvec2(m_sampler);
     m_rectTexture->makeTextureResident();
 
-    setProjection(glm::mat4(1.0f));
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
     vao.bind();
 }
 
-void Renderer2D::setProjection(float left, float right, float bottom, float top, int minLayer, int maxLayer)
+void Renderer2D::setProjection(float left, float right, float bottom, float top)
 {
-    setProjection(glm::ortho( left, right, bottom, top, float(minLayer), float(maxLayer)));
+    m_projection = glm::ortho( left, right, bottom, top, 0.0f, std::numeric_limits<float>::max());
+    m_spriteShader.uniformMat4("viewProjMat", m_projection * m_view);
 }
 
 void Renderer2D::setSamplingLinear(bool min, bool mag)
@@ -65,9 +66,10 @@ void Renderer2D::setSamplingLinear(bool min, bool mag)
     m_sampler.setFilter(minFilter,maxFilter);
 }
 
-void Renderer2D::setProjection(const glm::mat4& projection)
+void Renderer2D::setView(glm::mat4 view)
 {
-    m_spriteShader.uniformMat4("projection", projection);
+    m_view = view;
+    m_spriteShader.uniformMat4("viewProjMat", m_projection * m_view);
 }
 
 void Renderer2D::addRect(const glm::vec4& color, const glm::vec2& size, const glm::mat4& transform, int layer)

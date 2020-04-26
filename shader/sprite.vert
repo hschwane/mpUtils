@@ -13,7 +13,7 @@ layout(std430,binding=0) buffer spriteDataSSBO
     spriteData sprites[];
 };
 
-uniform mat4 projection;
+uniform mat4 viewProjMat;
 
 out vec2 texCoords;
 out vec4 color;
@@ -33,6 +33,6 @@ void main()
     float y = -1 +  float( (idInQuad & 2));
 
     // transform and generate texture coordinates
-    gl_Position = projection * sprites[uboId].model * vec4(x,y,0,1);
+    gl_Position = viewProjMat * sprites[uboId].model * vec4(x,y,0,1);
     texCoords = vec2((x+1)/2, (y+1)/2)*sprites[uboId].tileFactor;
 }

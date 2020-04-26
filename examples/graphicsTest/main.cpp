@@ -29,8 +29,8 @@ int main()
     myLog.printHeader("graphicsTest", MPU_VERSION_STRING, MPU_VERSION_COMMIT, "");
 
 
-    int width = 600;
-    int height = 600;
+    int width = 800;
+    int height = 800;
     gph::Window window(width, height,"mpUtils imGui test");
 
     ImGui::create(window);
@@ -40,7 +40,15 @@ int main()
 
     gph::Camera2D cam;
     gph::Renderer2D renderer;
-    renderer.setProjection(-1,1,-1,1,0,10);
+
+    window.addFBSizeCallback([&](int w, int h)
+    {
+        glViewport(0,0,w,h);
+        float aspect = float(w)/h;
+        renderer.setProjection(-1*aspect,1*aspect,-1,1);
+    });
+    float aspect = float(width)/height;
+    renderer.setProjection(-1*aspect,1*aspect,-1,1);
 
     gph::Sprite2D testSprite( MPU_LIB_RESOURCE_PATH"checker-map.png",glm::vec2(0.5f,0.5f),glm::radians(90.0f) );
     gph::Sprite2D testSprite2( MPU_LIB_RESOURCE_PATH"checker-map_vertical.png",glm::vec2(0.5f,0.25f),glm::radians(90.0f),2 );
@@ -51,11 +59,12 @@ int main()
     // Main loop
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
-        renderer.addSprite( &testSprite, glm::mat4(1.0f),0);
-        renderer.addRect( {0.5,1.0,0,1.0}, {1.0,1.0}, glm::scale(glm::vec3(1.0)), 3);
-
         cam.showDebugWindow();
         cam.update();
+        renderer.setView(cam.viewMatrix());
+
+        renderer.addSprite( &testSprite, glm::mat4(1.0f),0);
+        renderer.addRect( {0.5,1.0,0,1.0}, {1.0,1.0}, glm::scale(glm::vec3(1.0)), 3);
 
         ImGui::Begin("DebugWindow");
         ImGui::SliderFloat2("position", glm::value_ptr(tf.position), -1.0f,1.0f);
