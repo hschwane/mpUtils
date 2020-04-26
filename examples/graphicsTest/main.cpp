@@ -51,7 +51,7 @@ int main()
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
         renderer.addSprite( &testSprite, glm::mat4(1.0f),0);
-        renderer.addRect( {0.5,1.0,0,1.0}, {1.0,1.0}, glm::scale(glm::vec3(0.75)), 3);
+        renderer.addRect( {0.5,1.0,0,1.0}, {1.0,1.0}, glm::scale(glm::vec3(1.0)), 3);
 
         ImGui::Begin("DebugWindow");
         ImGui::SliderFloat2("position", glm::value_ptr(tf.position), -1.0f,1.0f);

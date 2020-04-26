@@ -89,11 +89,28 @@ public:
     void render();
 
 private:
-    std::unique_ptr<Texture> m_rectTexture;
 
-    ShaderProgram m_spriteShader;
-    std::vector< std::tuple<glm::mat4,const Texture*, glm::vec4>> m_sprites;
+    //!< internally stores all data needed for rendering of a sprite
+    struct spriteData
+    {
+        spriteData(const glm::mat4& m, const glm::vec4& c, const glm::uvec2& texAdr, int texIdx, float tf)
+                : model(m), color(c), bindlessTexture(texAdr), textureArrayIndex(texIdx), tileFactor(tf) {}
+        glm::mat4 model;
+        glm::vec4 color;
+        glm::uvec2 bindlessTexture;
+        unsigned int textureArrayIndex;
+        float tileFactor;
+    };
+
+    Sampler m_sampler; //!< the sampler used to sample textures
+    std::unique_ptr<Texture> m_rectTexture; //!< white texture for colored rectangles
+    uint64_t m_rectTextureHandle; //!< bindless handle of the rect texture
+
+    ShaderProgram m_spriteShader; //!< shader to be used for rendering quads
+    std::vector<spriteData> m_sprites;
     VertexArray vao;
+
+
 };
 
 }}

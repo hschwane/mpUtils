@@ -1,12 +1,13 @@
-#version 330
+#version 440
+#extension GL_ARB_bindless_texture : require
 
+in vec4 color;
+flat in uvec2 texAdr;
 in vec2 texCoords;
-out vec4 color;
-
-uniform vec4 spriteColor;
-uniform sampler2D image;
+out vec4 out_color;
 
 void main()
 {
-    color = spriteColor * texture(image, texCoords);
+    sampler2D spriteTex = sampler2D( texAdr );
+    out_color = color * texture( spriteTex, texCoords);
 }

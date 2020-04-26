@@ -32,7 +32,14 @@ Renderer2D::Renderer2D(const std::string& shaderPath)
     m_spriteShader = ShaderProgram({{shaderPath+"sprite.vert"},
                                     {shaderPath+"sprite.frag"}});
 
+
+//    m_sampler.setWrap(GL_REPEAT,GL_REPEAT,GL_CLAMP_TO_EDGE);
+//    m_sampler.setFilter(GL_NEAREST,GL_NEAREST);
+
+    // prepare colored rectangles
     m_rectTexture = makeTexture2D(1,1,GL_RGBA8,white);
+    m_rectTextureHandle = m_rectTexture->getTextureHandle(m_sampler);
+    m_rectTexture->makeTextureResident();
 
     setProjection(glm::mat4(1.0f));
     glEnable(GL_DEPTH_TEST);
@@ -55,8 +62,7 @@ void Renderer2D::addRect(const glm::vec4& color, const glm::vec2& size, const gl
 {
     glm::mat4 model = transform * glm::scale(glm::vec3(size/2,1.0f));
     model[3][2] = -layer;
-
-    m_sprites.emplace_back(model,m_rectTexture.get(),color);
+    m_sprites.emplace_back(model,color,Texture::handleToUvec2(m_rectTextureHandle),0,1);
 }
 
 void Renderer2D::addSprite(const Sprite2D* sprite, const glm::mat4& transform, int layer, const glm::vec4& color)
@@ -64,21 +70,21 @@ void Renderer2D::addSprite(const Sprite2D* sprite, const glm::mat4& transform, i
     glm::mat4 model = transform * sprite->getBaseTransform();
     model[3][2] = -layer;
 
-    m_sprites.emplace_back(model,&sprite->getTexture(),color);
+    m_sprites.emplace_back(model,color,Texture::handleToUvec2( sprite->getTexture().getTextureHandle(m_sampler)),0,1);
+    sprite->getTexture().makeTextureResident();
 }
 
 void Renderer2D::render()
 {
     m_spriteShader.use();
-    for(const auto& sprite : m_sprites)
-    {
-        m_spriteShader.uniform4f("spriteColor",std::get<2>(sprite));
-        m_spriteShader.uniformMat4("model",std::get<0>(sprite));
-        std::get<1>(sprite)->bind(0);
 
-        // draw (positions are calculated in the shader)
-        glDrawArrays(GL_TRIANGLE_STRIP,0,4);
-    }
+    // upload vertex data
+    Buffer<spriteData> data(m_sprites);
+    data.bindBase(0,GL_SHADER_STORAGE_BUFFER);
+
+    // draw everything
+    glDrawArrays(GL_TRIANGLES,0,6*m_sprites.size());
+
     m_sprites.clear();
 }
 
