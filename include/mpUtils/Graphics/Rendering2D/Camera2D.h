@@ -44,7 +44,7 @@ public:
      * @param position position to create the camera at
      * @param zoom zoom level of the camera
      */
-    explicit Camera2D(glm::vec2 ={0,0}, float zoom = 1.0, std::string uiName = "Camera");
+    explicit Camera2D(glm::vec2 ={0,0}, float zoom = 1.0, std::string uiName = "Camera2D");
 
     /**
      * Adds the following inputs to the input manager:
@@ -68,6 +68,7 @@ public:
 
     void setPosition(glm::vec2 pos, bool interpolate = false); //!< set a new position for the camera if interpolate is true smoothing will be used
     void setZoom(float zoom, bool interpolate = false); //!< set a new zoom level for the camera if interpolate is true smoothing will be used
+    void setOrientation(float ori, bool interpolate = false); //!< set a new orientation for the camera if interpolate is true smoothing will be used
 
     // frame modifiers
     void fastMode() { m_movementSpeedMod*=2.0f;} //!< doubles movement speed this frame

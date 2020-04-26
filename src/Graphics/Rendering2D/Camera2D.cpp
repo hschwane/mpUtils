@@ -39,7 +39,42 @@ Camera2D::Camera2D(glm::vec2 position, float zoom, std::string uiName)
 
 void Camera2D::addInputs()
 {
-
+    gph::Input::addAxis(m_uiPrefix + "MoveLeftRight", "Move camera left and right.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->moveX(v);
+                        });
+    gph::Input::addAxis(m_uiPrefix + "MoveDownUp", "Move camera up and down.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->moveY(v);
+                        });
+    gph::Input::addAxis(m_uiPrefix + "Rotate", "Rotate camera.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->rotate(v);
+                        });
+    gph::Input::addAxis(m_uiPrefix + "Zoom", "Zoom in and out.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->zoom(v);
+                        });
+    gph::Input::addButton(m_uiPrefix + "FastMode", "While triggered movement speed is doubled.",
+                          [this](gph::Window& wnd)
+                          {
+                              this->fastMode();
+                          });
+    gph::Input::addButton(m_uiPrefix + "SlowMode", "While triggered movement speed is halved.",
+                          [this](gph::Window& wnd)
+                          {
+                              this->slowMode();
+                          });
+    gph::Input::addAxis(m_uiPrefix + "MovementSpeed", "Change cameras movement and pan/zoom speed.",
+                        [this](gph::Window& wnd, double v)
+                        {
+                            this->setMovementSpeed(  getMovementSpeed() + float(v) * 0.025f * (getMovementSpeed() + std::numeric_limits<float>::min()) );
+                            this->setZoomSpeed(  getZoomSpeed() + float(v) * 0.025f * (getZoomSpeed() + std::numeric_limits<float>::min()));
+                        });
 }
 
 void Camera2D::showDebugWindow(bool* show)
@@ -64,7 +99,7 @@ void Camera2D::showDebugWindow(bool* show)
             ImGui::Separator();
 
             static glm::vec2 move(0,0);
-            ImGui::DragFloat2("##4", glm::value_ptr(move),0.1);
+            ImGui::DragFloat2("##3", glm::value_ptr(move),0.1);
             ImGui::SameLine();
             if(ImGui::Button("move"))
             {
@@ -73,13 +108,13 @@ void Camera2D::showDebugWindow(bool* show)
             }
 
             static float zm=0;
-            ImGui::DragFloat("##6", &zm,0.1);
+            ImGui::DragFloat("##4", &zm,0.1);
             ImGui::SameLine();
             if(ImGui::Button("zoom"))
                 zoom(zm);
 
             static float rot = 0;
-            ImGui::DragFloat2("##3", &rot,0.1);
+            ImGui::DragFloat("##5", &rot,0.1);
             ImGui::SameLine();
             if(ImGui::Button("rotate"))
                 rotate(rot);
@@ -141,7 +176,10 @@ void Camera2D::update()
     // add offsets to desired values
     m_desiredTransform.position += movement;
     m_desiredTransform.orientation += m_rotationInput;
-    m_desiredZoom += m_zoomInput;
+    m_desiredZoom += m_desiredZoom * m_zoomInput * m_movementSpeedMod;
+
+    // prevent negative zoom
+    m_desiredZoom = m_desiredZoom <= 0 ? std::numeric_limits<float>::min() : m_desiredZoom;
 
     // interpolate for smoothing
     m_currentTransform.position = glm::mix(m_currentTransform.position, m_desiredTransform.position,
@@ -153,7 +191,7 @@ void Camera2D::update()
 
     // create model and view mat
     m_model = static_cast<glm::mat4>(m_currentTransform);
-    m_view = glm::inverse(glm::scale(glm::vec3(m_currentZoom)) * m_model);
+    m_view = glm::scale(glm::vec3(m_currentZoom)) * glm::inverse(m_model);
 
     // reset data for next frame
     m_movementInput = {0,0};
@@ -179,7 +217,7 @@ void Camera2D::moveY(float dy)
 
 void Camera2D::zoom(float dz)
 {
-    m_zoomInput += dz * m_zoomInput;
+    m_zoomInput -= dz * m_zoomSpeed;
 }
 
 void Camera2D::setPosition(glm::vec2 pos, bool interpolate)
@@ -193,8 +231,14 @@ void Camera2D::setZoom(float zoom, bool interpolate)
 {
     m_desiredZoom = zoom;
     if(!interpolate)
-        m_desiredZoom = zoom;
+        m_currentZoom = zoom;
 }
 
+void Camera2D::setOrientation(float ori, bool interpolate)
+{
+    m_desiredTransform.orientation = ori;
+    if(!interpolate)
+        m_currentTransform.orientation = ori;
+}
 
 }}

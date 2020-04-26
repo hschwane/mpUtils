@@ -39,8 +39,14 @@ int main()
     glClearColor( .2f, .2f, .2f, 1.0f);
 
     gph::Camera2D cam;
-    gph::Renderer2D renderer;
+    cam.addInputs();
+    gph::Input::mapScrollToInput("Camera2DZoom");
+    gph::Input::mapKeyToInput("Camera2DMoveDownUp",GLFW_KEY_W,gph::Input::ButtonBehavior::whenDown,gph::Input::AxisBehavior::positive);
+    gph::Input::mapKeyToInput("Camera2DMoveDownUp",GLFW_KEY_S,gph::Input::ButtonBehavior::whenDown,gph::Input::AxisBehavior::negative);
+    gph::Input::mapKeyToInput("Camera2DMoveLeftRight",GLFW_KEY_D,gph::Input::ButtonBehavior::whenDown,gph::Input::AxisBehavior::positive);
+    gph::Input::mapKeyToInput("Camera2DMoveLeftRight",GLFW_KEY_A,gph::Input::ButtonBehavior::whenDown,gph::Input::AxisBehavior::negative);
 
+    gph::Renderer2D renderer;
     window.addFBSizeCallback([&](int w, int h)
     {
         glViewport(0,0,w,h);
