@@ -91,7 +91,7 @@ public:
     void update(); //!< updates the cameras position and orientation based on rotate and move calls since the last update
 
     // functions to access camera coordinates / position, target and transformation
-    glm::mat4 viewMatrix() const; //!< get the view matrix to render something with this camers
+    glm::mat4 viewMatrix() const; //!< get the view matrix to render something with this camera
     glm::mat4 modelMatrix() const; //!< get the model matrix to render something at the cameras position
 
     glm::vec3 position() const {return m_transform.position;} //!< returns the camera position in cartesian coordinates

@@ -38,6 +38,7 @@ int main()
 
     glClearColor( .2f, .2f, .2f, 1.0f);
 
+    gph::Camera2D cam;
     gph::Renderer2D renderer;
     renderer.setProjection(-1,1,-1,1,0,10);
 
@@ -52,6 +53,9 @@ int main()
     {
         renderer.addSprite( &testSprite, glm::mat4(1.0f),0);
         renderer.addRect( {0.5,1.0,0,1.0}, {1.0,1.0}, glm::scale(glm::vec3(1.0)), 3);
+
+        cam.showDebugWindow();
+        cam.update();
 
         ImGui::Begin("DebugWindow");
         ImGui::SliderFloat2("position", glm::value_ptr(tf.position), -1.0f,1.0f);
