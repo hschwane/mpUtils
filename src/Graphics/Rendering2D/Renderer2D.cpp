@@ -51,7 +51,7 @@ Renderer2D::Renderer2D(const std::string& shaderPath)
 
 void Renderer2D::setProjection(float left, float right, float bottom, float top)
 {
-    m_projection = glm::ortho( left, right, bottom, top, 0.0f, std::numeric_limits<float>::max());
+    m_projection = glm::ortho( left, right, bottom, top, 0.0f, 5000.0f);
     m_viewProjection = m_projection * m_view;
     m_spriteShader.uniformMat4("viewProjMat", m_viewProjection);
 }

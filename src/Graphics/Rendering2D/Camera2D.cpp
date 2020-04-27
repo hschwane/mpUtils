@@ -191,7 +191,7 @@ void Camera2D::update()
 
     // create model and view mat
     m_model = static_cast<glm::mat4>(m_currentTransform);
-    m_view = glm::scale(glm::vec3(m_currentZoom)) * glm::inverse(m_model);
+    m_view = glm::scale(glm::vec3(m_currentZoom,m_currentZoom,1)) * glm::inverse(m_model);
 
     // reset data for next frame
     m_movementInput = {0,0};

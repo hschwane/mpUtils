@@ -75,6 +75,8 @@ inline glm::vec2 mouseToWorld2D(const glm::ivec2& mouse, const glm::ivec4& viewp
     glm::vec2 normMouse = -1.0f + (((glm::vec2(mouse) - glm::vec2(viewport.x,viewport.y)) / glm::vec2(viewport.z,viewport.w)) * 2.0f);
     normMouse.y = -normMouse.y;
     glm::vec4 projectedMouse =  glm::inverse(viewProjection) * glm::vec4(normMouse,0,1);
+    logINFO("") << glm::to_string(viewProjection);
+    logINFO("") << glm::to_string(glm::inverse(viewProjection));
     return glm::vec2(projectedMouse) / projectedMouse.w;
 }
 
