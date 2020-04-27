@@ -242,5 +242,19 @@ void mapScrollToInput(std::string name, AxisBehavior direction = AxisBehavior::p
  */
 void mapCourserToInput(std::string name, AxisOrientation axis, AxisBehavior direction = AxisBehavior::positive, int requiredMods = 0, std::string customModifierName ="");
 
+/**
+ * @brief sets a callback function to be called whenever a custom modifiers state is changed
+ * @param customModifierName name of the custom modifier
+ * @param callback function to be called with bool indicating if the modifier is pressed
+ */
+void setModifierStateChangeCallback(const std::string& customModifierName, std::function<void(bool)> callback);
+
+/**
+ * @brief sets if the input is active or not
+ * @param inputName  name of the input
+ * @param state new state
+ */
+void setInputActive(const std::string& inputName, bool state);
+
 }}}
 #endif //MPUTILS_INPUT_H

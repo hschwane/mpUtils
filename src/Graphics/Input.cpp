@@ -171,24 +171,26 @@ namespace {
     {
     public:
         explicit CustomModifier(std::string desc)
-                : InputFunction(InputFunctionType::customModifier, std::move(desc), true), m_isDown(false)
+                : InputFunction(InputFunctionType::customModifier, std::move(desc), true), isDown(false)
         {
         }
 
         void handlePressed(Window& wnd, ButtonBehavior behavior, AxisBehavior ab) override
         {
-            m_isDown = true;
+            isDown = true;
+            if(onStateChange)
+                onStateChange(isDown);
         }
 
         void handleRelesed(Window& wnd, ButtonBehavior behavior, AxisBehavior ab) override
         {
-            m_isDown = false;
+            isDown = false;
+            if(onStateChange)
+                onStateChange(isDown);
         }
 
-        bool isDown() {return m_isDown;}
-
-    private:
-        bool m_isDown;
+        std::function<void(bool)> onStateChange;
+        bool isDown;
     };
 
     /**
@@ -212,7 +214,7 @@ namespace {
          */
         bool readyToUse(int mods)
         {
-            return function && function->active && (((requiredMods & mods) ^requiredMods) == 0) && (customMod == nullptr || customMod->isDown());
+            return function && function->active && (((requiredMods & mods) ^requiredMods) == 0) && (customMod == nullptr || customMod->isDown);
         }
 
         const std::string functionName; //!< name of the mapped input function
@@ -954,6 +956,32 @@ void addAxis(std::string name, std::string description, std::function<void(Windo
             item.function = result.first->second.get();
             logDEBUG("InputManager") << "Found existing cursor mapping for axis \"" << result.first->first << "\"";
         }
+    }
+}
+
+void setModifierStateChangeCallback(const std::string& customModifierName, std::function<void(bool)> callback)
+{
+    auto mod = m_inputFunctions.find(customModifierName);
+    if(mod != m_inputFunctions.end() && mod->second->type == InputFunctionType::customModifier)
+    {
+        static_cast<CustomModifier*>( &(*mod->second))->onStateChange = callback;
+    }
+    else
+    {
+        logERROR("InputManager") << "Tried to add callback to modifier " << customModifierName << " which does not exist";
+    }
+}
+
+void setInputActive(const std::string& inputName, bool state)
+{
+    auto inp = m_inputFunctions.find(inputName);
+    if(inp != m_inputFunctions.end())
+    {
+        inp->second->active = state;
+    }
+    else
+    {
+        logERROR("InputManager") << "Tried change state of input function " << inputName << " which does not exist";
     }
 }
 
