@@ -162,6 +162,7 @@ if (USE_OPENGL)
                     "src/Graphics/Rendering2D/Renderer2D.cpp"
                     "src/Graphics/Utils/Transform.cpp"
                     "src/Graphics/Utils/Transform2D.cpp"
+                    "src/Graphics/Scenes/SceneManager.cpp"
                     "src/Graphics/Window.cpp"
                     "external/snippets/src/imgui/imgui.cpp"
                     "external/snippets/src/imgui/imgui_demo.cpp"
