@@ -141,36 +141,36 @@ public:
     void makeFullscreen(); //!< make the window fullscreen using current video settings on primary monitor
     void makeWindowed(); //!< change the window from fullscreen mode to windowed mode
     void toggleFullscreen(); //!< toggle between fullscreen and windowed mode
-    bool isFullscreen() {return (getMonitor() != nullptr);} //!< check if the window is a fullscreen window
-    GLFWmonitor* getMonitor(){return glfwGetWindowMonitor(m_w.get());} //!< returns the monitor the window uses for fullscreen mode
+    bool isFullscreen() const {return (getMonitor() != nullptr);} //!< check if the window is a fullscreen window
+    GLFWmonitor* getMonitor() const {return glfwGetWindowMonitor(m_w.get());} //!< returns the monitor the window uses for fullscreen mode
 
     // window setting functions
     void shouldClose() {glfwSetWindowShouldClose(m_w.get(),GLFW_TRUE);}  //!< signal the window to close
     void setTitle(const std::string & s) {glfwSetWindowTitle(m_w.get(),s.c_str());} //!< change the window title
-    glm::ivec2 getPosition() {glm::ivec2 p; glfwGetWindowPos(m_w.get(),&p.x,&p.y);return p;} //!< returns the window position
+    glm::ivec2 getPosition() const {glm::ivec2 p; glfwGetWindowPos(m_w.get(),&p.x,&p.y);return p;} //!< returns the window position
     void setPosition(glm::ivec2 pos) {glfwSetWindowPos(m_w.get(),pos.x,pos.y);} //!< sets a new window position
     void setPosition(int x, int y) {glfwSetWindowPos(m_w.get(),x,y);} //!< sets a new window position
-    glm::ivec2 getSize(){glm::ivec2 p; glfwGetWindowSize(m_w.get(),&p.x,&p.y);return p;} //!< returns the current window size
-    glm::ivec2 getFramebufferSize(){glm::ivec2 p; glfwGetFramebufferSize(m_w.get(),&p.x,&p.y);return p;} //!< returns the current window size
+    glm::ivec2 getSize() const {glm::ivec2 p; glfwGetWindowSize(m_w.get(),&p.x,&p.y);return p;} //!< returns the current window size
+    glm::ivec2 getFramebufferSize() const {glm::ivec2 p; glfwGetFramebufferSize(m_w.get(),&p.x,&p.y);return p;} //!< returns the current window size
     void setSize(glm::ivec2 size) {glfwSetWindowSize(m_w.get(),size.x,size.y);} //!< resize the window
     void setSize(int x, int y) {glfwSetWindowSize(m_w.get(),x,y);} //!< resize the window
     void minimize() {glfwIconifyWindow(m_w.get());} //!< minimize the window
     void restore() {glfwRestoreWindow(m_w.get());} //!< restore a minimized window
     void toggleMinimize(); //!< toggle minimzation state
-    bool isMinimized() {return (GLFW_TRUE == glfwGetWindowAttrib(m_w.get(),GLFW_ICONIFIED));} //!< check if this the window is minimized
+    bool isMinimized() const {return (GLFW_TRUE == glfwGetWindowAttrib(m_w.get(),GLFW_ICONIFIED));} //!< check if this the window is minimized
     void hide(){glfwHideWindow(m_w.get());} //!< make the window invisible
     void show(){glfwShowWindow(m_w.get());} //!< make the window visible if it was invisible before
     void toggleHide(); //!< toggle the visibility mode of the window
-    bool isVisible() {return (GLFW_TRUE == glfwGetWindowAttrib(m_w.get(),GLFW_VISIBLE));} //!< check if the window is visible
+    bool isVisible() const {return (GLFW_TRUE == glfwGetWindowAttrib(m_w.get(),GLFW_VISIBLE));} //!< check if the window is visible
     void setIcon(int count, const GLFWimage* images); //!< set a list of images, the best one will be picked as the window icon
-    GLFWmonitor* getWindowMonitor(); //!< returns the monitor the bigger part of the window is currently on
+    GLFWmonitor* getWindowMonitor() const; //!< returns the monitor the bigger part of the window is currently on
 
     // input functions
     void setInputMode(int mode, int value) {glfwSetInputMode(m_w.get(),mode,value);} //!< see glfwSetInputMode for reference
-    int getInputMode(int mode){return glfwGetInputMode(m_w.get(),mode);} //!< set glfwSetInputMode for reference
-    bool isKeyDown(int key) {return glfwGetKey(m_w.get(),key)==GLFW_PRESS;} //!< returns true if key is pressed
-    bool isMouseButtonDown(int button) {return glfwGetMouseButton(m_w.get(),button)==GLFW_PRESS;} //!< returns true if mouse button is pressed
-    glm::dvec2 getCursorPos() {glm::dvec2 p; glfwGetCursorPos(m_w.get(),&p.x,&p.y);return p;} //!< returns the cursor position within the window
+    int getInputMode(int mode) const {return glfwGetInputMode(m_w.get(),mode);} //!< set glfwSetInputMode for reference
+    bool isKeyDown(int key) const {return glfwGetKey(m_w.get(),key)==GLFW_PRESS;} //!< returns true if key is pressed
+    bool isMouseButtonDown(int button) const {return glfwGetMouseButton(m_w.get(),button)==GLFW_PRESS;} //!< returns true if mouse button is pressed
+    glm::dvec2 getCursorPos() const {glm::dvec2 p; glfwGetCursorPos(m_w.get(),&p.x,&p.y);return p;} //!< returns the cursor position within the window
     void setCursorPos(glm::dvec2 p) {glfwSetCursorPos(m_w.get(),p.x,p.y);} //!< sets a new cursor position
     void setCursorPos(double x, double y) {glfwSetCursorPos(m_w.get(),x,y);} //!< sets a new cursor position
     void setCursor(int shape) {setCursor(glfwCreateStandardCursor(shape));} //!< create and set a cursor with a standard shape

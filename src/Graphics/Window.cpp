@@ -297,7 +297,7 @@ void Window::setIcon(int count, const GLFWimage *images)
     glfwSetWindowIcon(m_w.get(), count, images);
 }
 
-GLFWmonitor *Window::getWindowMonitor()
+GLFWmonitor *Window::getWindowMonitor() const
 {
     int nmonitors, i;
     int wx, wy, ww, wh;
