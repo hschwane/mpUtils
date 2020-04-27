@@ -46,7 +46,7 @@ public:
      * @param forward forward direction in radians, 0 means to the right pi to the left
      * @param tileFactor texture will be tiled that many times
      */
-    Sprite2D(const std::string& imageFile, glm::vec2 size={1,1}, float forward=0, float tileFactor=1);
+    explicit Sprite2D(const std::string& imageFile, glm::vec2 size={1,1}, float forward=0, float tileFactor=1);
 
     /**
      * @brief Create Sprite loading image from memory (eg resource file)
