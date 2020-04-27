@@ -69,6 +69,12 @@ public:
     void setView(glm::mat4 view);
 
     /**
+     * @brief returns reference to the viewProjection matrix currently used for rendering
+     * @return
+     */
+    const glm::mat4& getViewProjection();
+
+    /**
      * @brief draws a filled rectangle
      * @param transform the transform that is applied to the sprite before rendering
      * @param layer the layer the sprite should be rendered in
@@ -114,6 +120,7 @@ private:
 
     glm::mat4 m_view{1.0}; //!< view matrix
     glm::mat4 m_projection{1.0}; //!< projection matrix
+    glm::mat4 m_viewProjection{1.0}; //!< combined view projection matrix
 };
 
 }}

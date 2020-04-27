@@ -52,7 +52,8 @@ Renderer2D::Renderer2D(const std::string& shaderPath)
 void Renderer2D::setProjection(float left, float right, float bottom, float top)
 {
     m_projection = glm::ortho( left, right, bottom, top, 0.0f, std::numeric_limits<float>::max());
-    m_spriteShader.uniformMat4("viewProjMat", m_projection * m_view);
+    m_viewProjection = m_projection * m_view;
+    m_spriteShader.uniformMat4("viewProjMat", m_viewProjection);
 }
 
 void Renderer2D::setSamplingLinear(bool min, bool mag)
@@ -71,7 +72,13 @@ void Renderer2D::setSamplingLinear(bool min, bool mag)
 void Renderer2D::setView(glm::mat4 view)
 {
     m_view = view;
-    m_spriteShader.uniformMat4("viewProjMat", m_projection * m_view);
+    m_viewProjection = m_projection * m_view;
+    m_spriteShader.uniformMat4("viewProjMat", m_viewProjection);
+}
+
+const glm::mat4& Renderer2D::getViewProjection()
+{
+    return m_viewProjection;
 }
 
 void Renderer2D::addRect(const glm::vec4& color, const glm::vec2& size, const glm::mat4& transform, int layer)
