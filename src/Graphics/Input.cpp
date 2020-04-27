@@ -18,8 +18,9 @@
 #include <mpUtils/Graphics/Input.h>
 #include "mpUtils/Log/Log.h"
 #include "mpUtils/Graphics/Window.h"
+#include "mpUtils/Misc/callbackUtils.h"
 #include <unordered_map>
-#include <mpUtils/mpUtils.h>
+#include "mpUtils/Timer/Timer.h"
 //--------------------
 
 // namespace
@@ -256,8 +257,6 @@ namespace {
     // private helper functions
 
     void initialize(); //!< initializes the input manager is automatically called when first window is registered
-    template<typename T, typename F> int addCallback(std::vector<std::pair<int,T>> &callbackVector, F f); //!< internal helper to add a callback function to vector of callbacks
-    template<typename T> void removeCallback(std::vector<std::pair<int,T>> &callbackVector, int id); //!< internal helper to remove a callback function from vector of callbacks
     CustomModifier* addCustomModifier(std::string name, std::string description); //!< Creates a Input of type custom modifier and adds it to the list of inputs.
 
     // declare glfw callback functions
@@ -976,28 +975,6 @@ void initialize()
     m_mouseSensitivityY = 1;
     m_scrollSensitivityX = 1;
     m_scrollSensitivityY = 1;
-}
-
-template<typename T, typename F>
-int addCallback(std::vector<std::pair<int,T>> &callbackVector, F f)
-{
-    int id;
-    if(callbackVector.empty())
-        id = 0;
-    else
-        id = callbackVector.back().first+1;
-
-    callbackVector.emplace_back(id, f);
-    return id;
-}
-
-template<typename T>
-void removeCallback(std::vector<std::pair<int,T>> &callbackVector, int id)
-{
-    auto it = std::lower_bound( callbackVector.cbegin(), callbackVector.cend(), std::pair<int,T>(id,T{}),
-                                [](const std::pair<int,T>& a, const std::pair<int,T>& b){return (a.first < b.first);});
-    if(it != callbackVector.end())
-        callbackVector.erase(it);
 }
 
 CustomModifier *addCustomModifier(std::string name, std::string description)

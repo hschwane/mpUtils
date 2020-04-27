@@ -30,6 +30,7 @@
     #include "Misc/alignment.h"
 #endif
 #include "Misc/Resource.h"
+#include "mpUtils/Misc/callbackUtils.h"
 
 // configuration util
 #include "Cfg/CfgFile.h"
