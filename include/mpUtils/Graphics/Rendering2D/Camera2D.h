@@ -91,7 +91,7 @@ public:
 private:
     // settings
     float m_movementSpeedMod{1.0f}; //!< temporary modified movement speed
-    float m_movementSpeed{0.125}; //!< speed with which the camera moves
+    float m_movementSpeed{0.06}; //!< speed with which the camera moves
     float m_rotationSpeed{0.1}; //!< speed with which the camera rotates
     float m_zoomSpeed{0.1}; //!< speed with which the camera zooms
     float m_movementSmoothing{0.25}; //!< higher numbers result in stronger smoothing and delayed movement

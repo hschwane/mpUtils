@@ -207,12 +207,12 @@ void Camera2D::rotate(float dPhi)
 
 void Camera2D::moveX(float dx)
 {
-    m_movementInput.x += dx * m_movementSpeed;
+    m_movementInput.x += dx * m_movementSpeed / m_currentZoom;
 }
 
 void Camera2D::moveY(float dy)
 {
-    m_movementInput.y += dy * m_movementSpeed;
+    m_movementInput.y += dy * m_movementSpeed / m_currentZoom;
 }
 
 void Camera2D::zoom(float dz)
