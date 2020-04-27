@@ -48,8 +48,6 @@
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"
 #include "mpUtils/Graphics/Gui/ImGuiElements.h"
 #include "mpUtils/Graphics/Input.h"
-#include "mpUtils/Graphics/Scenes/Scene.h"
-#include "mpUtils/Graphics/Scenes/SceneManager.h"
 //--------------------
 
 #endif //MPUTILS_MPGRAPHICS_H

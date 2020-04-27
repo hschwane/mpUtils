@@ -31,6 +31,7 @@
 #endif
 #include "Misc/Resource.h"
 #include "mpUtils/Misc/callbackUtils.h"
+#include "mpUtils/Misc/StateMachine.h"
 
 // configuration util
 #include "Cfg/CfgFile.h"

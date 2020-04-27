@@ -64,7 +64,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
-- add scenes and a scene manager
+- add state machine class
 - fix window class const correctness
 - add EnTT ECS
 - better sprite rendering
