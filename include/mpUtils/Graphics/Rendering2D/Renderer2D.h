@@ -83,7 +83,7 @@ public:
      * @param layer the layer the sprite should be rendered in
      * @param color add tint color
      */
-    void addSprite(const Sprite2D* sprite, const glm::mat4& transform=glm::mat4(1.0f), int layer=0, const glm::vec4& color=glm::vec4(1.0f));
+    void addSprite(const Sprite2D& sprite, const glm::mat4& transform=glm::mat4(1.0f), int layer=0, const glm::vec4& color=glm::vec4(1.0f));
 
     /**
      * @brief render everything queued up for this frame then clear queue

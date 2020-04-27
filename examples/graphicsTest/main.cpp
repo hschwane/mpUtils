@@ -69,7 +69,7 @@ int main()
         cam.update();
         renderer.setView(cam.viewMatrix());
 
-        renderer.addSprite( &testSprite, glm::mat4(1.0f),0);
+        renderer.addSprite( testSprite, glm::mat4(1.0f),0);
         renderer.addRect( {0.5,1.0,0,1.0}, {1.0,1.0}, glm::scale(glm::vec3(1.0)), 3);
 
         ImGui::Begin("DebugWindow");
@@ -82,7 +82,7 @@ int main()
         if(lookAtCenter)
             tf.orientation = gph::lookAt2D(tf.position,glm::vec2(0,0));
 
-        renderer.addSprite( &testSprite2, glm::mat4(tf),5);
+        renderer.addSprite( testSprite2, glm::mat4(tf),5);
         renderer.render();
     }
 

@@ -81,13 +81,13 @@ void Renderer2D::addRect(const glm::vec4& color, const glm::vec2& size, const gl
     m_sprites.emplace_back(model,color,m_rectTextureHandle,1);
 }
 
-void Renderer2D::addSprite(const Sprite2D* sprite, const glm::mat4& transform, int layer, const glm::vec4& color)
+void Renderer2D::addSprite(const Sprite2D& sprite, const glm::mat4& transform, int layer, const glm::vec4& color)
 {
-    glm::mat4 model = transform * sprite->getBaseTransform();
+    glm::mat4 model = transform * sprite.getBaseTransform();
     model[3][2] = -layer;
 
-    m_sprites.emplace_back(model,color, sprite->getTexture().getTexturehandleUvec2(m_sampler),sprite->getTileFactor());
-    sprite->getTexture().makeTextureResident();
+    m_sprites.emplace_back(model,color, sprite.getTexture().getTexturehandleUvec2(m_sampler),sprite.getTileFactor());
+    sprite.getTexture().makeTextureResident();
 }
 
 void Renderer2D::render()
