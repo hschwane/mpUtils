@@ -182,7 +182,19 @@ GLuint64 Texture::getTextureHandle(const Sampler& sampler)
     }
     else if( m_currentBindlessSampler != &sampler)
     {
-        logERROR("Texture") << "Creating bindless texture handles with different samplers is not supported!";
+        bool wasResident=false;
+        if(m_isTextureResident)
+        {
+            makeTextureNonResident();
+            wasResident = true;
+        }
+
+        logWARNING("Texture") << "Creating bindless texture handles with different samplers invalidates old handle!";
+        m_bindlessTextureHandle = glGetTextureSamplerHandleARB(m_textureHandle,sampler);
+        m_currentBindlessSampler = &sampler;
+
+        if(wasResident)
+            makeTextureResident();
     }
 
     return m_bindlessTextureHandle;

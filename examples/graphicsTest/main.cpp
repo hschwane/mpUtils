@@ -47,6 +47,7 @@ int main()
     gph::Input::mapKeyToInput("Camera2DMoveLeftRight",GLFW_KEY_A,gph::Input::ButtonBehavior::whenDown,gph::Input::AxisBehavior::negative);
 
     gph::Renderer2D renderer;
+    renderer.setSamplingLinear(false,false);
     window.addFBSizeCallback([&](int w, int h)
     {
         glViewport(0,0,w,h);

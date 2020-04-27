@@ -24,10 +24,10 @@
 - add some geometric primitives
 
 ### 2d renderer
-- add 2d camera
 - add a rendering engine for sprites and animated sprites
 
 ### graphics in general
+- add better handling of bindless textures with multiple samplers
 
 ### bit manipulation
 - add macros or constexpr functions for bit manipulation

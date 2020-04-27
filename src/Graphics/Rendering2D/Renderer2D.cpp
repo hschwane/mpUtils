@@ -33,7 +33,6 @@ Renderer2D::Renderer2D(const std::string& shaderPath)
                                     {shaderPath+"sprite.frag"}});
     m_spriteShader.uniformMat4("viewProjMat", m_projection * m_view);
 
-    m_sampler.setWrap(GL_REPEAT,GL_REPEAT,GL_CLAMP_TO_EDGE);
     setSamplingLinear(true,true);
 
     // prepare colored rectangles
@@ -66,7 +65,10 @@ void Renderer2D::setSamplingLinear(bool min, bool mag)
     if(mag)
         maxFilter=GL_LINEAR;
 
-    m_sampler.setFilter(minFilter,maxFilter);
+    Sampler newSampler;
+    newSampler.setWrap(GL_REPEAT,GL_REPEAT,GL_CLAMP_TO_EDGE);
+    newSampler.setFilter(minFilter,maxFilter);
+    m_sampler = std::move(newSampler);
 }
 
 void Renderer2D::setView(glm::mat4 view)
