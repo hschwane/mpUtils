@@ -217,7 +217,7 @@ void Camera2D::moveY(float dy)
 
 void Camera2D::zoom(float dz)
 {
-    m_zoomInput -= dz * m_zoomSpeed;
+    m_zoomInput += dz * m_zoomSpeed;
 }
 
 void Camera2D::setPosition(glm::vec2 pos, bool interpolate)
