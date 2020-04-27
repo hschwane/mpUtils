@@ -63,6 +63,22 @@ GLuint offset_of(TMember T::* field) noexcept
     return static_cast<GLuint>(reinterpret_cast<size_t>(&(reinterpret_cast<T*>(0)->*field)));
 }
 
+/**
+ * @brief transforms a cursor position into a world position in 2d
+ * @param mouse the mose position as returned by window
+ * @param viewport the viewport upper left corner and size
+ * @param viewProjection the viewProjection matrix used to render the image
+ * @return cursor position in world coordinates
+ */
+inline glm::vec2 mouseToWorld2D(const glm::ivec2& mouse, const glm::ivec4& viewport, const glm::mat4& viewProjection)
+{
+    glm::vec2 normMouse = -1.0f + (((glm::vec2(mouse) - glm::vec2(viewport.x,viewport.y)) / glm::vec2(viewport.z,viewport.w)) * 2.0f);
+    normMouse.y = -normMouse.y;
+    glm::vec4 projectedMouse =  glm::inverse(viewProjection) * glm::vec4(normMouse,0,1);
+    return glm::vec2(projectedMouse) / projectedMouse.w;
+}
+
+
 }}
 
 #endif //MPUTILS_MISC_H
