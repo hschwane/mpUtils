@@ -50,6 +50,14 @@ constexpr T deg(const T radians) noexcept
     return radians * T(180 * M_1_PI);
 }
 
+/**
+ * @brief remap value from old range to new range
+ */
+template <typename T>
+constexpr T remap(T value, T oldMin, T oldMax, T newMin, T newMax)
+{
+    return newMin + (((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin));
+}
 
 }
 #endif //MPUTILS_ADDITIONALMATH_H
