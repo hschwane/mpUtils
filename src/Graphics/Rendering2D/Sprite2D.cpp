@@ -26,9 +26,10 @@ namespace gph {
 
 // function definitions of the Sprite2D class
 //-------------------------------------------------------------------
-Sprite2D::Sprite2D(const std::string& imageFile, glm::vec2 size, float forward, float tileFactor)
+Sprite2D::Sprite2D(const std::string& imageFile, bool semiTransparent, glm::vec2 size, float forward, float tileFactor)
 {
     m_tileFactor = tileFactor;
+    m_hasSemiTransparency = semiTransparent;
 
     try
     {
@@ -43,9 +44,10 @@ Sprite2D::Sprite2D(const std::string& imageFile, glm::vec2 size, float forward, 
     m_baseTransform = glm::rotate(m_baseTransform, glm::two_pi<float>() - forward,glm::vec3{0.0f,0.0f,1.0f});
 }
 
-Sprite2D::Sprite2D(const unsigned char* data, int length, glm::vec2 size, float forward, float tileFactor)
+Sprite2D::Sprite2D(const unsigned char* data, int length, bool semiTransparent, glm::vec2 size, float forward, float tileFactor)
 {
     m_tileFactor = tileFactor;
+    m_hasSemiTransparency = semiTransparent;
 
     try
     {

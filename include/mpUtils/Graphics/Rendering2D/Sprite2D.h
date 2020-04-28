@@ -41,12 +41,13 @@ class Sprite2D
 public:
     /**
      * @brief Create Sprite loading image from file
+     * @param bool set to true if alpha is not 0 or 255, so semi transparent areas are rendered correctly
      * @param imageFile path to the image file
      * @param size size of the sprite in world coordinates
      * @param forward forward direction in radians, 0 means to the right pi to the left
      * @param tileFactor texture will be tiled that many times
      */
-    explicit Sprite2D(const std::string& imageFile, glm::vec2 size={1,1}, float forward=0, float tileFactor=1);
+    explicit Sprite2D(const std::string& imageFile, bool semiTransparent=false, glm::vec2 size={1,1}, float forward=0, float tileFactor=1);
 
     /**
      * @brief Create Sprite loading image from memory (eg resource file)
@@ -55,7 +56,7 @@ public:
      * @param forward forward direction in radians, 0 means to the right pi to the left
      * @param tileFactor texture will be tiled that many times
      */
-    Sprite2D(const unsigned char * data, int length, glm::vec2 size={1,1}, float forward=0, float tileFactor=1);
+    Sprite2D(const unsigned char * data, int length, bool semiTransparent=false, glm::vec2 size={1,1}, float forward=0, float tileFactor=1);
 
     /**
      * @brief returns a transformation matrix to transform a 1x1 quad into correct size and direction
@@ -72,10 +73,16 @@ public:
      */
     float getTileFactor() const {return m_tileFactor;}
 
+    /**
+     * @brief returns if the texture hat alpha values different from 0/255
+     */
+    bool hasSemiTransparency() const {return  m_hasSemiTransparency;}
+
 private:
     std::unique_ptr<Texture> m_texture; //!< texture to be used
     glm::mat4 m_baseTransform; //!< transformation matrix to transform a 1x1 quad into correct size and direction
     float m_tileFactor; //!< texture will be tiled that many times
+    bool m_hasSemiTransparency; //!< does the texture have semi transparent values?
 };
 
 }}

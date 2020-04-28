@@ -80,13 +80,14 @@ public:
      * @param layer the layer the sprite should be rendered in
      * @param color add tint color
      */
-    void addRect(const glm::vec4& color=glm::vec4(1.0f), const glm::vec2& size=glm::vec2(1.0f), const glm::mat4& transform=glm::mat4(1.0f), int layer=0);
+    void addRect(const glm::vec4& color=glm::vec4(1.0f), const glm::vec2& size=glm::vec2(1.0f), const glm::mat4& transform=glm::mat4(1.0f), float layer=0);
 
     /**
      * @brief add a sprite to be rendered this frame
      * @param sprite the sprite to be rendered, sprite must be valid until render() is called
      * @param transform the transform that is applied to the sprite before rendering
-     * @param layer the layer the sprite should be rendered in
+     * @param layer the layer the sprite should be rendered in, up to 500 layers will be rendered,
+     *          ordering within layers is done with floating point numbers
      * @param color add tint color
      */
     void addSprite(const Sprite2D& sprite, const glm::mat4& transform=glm::mat4(1.0f), int layer=0, const glm::vec4& color=glm::vec4(1.0f));
@@ -115,7 +116,8 @@ private:
     glm::uvec2 m_rectTextureHandle; //!< bindless handle of the rect texture
 
     ShaderProgram m_spriteShader; //!< shader to be used for rendering quads
-    std::vector<spriteData> m_sprites; //!< all sprites added to the current frame
+    std::vector<spriteData> m_opaqueSprites; //!< all sprites added to the current frame
+    std::vector<spriteData> m_transparentSprites; //!< all sprites added to the current frame
     VertexArray vao; //!< dummy vao
 
     glm::mat4 m_view{1.0}; //!< view matrix
