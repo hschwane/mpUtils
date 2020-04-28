@@ -421,6 +421,14 @@ std::unique_ptr<Texture> makeCubemapFromFiles(const std::vector<std::string>& fi
  */
 std::unique_ptr<Texture> makeCubemapFromFilesHDR(const std::vector<std::string>& files, int numComponents = 4, bool generateMipmaps = true);
 
+/**
+ * @brief casts texture to a pointer that can be passed into imgui::Image
+ */
+inline void* texToImGui(const Texture& tex)
+{
+    return (void*)(intptr_t)static_cast<GLuint>(tex);
+}
+
 }}
 
 #endif //GPULIC_TEXTURE_H

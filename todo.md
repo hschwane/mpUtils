@@ -64,6 +64,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add texture to imgui helper function
 - add state machine class
 - fix window class const correctness
 - add EnTT ECS

@@ -99,6 +99,8 @@ int main(int, char**)
     // Main loop
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
+        ImGui::ShowDemoWindow();
+
         ImGui::Begin("Input Test");
         {
 
