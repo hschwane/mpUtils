@@ -134,7 +134,7 @@ void create(mpu::gph::Window& window)
     // end frame callback where gui is rendered
     frameEndCallbackId = window.addFrameEndCallback([]()
     {
-        if(ImGui::GetCurrentContext()->FrameScopeActive)
+        if(ImGui::GetCurrentContext()->WithinFrameScope)
         {
             if(visible)
             {
