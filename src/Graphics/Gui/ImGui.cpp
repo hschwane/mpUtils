@@ -15,6 +15,7 @@
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"
 #include <mpUtils/external/imgui/imgui_internal.h>
 #include <mpUtils/paths.h>
+#include <unordered_map>
 #include "mpUtils/Log/Log.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -28,17 +29,7 @@
 namespace ImGui {
 //--------------------
 
-// compile default fonts into the lib.so
-//ADD_RESOURCE(imguiFont_Cousine, "fonts/Cousine-Regular.ttf");
-//ADD_RESOURCE(imguiFont_Roboto, "fonts/Roboto-Medium.ttf");
-//ADD_RESOURCE(imguiFont_DroidSans,"fonts/DroidSans.ttf");
-//ADD_RESOURCE(imguiFont_Karla,"fonts/Karla-Regular.ttf");
-
-ImFont* fontDefault = nullptr;
-ImFont* fontCousine = nullptr;
-ImFont* fontDroid = nullptr;
-ImFont* fontKarla = nullptr;
-ImFont* fontRoboto = nullptr;
+ImFont* iconFont = nullptr;
 
 namespace
 {
@@ -55,6 +46,8 @@ namespace
     bool captureMouseLastFrame=false; //!< did imGui capture the mouse last frame?
     std::vector<std::function<void()>> settingFunctions; //!< vector of setting change functions that need to be executed before the next FrameBegin
     std::function<void(bool)> guiHoverCallback; //!< callback called whenever mouse starts to hover the gui (true) or leaves the gui (false)
+
+    std::unordered_map<std::string, ImFont*> fonts; //!< loaded imgui fonts are stored here
 
     void destroyInternal()
     {
@@ -155,32 +148,15 @@ void create(mpu::gph::Window& window)
         }
     });
 
-    // add the default fonts
-//    mpu::Resource fontDataCousine = LOAD_RESOURCE(imguiFont_Cousine);
-//    mpu::Resource fontDataDroidSans = LOAD_RESOURCE(imguiFont_DroidSans);
-//    mpu::Resource fontDataKarla = LOAD_RESOURCE(imguiFont_Karla);
-//    mpu::Resource fontDataRoboto = LOAD_RESOURCE(imguiFont_Roboto);
-    auto io = ImGui::GetIO();
-    ImFontConfig cfg;
-    cfg.FontDataOwnedByAtlas = false;
-    fontDefault = io.Fonts->AddFontDefault();
-    strcpy(cfg.Name,"Cousine-Regular.ttf");
-    fontCousine = io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH "fonts/Cousine-Regular.ttf",15.0,&cfg);
-    strcpy(cfg.Name,"DroidSans.ttf");
-    fontDroid = io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH "fonts/DroidSans.ttf",14.0,&cfg);
-    strcpy(cfg.Name,"Karla-Regular.ttf");
-    fontKarla= io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH "fonts/Karla-Regular.ttf",15.0,&cfg);
-    strcpy(cfg.Name,"Roboto-Medium.ttf");
-    fontRoboto= io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH "fonts/Roboto-Medium.ttf",15.0,&cfg);
 
-//    strcpy(cfg.Name,"Cousine-Regular.ttf");
-//    fontCousine = io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(fontDataCousine.data()),fontDataCousine.size(),15.0,&cfg);
-//    strcpy(cfg.Name,"DroidSans.ttf");
-//    fontDroid = io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(fontDataDroidSans.data()),fontDataDroidSans.size(),14.0,&cfg);
-//    strcpy(cfg.Name,"Karla-Regular.ttf");
-//    fontKarla= io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(fontDataKarla.data()),fontDataKarla.size(),15.0,&cfg);
-//    strcpy(cfg.Name,"Roboto-Medium.ttf");
-//    fontRoboto= io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(fontDataRoboto.data()),fontDataRoboto.size(),15,&cfg);
+    ImGui::GetIO().Fonts->TexDesiredWidth = 1024;
+
+    // load icons
+    static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+    ImFontConfig icons_config;
+    icons_config.PixelSnapH = true;
+    icons_config.GlyphMinAdvanceX = 26;
+    iconFont = ImGui::GetIO().Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH "fonts/fontawesome-webfont.ttf",26,&icons_config,icons_ranges);
 
     ImGui::StyleDarcula();
     logDEBUG("ImGui") << "ImGui initialized!";
@@ -266,6 +242,32 @@ void toggleLock()
         unlock();
     else
         lock();
+}
+
+ImFont* loadFont(std::string file, float size, bool addIcons)
+{
+    auto io = ImGui::GetIO();
+
+    std::string mapKey = file + "_size_" + mpu::toString(size) + ((addIcons) ? "_wicons" : "");
+
+    auto it = fonts.find(mapKey);
+    if(it == fonts.end())
+    {
+        auto ret = fonts.emplace(mapKey,io.Fonts->AddFontFromFileTTF(file.c_str(),15.0));
+        it = ret.first;
+
+        if(addIcons)
+        {
+            static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+            ImFontConfig icons_config;
+            icons_config.MergeMode = true;
+            icons_config.PixelSnapH = true;
+            icons_config.GlyphMinAdvanceX = size;
+            io.Fonts->AddFontFromFileTTF(MPU_LIB_RESOURCE_PATH "fonts/fontawesome-webfont.ttf",size,&icons_config,icons_ranges);
+        }
+    }
+
+    return it->second;
 }
 
 }

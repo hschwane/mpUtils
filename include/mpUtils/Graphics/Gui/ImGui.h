@@ -16,6 +16,7 @@
 #include "mpUtils/Graphics/Window.h"
 #include "mpUtils/external/imgui/imgui.h"
 #include "mpUtils/external/imgui/stdlib/imgui_stdlib.h"
+#include "mpUtils/external/iconFontHeader/IconsFontAwesome4.h"
 //--------------------
 
 // namespace
@@ -55,12 +56,11 @@ namespace ImGui { // we extend the imgui namespace inside mpu
     bool isLocked(); //!< check if imgui is currently locked
     void toggleLock(); //!< toogle the lock state of imgui
 
-    // fonts that are shipped with mpUtils
-    extern ImFont *fontDefault;
-    extern ImFont *fontRoboto;
-    extern ImFont *fontCousine;
-    extern ImFont *fontDroid;
-    extern ImFont *fontKarla;
+    ImFont* loadFont(std::string file, float size, bool addIcons=true); //!< loads font if not loaded already, and make it active
+
+    #define ICON_BEGIN() ImGui::PushFont(ImGui::iconFont) //!< enables the use of standalone icons by pushing icon font
+    #define ICON_END() ImGui::PopFont() //!< ends use of icons by popping icon font from the stack
+    extern ImFont* iconFont;
 }
 
 #endif //MPUTILS_IMGUI_H

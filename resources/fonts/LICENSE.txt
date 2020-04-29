@@ -1,0 +1,10 @@
+Part of dearImGui:
+----------------------
+Cousine-Regular
+DroidSans
+Karla-Regular
+ProggyClean
+ProggyTiny
+Roboto_Medium
+
+FontAwesome4 - MIT License: https://fontawesome.com/v4.7.0/

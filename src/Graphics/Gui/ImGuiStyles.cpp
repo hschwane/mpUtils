@@ -14,6 +14,7 @@
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"
 #include "mpUtils/Graphics/Gui/ImGui.h"
 #include "mpUtils/external/imgui/imgui.h"
+#include "mpUtils/paths.h"
 //--------------------
 
 // namespace
@@ -23,7 +24,7 @@ namespace ImGui { // we extend the imgui namespace inside mpu
 
 void StyleImGuiDefaultDark()
 {
-    ImGui::GetIO().FontDefault = fontDroid;
+    ImGui::GetIO().FontDefault = loadFont(MPU_LIB_RESOURCE_PATH"fonts/DroidSans.ttf",14.0,true);
     ImGuiStyle & style = ImGui::GetStyle();
     style = ImGuiStyle();
 
@@ -32,7 +33,7 @@ void StyleImGuiDefaultDark()
 
 void StyleImGuiDefaultLight()
 {
-    ImGui::GetIO().FontDefault = fontRoboto;
+    ImGui::GetIO().FontDefault = loadFont(MPU_LIB_RESOURCE_PATH"fonts/Roboto-Medium.ttf",15.0,true);
     ImGuiStyle & style = ImGui::GetStyle();
     style = ImGuiStyle();
 
@@ -41,7 +42,7 @@ void StyleImGuiDefaultLight()
 
 void StyleImGuiDefaultClassic()
 {
-    ImGui::GetIO().FontDefault = fontDroid;
+    ImGui::GetIO().FontDefault = loadFont(MPU_LIB_RESOURCE_PATH"fonts/DroidSans.ttf",14.0,true);
     ImGuiStyle & style = ImGui::GetStyle();
     style = ImGuiStyle();
 
@@ -50,7 +51,7 @@ void StyleImGuiDefaultClassic()
 
 void StyleCorporateGreyFlat()
 {
-    ImGui::GetIO().FontDefault = fontDroid;
+    ImGui::GetIO().FontDefault = loadFont(MPU_LIB_RESOURCE_PATH"fonts/DroidSans.ttf",14.0,true);
     ImGuiStyle & style = ImGui::GetStyle();
     style = ImGuiStyle();
     ImVec4 * colors = style.Colors;
@@ -144,7 +145,7 @@ void StyleCorporateGreyFlat()
 
 void StyleCorporateGrey()
 {
-    ImGui::GetIO().FontDefault = fontDroid;
+    ImGui::GetIO().FontDefault = loadFont(MPU_LIB_RESOURCE_PATH"fonts/DroidSans.ttf",14.0,true);
     ImGuiStyle & style = ImGui::GetStyle();
     style = ImGuiStyle();
     ImVec4 * colors = style.Colors;
@@ -238,7 +239,7 @@ void StyleCorporateGrey()
 
 void StyleDarcula()
 {
-    ImGui::GetIO().FontDefault = fontRoboto;
+    ImGui::GetIO().FontDefault = loadFont(MPU_LIB_RESOURCE_PATH"fonts/Roboto-Medium.ttf",15.0,true);
     auto *style = &ImGui::GetStyle();
     *style = ImGuiStyle();
     style->WindowRounding = 5.3f;
@@ -302,7 +303,7 @@ void StyleDarcula()
 
 void StylePagghiu()
 {
-    ImGui::GetIO().FontDefault = fontRoboto;
+    ImGui::GetIO().FontDefault = loadFont(MPU_LIB_RESOURCE_PATH"fonts/Roboto-Medium.ttf",15.0,true);
     ImGuiStyle& style = ImGui::GetStyle();
     style = ImGuiStyle();
     style.Colors[ImGuiCol_Text] = ImVec4(0.31f, 0.25f, 0.24f, 1.00f);
@@ -342,7 +343,7 @@ void StylePagghiu()
 
 void StyleLightGreen()
 {
-    ImGui::GetIO().FontDefault = fontRoboto;
+    ImGui::GetIO().FontDefault = loadFont(MPU_LIB_RESOURCE_PATH"fonts/Roboto-Medium.ttf",15.0,true);
     ImGuiStyle* style = &ImGui::GetStyle();
     *style = ImGuiStyle();
     ImVec4* colors = style->Colors;

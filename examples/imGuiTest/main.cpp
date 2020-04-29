@@ -96,6 +96,8 @@ int main(int, char**)
 
     setupInputs();
 
+    ImFont* otherFont = ImGui::loadFont(MPU_LIB_RESOURCE_PATH"fonts/DroidSans.ttf",14.0,true);
+
     // Main loop
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
@@ -103,6 +105,19 @@ int main(int, char**)
 
         ImGui::Begin("Input Test");
         {
+
+            // test icons
+            ImGui::TextWrapped("Test drawing some icons: " ICON_FA_PENCIL ICON_FA_FILE ICON_FA_AMBULANCE);
+            ImGui::Button("Text and " ICON_FA_HOURGLASS);
+
+            ImGui::PushFont(otherFont);
+            ImGui::TextWrapped( "Other font...");
+            ImGui::PopFont();
+
+            ICON_BEGIN();
+            ImGui::TextWrapped( ICON_FA_CLOUD);
+            ImGui::Button(ICON_FA_PENCIL_SQUARE_O);
+            ICON_END();
 
             ImGui::Text("CursorScreenPos: %s", glm::to_string(gph::Input::getCursorScreenPos()).c_str());
             ImGui::Text("Is \"0\" key pressed in any window?: %i", gph::Input::isKeyDown(GLFW_KEY_0));
