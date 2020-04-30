@@ -172,6 +172,7 @@ if (USE_OPENGL)
                     "external/snippets/src/imgui/stdlib/imgui_stdlib.cpp"
                     "src/Graphics/Gui/ImGui.cpp"
                     "src/Graphics/Gui/ImGuiStyles.cpp"
+                    "src/Graphics/Gui/ImGuiElements.cpp"
                     "src/Graphics/Input.cpp"
                   )
 endif()

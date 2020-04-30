@@ -5,7 +5,7 @@
  * @author: Hendrik Schwanekamp
  * @mail: hendrik.schwanekamp@gmx.net
  *
- * mpUtils = my personal Utillities
+ * mpUtils = my personal Utilities
  * A utility library for my personal c++ projects
  *
  * Copyright 2016 Hendrik Schwanekamp
