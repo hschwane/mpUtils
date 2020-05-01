@@ -204,6 +204,9 @@ Window Window::headlessContext(std::string title)
 
 bool Window::frameBegin()
 {
+    if(glfwWindowShouldClose(m_w.get()))
+        return false;
+
     if(!isContextCurrent())
         makeContextCurrent();
 
@@ -215,8 +218,7 @@ bool Window::frameBegin()
         callback.second();
     }
 
-    // check if window needs to close
-    return !(glfwWindowShouldClose(m_w.get()));
+    return true;
 }
 
 void Window::frameEnd()

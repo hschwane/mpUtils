@@ -55,6 +55,7 @@ namespace ImGui { // we extend the imgui namespace inside mpu
     void lock(); //!< lock the imgui
     bool isLocked(); //!< check if imgui is currently locked
     void toggleLock(); //!< toogle the lock state of imgui
+    mpu::gph::Window& getAttatchedWindow(); //!< returns window ImGiu is attatched to
 
     ImFont* loadFont(std::string file, float size, bool addIcons=true); //!< loads font if not loaded already, and make it active
 

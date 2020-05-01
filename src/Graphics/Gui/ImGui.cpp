@@ -244,6 +244,11 @@ void toggleLock()
         lock();
 }
 
+mpu::gph::Window& getAttatchedWindow()
+{
+    return *attatchedWindow;
+}
+
 ImFont* loadFont(std::string file, float size, bool addIcons)
 {
     auto io = ImGui::GetIO();

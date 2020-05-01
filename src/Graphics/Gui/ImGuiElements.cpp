@@ -12,6 +12,7 @@
 // includes
 //--------------------
 #include "mpUtils/Graphics/Gui/ImGuiElements.h"
+#include "mpUtils/Misc/pointPicking.h"
 //--------------------
 
 // namespace
@@ -135,5 +136,76 @@ void LoadingIndicatorCircle(const char* label, const float indicator_radius,
                                       GetColorU32(color));
   }
 }
+
+void SimpleModal(const std::string& header, std::string text, std::vector<std::string> buttons, std::string icon,
+                 std::function<void(int)> callback)
+{
+    std::string uniqueHeader = header + "##" + std::to_string(mpu::getRanndomSeed());
+
+    // calculate size of the dialog
+    auto textSize = ImGui::CalcTextSize(text.c_str());
+    float w2 = textSize.x * textSize.y * 4;
+    float w = sqrt(w2) + 30;
+
+    float buttonW = 0;
+    for (auto & button : buttons)
+        buttonW += ImGui::CalcTextSize(button.c_str()).x+20;
+
+    w = glm::max(w,buttonW+50);
+
+    std::shared_ptr<int> i = std::make_shared<int>();
+    *i = ImGui::getAttatchedWindow().addFrameBeginCallback(
+            [i,uniqueHeader{move(uniqueHeader)},text{move(text)},buttons{move(buttons)},
+             icon{move(icon)},callback{move(callback)}, needOpen{true}, width{w}]() mutable
+            {
+                auto wndSize = ImGui::getAttatchedWindow().getSize();
+                ImGui::SetNextWindowSize(ImVec2(width,0),ImGuiCond_Always);
+                if(ImGui::BeginPopupModal(uniqueHeader.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar))
+                {
+
+                    ImGui::BeginHorizontal("ht",ImVec2(ImGui::GetWindowSize().x,0));
+                    ImGui::Spring();
+
+                    ImGui::PushTextWrapPos(ImGui::GetCursorPosX()+width-80);
+                    ImGui::Text("%s",text.c_str());
+                    ImGui::PopTextWrapPos();
+
+                    ImGui::Spring(0.2);
+
+                    ICON_BEGIN();
+                    ImGui::Text("%s",icon.c_str());
+                    ICON_END();
+
+                    ImGui::Spring();
+                    ImGui::EndHorizontal();
+
+
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
+
+                    ImGui::BeginHorizontal("hb",ImVec2(ImGui::GetWindowSize().x,0));
+                    ImGui::Spring(0.5);
+                    for (int j=0; j < buttons.size(); j++)
+                    {
+                        if(ImGui::Button(buttons[j].c_str()))
+                        {
+                            if(callback)
+                                callback(j);
+                            ImGui::CloseCurrentPopup();
+                        }
+                    }
+                    ImGui::Spring(0.5);
+                    ImGui::EndHorizontal();
+                    ImGui::EndPopup();
+                } else if(needOpen)
+                {
+                    ImGui::OpenPopup(uniqueHeader.c_str());
+                    needOpen = false;
+                } else {
+                    ImGui::getAttatchedWindow().removeFrameBeginCallback(*i);
+                }
+            });
+}
+
+
 
 }

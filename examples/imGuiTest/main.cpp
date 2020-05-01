@@ -106,6 +106,16 @@ int main(int, char**)
         ImGui::Begin("Input Test");
         {
 
+            // modal
+            if(ImGui::Button("Tell me about cake"))
+            {
+                ImGui::SimpleModal("Cake info","Cake is very nice! \n jdahh sdf sdfhusdh fskjdl sdhnfjsn sd fsdjfhskjd sd fjsdkhf sfniuesn vsdkjf shd fuswen fsd fhsjdnfius fhndk fnkjsdh fjsdnfjlkshfkjnvj sdh fjsdknf kjsdh fhjv sdfnsdujhn vnsdiu fhdsjknvujs fdn fsuhjd vnsdui fnjnviudn jdhn fiudh lvh dnfuinvudnfjkhvuidnfujihnlvujsdh f iuh fd f dsiu duh fdus fdsh unv uhfi fdsuhfdushjf ",{"OhWow","Interesting", "very very interesting indeed","Eat Cake"},ICON_FA_BIRTHDAY_CAKE,[](int i)
+                {
+                    if(i == 2)
+                        logINFO("") << "Someone ate the cake...";
+                });
+            }
+
             // test icons
             ImGui::TextWrapped("Test drawing some icons: " ICON_FA_PENCIL ICON_FA_FILE ICON_FA_AMBULANCE);
             ImGui::Button("Text and " ICON_FA_HOURGLASS);
