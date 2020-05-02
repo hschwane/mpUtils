@@ -11,8 +11,13 @@
 
 // includes
 //--------------------
+#include "mpUtils/Graphics/Window.h"
+#include "mpUtils/external/tinyfd/tinyfiledialogs.h"
 #include "mpUtils/Graphics/Gui/ImGuiElements.h"
 #include "mpUtils/Misc/pointPicking.h"
+#include "mpUtils/Graphics/Input.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 //--------------------
 
 // namespace
@@ -145,7 +150,7 @@ void SimpleModal(const std::string& header, std::string text, std::vector<std::s
     // calculate size of the dialog
     auto textSize = ImGui::CalcTextSize(text.c_str());
     float w2 = textSize.x * textSize.y * 4;
-    float w = sqrt(w2) + 30;
+    float w = sqrt(w2) + 80;
 
     float buttonW = 0;
     for (auto & button : buttons)
@@ -204,6 +209,137 @@ void SimpleModal(const std::string& header, std::string text, std::vector<std::s
                     ImGui::getAttatchedWindow().removeFrameBeginCallback(*i);
                 }
             });
+}
+
+int SimpleBlockingModal(const std::string& header, std::string text, std::vector<std::string> buttons, std::string icon)
+{
+    // calculate size of the dialog
+    auto textSize = ImGui::CalcTextSize(text.c_str());
+    float w2 = textSize.x * textSize.y * 4;
+    float w = sqrt(w2) + 80;
+    float buttonW = 0;
+    for (auto & button : buttons)
+        buttonW += ImGui::CalcTextSize(button.c_str()).x+20;
+    float width = glm::max(w,buttonW+50);
+
+    float textHeight = ImGui::CalcTextSize(text.c_str(), nullptr,false,width-80).y;
+    float maxButtonH = 0;
+    for (auto & button : buttons)
+        maxButtonH = glm::max(maxButtonH,ImGui::CalcTextSize(button.c_str()).y);
+    float height = textHeight+maxButtonH+60;
+
+    // generate unique header
+    std::string uniqueHeader = header + "##" + std::to_string(mpu::getRanndomSeed());
+
+    // copy imgui context
+    auto context = ImGui::GetCurrentContext();
+    auto font = ImGui::GetFont();
+    context->IO.Fonts->Locked = false;
+    ImGui::SetCurrentContext(ImGui::CreateContext(context->IO.Fonts));
+    ImGui::GetCurrentContext()->FontStack = context->FontStack;
+    ImGui::GetCurrentContext()->Style = context->Style;
+
+    // shutdown rendering on old os window
+    mpu::gph::Window& wnd = ImGui::getAttatchedWindow();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+
+    // create new os window
+    mpu::gph::Window::setWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    mpu::gph::Window::setWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    mpu::gph::Window::setWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+    mpu::gph::Window::setWindowHint(GLFW_FLOATING, GLFW_TRUE);
+    mpu::gph::Window popup(width,height,"popup");
+    popup.setPosition(wnd.getSize()/2 + wnd.getPosition() -popup.getSize()/2);
+    popup.makeContextCurrent();
+
+    // initialize imgui rendering on the new window
+    ImGui_ImplGlfw_InitForOpenGL(popup.window(), false);
+    ImGui_ImplOpenGL3_Init("#version 130");
+
+    // popup window main loop
+    int button = -1;
+    bool openPopup = true;
+    bool m_close = false;
+    while (popup.frameBegin() && !m_close)
+    {
+        // begin the frame
+        mpu::gph::Input::update();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::SetCurrentFont(font);
+
+        // open popup on forst iteration
+        if(openPopup)
+        {
+            ImGui::OpenPopup(uniqueHeader.c_str());
+            openPopup = false;
+        }
+
+        // draw the actual modal dialog
+        ImGui::SetNextWindowSize(ImVec2(width,height),ImGuiCond_Always);
+        if(ImGui::BeginPopupModal(uniqueHeader.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+        {
+            ImGui::BeginHorizontal("ht",ImVec2(ImGui::GetWindowSize().x,0));
+            ImGui::Spring();
+
+            ImGui::PushTextWrapPos(ImGui::GetCursorPosX()+width-80);
+            ImGui::Text("%s",text.c_str());
+            ImGui::PopTextWrapPos();
+
+            ImGui::Spring(0.2);
+
+            ICON_BEGIN();
+            ImGui::Text("%s",icon.c_str());
+            ICON_END();
+
+            ImGui::Spring();
+            ImGui::EndHorizontal();
+
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
+
+            ImGui::BeginHorizontal("hb",ImVec2(ImGui::GetWindowSize().x,0));
+            ImGui::Spring(0.5);
+            for (int j=0; j < buttons.size(); j++)
+            {
+                ImGui::SetCurrentFont(font);
+                if(ImGui::Button(buttons[j].c_str()))
+                {
+                    button = j;
+                    ImGui::CloseCurrentPopup();
+                    m_close = true;
+                }
+            }
+            ImGui::Spring(0.5);
+            ImGui::EndHorizontal();
+            ImGui::EndPopup();
+        }
+
+        ImGui::Render();
+        glViewport(0, 0, popup.getSize().x, popup.getSize().y);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        popup.frameEnd();
+    }
+
+    // reset state
+    mpu::gph::Window::resetWindowHints();
+
+    // remove tempoary context
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    // restore old context
+    wnd.makeContextCurrent();
+    ImGui::SetCurrentContext(context);
+    ImGui_ImplGlfw_InitForOpenGL(wnd.window(),false);
+    ImGui_ImplOpenGL3_Init("#version 130");
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    context->IO.Fonts->Locked = true;
+
+    return button;
 }
 
 

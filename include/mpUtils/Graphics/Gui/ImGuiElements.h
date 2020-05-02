@@ -34,6 +34,8 @@ void LoadingIndicatorCircle(const char* label, const float indicator_radius,
 void SimpleModal(const std::string& header, std::string text, std::vector<std::string> buttons,
         std::string icon="", std::function<void(int)> callback = {});
 
+int SimpleBlockingModal(const std::string& header, std::string text, std::vector<std::string> buttons,
+                 std::string icon="");
 }
 
 #endif  // RAPTOR_IMGUIELEMENTS_H

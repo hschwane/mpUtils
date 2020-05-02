@@ -67,6 +67,7 @@ public:
 
     // window creation helper
     static void setWindowHint(int hint, int value); //!< set glfw window hints (before creating a window)
+    static void resetWindowHints(); //!< reset window hints to default
     static Window headlessContext(std::string title); //!< create an invisible window for headless rendering
 
     // constructor

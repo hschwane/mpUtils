@@ -196,6 +196,11 @@ void Window::setWindowHint(int hint, int value)
     glfwWindowHint(hint, value);
 }
 
+void Window::resetWindowHints()
+{
+    glfwDefaultWindowHints();
+}
+
 Window Window::headlessContext(std::string title)
 {
     mpu::gph::Window::setWindowHint(GLFW_VISIBLE,false);

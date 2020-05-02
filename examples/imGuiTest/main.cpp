@@ -73,6 +73,7 @@ void setupInputs()
 
     gph::Input::addButton("Toggle Fullscreen", "Toggle fullscreen mode on the current window.", [](gph::Window& wnd)
     {
+        logINFO("Test") << "F11 pressed";
         wnd.toggleFullscreen();
     });
     gph::Input::mapKeyToInput("Toggle Fullscreen", GLFW_KEY_F11);
@@ -103,13 +104,21 @@ int main(int, char**)
     {
         ImGui::ShowDemoWindow();
 
+//        ImGui::SimpleBlockingModal("Save?","Want to save?",{"yes","no"});
+
         ImGui::Begin("Input Test");
         {
 
             // modal
+            if(ImGui::Button("Blocking modal"))
+            {
+                ImGui::SimpleBlockingModal("Save?","Want to save? \n jdahh sdf sdfhusdh fskjdl sdhnfjsn sd fsdjfhskjd sd fjsdkhf sfniuesn vsdkjf shd fuswen fsd fhsjdnfius fhndk fnkjsdh fjsdnfjlkshfkjnvj sdh fjsdknf kjsdh fhjv sdfnsdujhn vnsdiu fhdsjknvujs fdn fsuhjd vnsdui fnjnviudn jdhn fiudh lvh dnfuinvudnfjkhvuidnfujihnlvujsdh f iuh fd f dsiu duh fdus fdsh unv uhfi fdsuhfdushjf ",{"yes","no"}, ICON_FA_ERASER);
+            }
+
             if(ImGui::Button("Tell me about cake"))
             {
-                ImGui::SimpleModal("Cake info","Cake is very nice! \n jdahh sdf sdfhusdh fskjdl sdhnfjsn sd fsdjfhskjd sd fjsdkhf sfniuesn vsdkjf shd fuswen fsd fhsjdnfius fhndk fnkjsdh fjsdnfjlkshfkjnvj sdh fjsdknf kjsdh fhjv sdfnsdujhn vnsdiu fhdsjknvujs fdn fsuhjd vnsdui fnjnviudn jdhn fiudh lvh dnfuinvudnfjkhvuidnfujihnlvujsdh f iuh fd f dsiu duh fdus fdsh unv uhfi fdsuhfdushjf ",{"OhWow","Interesting", "very very interesting indeed","Eat Cake"},ICON_FA_BIRTHDAY_CAKE,[](int i)
+                ImGui::SimpleModal("Cake info","Cake is very nice! \n jdahh sdf sdfhusdh fskjdl sdhnfjsn sd fsdjfhskjd sd fjsdkhf sfniuesn vsdkjf shd fuswen fsd fhsjdnfius fhndk fnkjsdh fjsdnfjlkshfkjnvj sdh fjsdknf kjsdh fhjv sdfnsdujhn vnsdiu fhdsjknvujs fdn fsuhjd vnsdui fnjnviudn jdhn fiudh lvh dnfuinvudnfjkhvuidnfujihnlvujsdh f iuh fd f dsiu duh fdus fdsh unv uhfi fdsuhfdushjf ",{"OhWow","Interesting", "very very interesting indeed","Eat Cake"},ICON_FA_BIRTHDAY_CAKE,
+                        [](int i)
                 {
                     if(i == 2)
                         logINFO("") << "Someone ate the cake...";
