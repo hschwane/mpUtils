@@ -109,8 +109,6 @@ int main(int, char**)
     {
         ImGui::ShowDemoWindow();
 
-//        ImGui::SimpleBlockingModal("Save?","Want to save?",{"yes","no"});
-
         ImGui::Begin("Input Test");
         {
 
@@ -127,6 +125,8 @@ int main(int, char**)
                 {
                     if(i == 2)
                         logINFO("") << "Someone ate the cake...";
+                    else if(i==0)
+                        ImGui::SimpleModal("Save?","Want to save?",{"yes","no"});
                 });
             }
 

@@ -12,7 +12,6 @@
 // includes
 //--------------------
 #include "mpUtils/Graphics/Window.h"
-#include "mpUtils/external/tinyfd/tinyfiledialogs.h"
 #include "mpUtils/Graphics/Gui/ImGuiElements.h"
 #include "mpUtils/Misc/pointPicking.h"
 #include "mpUtils/Graphics/Input.h"
@@ -167,7 +166,6 @@ void SimpleModal(const std::string& header, std::string text, std::vector<std::s
                 ImGui::SetNextWindowSize(ImVec2(width,0),ImGuiCond_Always);
                 if(ImGui::BeginPopupModal(uniqueHeader.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar))
                 {
-
                     ImGui::BeginHorizontal("ht",ImVec2(ImGui::GetWindowSize().x,0));
                     ImGui::Spring();
 
