@@ -28,12 +28,17 @@ void LoadingIndicatorCircle(const char* label, const float indicator_radius,
 
 /**
  * @brief opens a modal popup, software continues to run underneath but user input is blocked
- *          each string in buttons creates a button. Wen when a button is clicked the modal will be closed
- *          and callback is executed with the id of the button bressed.
+ *          each string in buttons creates a button. When when a button is clicked the modal will be closed
+ *          and callback is executed with the id of the button pressed.
  */
 void SimpleModal(const std::string& header, std::string text, std::vector<std::string> buttons,
         std::string icon="", std::function<void(int)> callback = {});
 
+/**
+ * @brief opens a modal popup, in a new os window. This wil interrupt fullscreen mode and
+ *      be much slower then the asycronus simple dialog above. If a button is pressed The functions
+ *      returns with the id of that button.
+ */
 int SimpleBlockingModal(const std::string& header, std::string text, std::vector<std::string> buttons,
                  std::string icon="");
 }

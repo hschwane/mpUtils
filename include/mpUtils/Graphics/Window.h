@@ -24,6 +24,7 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include "mpUtils/Misc/CallbackHandler.h"
 //--------------------
 
 // namespace
@@ -183,26 +184,26 @@ public:
     // callbacks
 
     // window handling callbacks
-    int addPositionCallback(std::function<void(int,int)> f) {return addCallback(m_positionCallbacks,f);} //!< add a callback that is called whenever the window position is changed
-    void removePositionCallback(int id) {removeCallback(m_positionCallbacks,id);} //!< removes the position callback function specified by id
-    int addSizeCallback(std::function<void(int,int)> f) {return addCallback(m_sizeCallbacks,f);} //!< add a callback that is called whenever the window size is changed
-    void removeSizeCallback(int id) {removeCallback(m_sizeCallbacks,id);}; //!< removes the size callback function specified by id
-    int addCloseCallback(std::function<void()> f) {return addCallback(m_closeCallbacks,f);} //!< add a callback that is called whenever the window is closed
-    void removeCloseCallback(int id) {removeCallback(m_closeCallbacks,id);}; //!< removes the close callback function specified by id
-    int addRefreshRateCallback(std::function<void()> f) {return addCallback(m_refreshRateCallbacks,f);} //!< add a callback that is called whenever the window refresh rate is changed
-    void removeRefreshRateCallback(int id) {removeCallback(m_refreshRateCallbacks,id);}; //!< removes the a refresh rate callback function specified by id
-    int addFocusCallback(std::function<void(bool)> f) {return addCallback(m_focusCallbacks,f);} //!< add a callback that is called whenever the window looses or gains focus (true = gains focus)
-    void removeFocusCallback(int id) {removeCallback(m_focusCallbacks,id);}; //!< removes the focus callback function specified by id
-    int addMinimizeCallback(std::function<void(bool)> f) {return addCallback(m_minimizeCallbacks,f);} //!< add a callback that is called whenever the window  is minimized or restored (true = is minimized)
-    void removeMinimizeCallback(int id) {removeCallback(m_minimizeCallbacks,id);}; //!< removes the minimize callback function specified by id
-    int addFBSizeCallback(std::function<void(int,int)> f) {return addCallback(m_framebufferSizeCallbacks,f);} //!< add a callback that is called whenever the framebuffer size is changed
-    void removeFBSizeCallback(int id) {removeCallback(m_framebufferSizeCallbacks,id);}; //!< removes the framebuffer resize function specified by id
+    int addPositionCallback(std::function<void(int,int)> f) {return m_positionCallbacks.addCallback(f);} //!< add a callback that is called whenever the window position is changed
+    void removePositionCallback(int id) {m_positionCallbacks.removeCallback(id);} //!< removes the position callback function specified by id
+    int addSizeCallback(std::function<void(int,int)> f) {return m_sizeCallbacks.addCallback(f);} //!< add a callback that is called whenever the window size is changed
+    void removeSizeCallback(int id) {m_sizeCallbacks.removeCallback(id);}; //!< removes the size callback function specified by id
+    int addCloseCallback(std::function<void()> f) {return m_closeCallbacks.addCallback(f);} //!< add a callback that is called whenever the window is closed
+    void removeCloseCallback(int id) {m_closeCallbacks.removeCallback(id);}; //!< removes the close callback function specified by id
+    int addRefreshRateCallback(std::function<void()> f) {return m_refreshRateCallbacks.addCallback(f);} //!< add a callback that is called whenever the window refresh rate is changed
+    void removeRefreshRateCallback(int id) {m_refreshRateCallbacks.removeCallback(id);}; //!< removes the a refresh rate callback function specified by id
+    int addFocusCallback(std::function<void(bool)> f) {return m_focusCallbacks.addCallback(f);} //!< add a callback that is called whenever the window looses or gains focus (true = gains focus)
+    void removeFocusCallback(int id) {m_focusCallbacks.removeCallback(id);}; //!< removes the focus callback function specified by id
+    int addMinimizeCallback(std::function<void(bool)> f) {return m_minimizeCallbacks.addCallback(f);} //!< add a callback that is called whenever the window  is minimized or restored (true = is minimized)
+    void removeMinimizeCallback(int id) {m_minimizeCallbacks.removeCallback(id);}; //!< removes the minimize callback function specified by id
+    int addFBSizeCallback(std::function<void(int,int)> f) {return m_framebufferSizeCallbacks.addCallback(f);} //!< add a callback that is called whenever the framebuffer size is changed
+    void removeFBSizeCallback(int id) {m_framebufferSizeCallbacks.removeCallback(id);}; //!< removes the framebuffer resize function specified by id
 
     // frame begin / end callbacks
-    int addFrameBeginCallback(std::function<void()> f) {return addCallback(m_frameBeginCallback,f);} //!< add a callback that is called at the beginning of every frame
-    void removeFrameBeginCallback(int id) {removeCallback(m_frameBeginCallback,id);}; //!< removes the frameBegin callback function specified by id
-    int addFrameEndCallback(std::function<void()> f) {return addCallback(m_frameEndCallback,f);} //!< add a callback that is called at the end of every frame
-    void removeFrameEndCallback(int id) {removeCallback(m_frameEndCallback,id);}; //!< removes the frameEnd callback function specified by id
+    int addFrameBeginCallback(std::function<void()> f) {return m_frameBeginCallback.addCallback(f);} //!< add a callback that is called at the beginning of every frame
+    void removeFrameBeginCallback(int id) {m_frameBeginCallback.removeCallback(id);}; //!< removes the frameBegin callback function specified by id
+    int addFrameEndCallback(std::function<void()> f) {return m_frameEndCallback.addCallback(f);} //!< add a callback that is called at the end of every frame
+    void removeFrameEndCallback(int id) {m_frameEndCallback.removeCallback(id);}; //!< removes the frameEnd callback function specified by id
 
     // --------------
     // deprecated
@@ -215,26 +216,20 @@ private:
     static int gl_major; //!< major openGL version to use when creating the next window
     static int gl_minor; //!< minor openGL version to use when creating the next window
 
-    template <typename T, typename F>
-    int addCallback(std::vector<std::pair<int,T>>& callbackVector, F f); //!< helper to implement add callback functions
-
-    template <typename T>
-    void removeCallback(std::vector<std::pair<int,T>>& callbackVector, int id); //!< helper to implement remove callback functions
-
     std::unique_ptr<GLFWwindow,void(*)(GLFWwindow*)> m_w; //!< pointer to the glfw window
 
     // callback vectors for window functions
-    std::vector<std::pair<int,std::function<void(int,int)>>> m_positionCallbacks;
-    std::vector<std::pair<int,std::function<void(int,int)>>> m_sizeCallbacks;
-    std::vector<std::pair<int,std::function<void()>>> m_closeCallbacks;
-    std::vector<std::pair<int,std::function<void()>>> m_refreshRateCallbacks;
-    std::vector<std::pair<int,std::function<void(bool)>>> m_focusCallbacks;
-    std::vector<std::pair<int,std::function<void(bool)>>> m_minimizeCallbacks;
-    std::vector<std::pair<int,std::function<void(int,int)>>> m_framebufferSizeCallbacks;
+    CallbackHandler<std::function<void(int,int)>> m_positionCallbacks;
+    CallbackHandler<std::function<void(int,int)>> m_sizeCallbacks;
+    CallbackHandler<std::function<void()>> m_closeCallbacks;
+    CallbackHandler<std::function<void()>> m_refreshRateCallbacks;
+    CallbackHandler<std::function<void(bool)>> m_focusCallbacks;
+    CallbackHandler<std::function<void(bool)>> m_minimizeCallbacks;
+    CallbackHandler<std::function<void(int,int)>> m_framebufferSizeCallbacks;
 
     // callback vectors for frame begin / end functions
-    std::vector<std::pair<int,std::function<void()>>> m_frameBeginCallback;
-    std::vector<std::pair<int,std::function<void()>>> m_frameEndCallback;
+    CallbackHandler<std::function<void()>> m_frameBeginCallback;
+    CallbackHandler<std::function<void()>> m_frameEndCallback;
 
     // internal callbacks for window functions
     static void globalPositionCallback(GLFWwindow * window, int x, int y);
@@ -252,31 +247,5 @@ private:
 };
 
 }}
-
-//-------------------------------------------------------------------
-// definitions of template functions of the window class
-
-template<typename T, typename F>
-int mpu::gph::Window::addCallback(std::vector<std::pair<int,T>> &callbackVector, F f)
-{
-    int id;
-    if(callbackVector.empty())
-        id = 0;
-    else
-        id = callbackVector.back().first+1;
-
-    callbackVector.emplace_back(id, f);
-    return id;
-}
-
-template<typename T>
-void mpu::gph::Window::removeCallback(std::vector<std::pair<int,T>> &callbackVector, int id)
-{
-    auto it = std::lower_bound( callbackVector.cbegin(), callbackVector.cend(), std::pair<int,T>(id,T{}),
-            [](const std::pair<int,T>& a, const std::pair<int,T>& b){return (a.first < b.first);});
-    if(it != callbackVector.end())
-        callbackVector.erase(it);
-}
-
 
 #endif //MPUTILS_WINDOW_H

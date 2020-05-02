@@ -18,7 +18,7 @@
 #include <mpUtils/Graphics/Input.h>
 #include "mpUtils/Log/Log.h"
 #include "mpUtils/Graphics/Window.h"
-#include "mpUtils/Misc/callbackUtils.h"
+#include "mpUtils/Misc/CallbackHandler.h"
 #include <unordered_map>
 #include "mpUtils/Timer/Timer.h"
 //--------------------
@@ -243,10 +243,10 @@ namespace {
     PollListType m_polledMbs; //!< all mouse buttons that need to be polled because for some reason
 
     // lists to store external callbacks
-    std::vector<std::pair<int,std::function<void(Window&,const std::vector<std::string>&)>>> m_dropCallbacks;
-    std::vector<std::pair<int,std::function<void(Window&,bool)>>> m_cursorEnterCallbacks;
-    std::vector<std::pair<int,std::function<void(Window&,unsigned int)>>> m_charCallbacks;
-    std::vector<std::pair<int,std::function<void()>>> m_updateCallbacks;
+    CallbackHandler<std::function<void(Window&,const std::vector<std::string>&)>>  m_dropCallbacks;
+    CallbackHandler<std::function<void(Window&,bool)>> m_cursorEnterCallbacks;
+    CallbackHandler<std::function<void(Window&,unsigned int)>> m_charCallbacks;
+    CallbackHandler<std::function<void()>> m_updateCallbacks;
 
     // data needed for polling and other utilities
     std::vector<Window*> m_wndList; //!< list of all windows that can provide input
@@ -283,7 +283,7 @@ void registerWindow(Window* wnd)
         }
     }inputInit;
 
-    // add window to lst of windows
+    // add window to list of windows
     m_wndList.push_back(wnd);
 
     // register input callbacks with window
@@ -361,10 +361,7 @@ void update()
     }
 
     //call all update callbacks
-    for(auto &callback : m_updateCallbacks)
-    {
-        callback.second();
-    }
+    m_updateCallbacks.executeCallbacks();
 }
 
 void disableMouseInput()
@@ -547,42 +544,42 @@ std::string getClipboard()
 
 int addUpdateCallback(std::function<void()> f)
 {
-    return addCallback(m_updateCallbacks, std::move(f));
+    return m_updateCallbacks.addCallback(std::move(f));
 }
 
 void removeUpdateCallback(int id)
 {
-    removeCallback(m_updateCallbacks, id);
+    m_updateCallbacks.removeCallback(id);
 }
 
 int addDropCallback(std::function<void(Window&, const std::vector<std::string>&)> f)
 {
-    return addCallback(m_dropCallbacks, std::move(f));
+    return m_dropCallbacks.addCallback(std::move(f));
 }
 
 void removeDropCallback(int id)
 {
-    removeCallback(m_dropCallbacks, id);
+    m_dropCallbacks.removeCallback(id);
 }
 
 int addCursorEnterCallback(std::function<void(Window &, bool)> f)
 {
-    return addCallback(m_cursorEnterCallbacks, std::move(f));
+    return m_cursorEnterCallbacks.addCallback(std::move(f));
 }
 
 void removeCursorEnterCallback(int id)
 {
-    removeCallback(m_cursorEnterCallbacks, id);
+    m_cursorEnterCallbacks.removeCallback(id);
 }
 
 int addCharCallback(std::function<void(Window &, unsigned int)> f)
 {
-    return addCallback(m_charCallbacks, std::move(f));
+    return m_charCallbacks.addCallback(std::move(f));
 }
 
 void removeCharCallback(int id)
 {
-    removeCallback(m_charCallbacks, id);
+    m_charCallbacks.removeCallback(id);
 }
 
 // changing global settings
@@ -1239,10 +1236,7 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
         data[i] = paths[i];
     }
 
-    for(auto &callback : m_dropCallbacks)
-    {
-        callback.second(*wnd,data);
-    }
+    m_dropCallbacks.executeCallbacks(*wnd,data);
 }
 
 void cursor_enter_callback(GLFWwindow* window, int entered)
@@ -1258,10 +1252,7 @@ void cursor_enter_callback(GLFWwindow* window, int entered)
         m_hoveredWindow = nullptr;
     }
 
-    for(auto &callback : m_cursorEnterCallbacks)
-    {
-        callback.second(*wnd,entered);
-    }
+    m_cursorEnterCallbacks.executeCallbacks(*wnd,entered);
 }
 
 void character_callback(GLFWwindow* window, unsigned int codepoint)
@@ -1270,10 +1261,8 @@ void character_callback(GLFWwindow* window, unsigned int codepoint)
         return;
 
     auto wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for(auto &callback : m_charCallbacks)
-    {
-        callback.second(*wnd,codepoint);
-    }
+    m_charCallbacks.executeCallbacks(*wnd,codepoint);
+
 }
 
 

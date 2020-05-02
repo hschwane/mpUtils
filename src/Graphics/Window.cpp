@@ -216,12 +216,7 @@ bool Window::frameBegin()
         makeContextCurrent();
 
     glClear(m_clearMask);
-
-    // call frame begin callbacks
-    for(const auto &callback : m_frameBeginCallback)
-    {
-        callback.second();
-    }
+    m_frameBeginCallback.executeCallbacks();
 
     return true;
 }
@@ -231,10 +226,7 @@ void Window::frameEnd()
     if(!isContextCurrent())
         makeContextCurrent();
 
-    for(const auto &callback : m_frameEndCallback)
-    {
-        callback.second();
-    }
+    m_frameEndCallback.executeCallbacks();
     glfwSwapBuffers(m_w.get());
 }
 
@@ -343,64 +335,43 @@ GLFWmonitor *Window::getWindowMonitor() const
 void Window::globalPositionCallback(GLFWwindow * window, int x, int y)
 {
     Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for(const auto &callback : windowObject->m_positionCallbacks)
-    {
-        callback.second(x,y);
-    }
+    windowObject->m_positionCallbacks.executeCallbacks(x,y);
 }
 
 void Window::globalSizeCallback(GLFWwindow *window, int w, int h)
 {
     Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for(const auto &callback : windowObject->m_sizeCallbacks)
-    {
-        callback.second(w,h);
-    }
+    windowObject->m_sizeCallbacks.executeCallbacks(w,h);
 }
 
 void Window::globalCloseCallback(GLFWwindow *window)
 {
     Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for(const auto &callback : windowObject->m_closeCallbacks)
-    {
-        callback.second();
-    }
+    windowObject->m_closeCallbacks.executeCallbacks();
 }
 
 void Window::globalRefreshRateCallback(GLFWwindow *window)
 {
     Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for(const auto &callback : windowObject->m_refreshRateCallbacks)
-    {
-        callback.second();
-    }
+    windowObject->m_refreshRateCallbacks.executeCallbacks();
 }
 
 void Window::globalFocusCallback(GLFWwindow *window, int f)
 {
     Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for(const auto &callback : windowObject->m_focusCallbacks)
-    {
-        callback.second((f==GLFW_TRUE));
-    }
+    windowObject->m_focusCallbacks.executeCallbacks((f==GLFW_TRUE));
 }
 
 void Window::globalMinimizeCalback(GLFWwindow *window, int m)
 {
     Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for(const auto &callback : windowObject->m_minimizeCallbacks)
-    {
-        callback.second((m==GLFW_TRUE));
-    }
+    windowObject->m_minimizeCallbacks.executeCallbacks((m==GLFW_TRUE));
 }
 
 void Window::globalFramebufferSizeCallback(GLFWwindow *window, int w, int h)
 {
     Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for(const auto &callback : windowObject->m_framebufferSizeCallbacks)
-    {
-        callback.second(w,h);
-    }
+    windowObject->m_framebufferSizeCallbacks.executeCallbacks(w,h);
 }
 
 }}

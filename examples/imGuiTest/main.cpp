@@ -88,6 +88,11 @@ int main(int, char**)
     int height = 600;
     gph::Window window(width, height,"mpUtils imGui test");
 
+    gph::Input::addDropCallback([](gph::Window& wnd, const std::vector<std::string>& files)
+    {
+       logINFO("") << "dropped " << files.size() << "files";
+    });
+
     ImGui::create(window);
     gph::enableVsync(true);
 
