@@ -24,10 +24,14 @@
 - add some geometric primitives
 
 ### 2d renderer
-- add a rendering engine for sprites and animated sprites
+- add a rendering animated sprites
+- add 2d particle systems
+- add 2d lighting and shadows
+- add better sprite management
 
 ### graphics in general
 - add better handling of bindless textures with multiple samplers
+- add resource manager
 
 ### bit manipulation
 - add macros or constexpr functions for bit manipulation
@@ -38,10 +42,8 @@
 ### math
 - better floating point comparism modes
 
-- add cuda memory transfer helper functions
-- various bugs fixed in the new cuda memory management
-
 ## low priority / ideas / long term projects
+
 - add double / triple buffering helper
 - better + safer handling of uniforms for shaders
 - add utility to parse command line input
@@ -64,14 +66,17 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add CllbackHandler for all classes that providew callbacks
+- add simple imgui popups for messages
 - add texture to imgui helper function
 - add state machine class
 - fix window class const correctness
-- add EnTT ECS
 - better sprite rendering
 - add 2d camera
 - fix bugs for opengl buffer
 - fix bugs in string utils
+- add cuda memory transfer helper functions
+- various bugs fixed in the new cuda memory management
 - add cuda copy helper functions
 - add compare operators to helper math
 - fix bugs in cuda vectors
