@@ -144,6 +144,7 @@ target_sources(mpUtils PRIVATE
                 "src/Cfg/CfgFile.cpp"
                 "src/Misc/imageLoader.cpp"
                 "external/snippets/src/stb_image_impl.cpp"
+                "external/snippets/src/stb_image_write_impl.cpp"
                 "external/snippets/src/tinyfd/tinyfiledialogs.c"
               )
 
