@@ -168,3 +168,5 @@ Test textures by Thomas Schmall (https://www.oxpal.com/uv-checker-texture.html)
 GLShader by Johannes Braun (https://github.com/johannes-braun/GLshader)
 
 EnTT by Michele Caini aka skypjack (https://github.com/skypjack/entt)
+
+toml11 by Toru Niin (https://github.com/ToruNiina/toml11)

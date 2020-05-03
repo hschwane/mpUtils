@@ -64,7 +64,8 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
-- add CllbackHandler for all classes that providew callbacks
+-replace cfg handler with toml11
+- add CallbackHandler for all classes that providew callbacks
 - add simple imgui popups for messages
 - add texture to imgui helper function
 - add state machine class

@@ -34,7 +34,8 @@
 #include "mpUtils/Misc/StateMachine.h"
 
 // configuration util
-#include "Cfg/CfgFile.h"
+#include "mpUtils/external/toml/toml.hpp"
+#include "mpUtils/Misc/tomlStore.h"
 
 // the logger
 #include "Log/ConsoleSink.h"

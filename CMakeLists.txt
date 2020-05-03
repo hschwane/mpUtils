@@ -141,7 +141,6 @@ target_sources(mpUtils PRIVATE
                 "src/Log/ConsoleSink.cpp"
                 #"src/Log/SyslogSink.cpp"
                 "src/Log/Log.cpp"
-                "src/Cfg/CfgFile.cpp"
                 "external/snippets/src/stb_image_impl.cpp"
                 "external/snippets/src/stb_image_write_impl.cpp"
                 "external/snippets/src/tinyfd/tinyfiledialogs.c"
