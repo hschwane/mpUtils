@@ -14,7 +14,7 @@
 // includes
 //--------------------
 #include "mpUtils/Graphics/Opengl/Texture.h"
-#include "mpUtils/Misc/imageLoading.h"
+#include "mpUtils/Misc/Image.h"
 #include "mpUtils/Log/Log.h"
 //--------------------
 
@@ -291,198 +291,44 @@ makeTexture3D(int width, int height, int depth, GLenum internalFormat, const voi
     return std::move(tex);
 }
 
+std::unique_ptr<Texture> makeTextureFromImage(const Image8& image, bool generateMipmaps)
+{
+    GLenum internalFormat = 0;
+    GLenum inputFormat = 0;
+    if(image.channels() == 1)
+    {
+        internalFormat = GL_R8;
+        inputFormat = GL_RED;
+    }
+    else if(image.channels() == 2)
+    {
+        internalFormat = GL_RG8;
+        inputFormat = GL_RG;
+    }
+    else if(image.channels() == 3)
+    {
+        internalFormat = GL_RGB8;
+        inputFormat = GL_RGB;
+    }
+    else if(image.channels() == 4)
+    {
+        internalFormat = GL_RGBA8;
+        inputFormat = GL_RGBA;
+    }
+    else
+    {
+        logERROR("Texture") << "Number of channels needs to be between 1 and 4!";
+        logFlush();
+        throw std::logic_error("Number of channels needs to be between 1 and 4!");
+    }
+
+    return makeTexture2D(image.width(),image.height(),internalFormat,image.data(),inputFormat,GL_UNSIGNED_BYTE,0,generateMipmaps);
+}
+
 std::unique_ptr<Texture> makeTextureFromFile(const std::string& filename, int numComponents, bool generateMipmaps)
 {
-    int width;
-    int height;
-    auto pixels = loadImageFile(filename, width, height, numComponents);
-
-    int levels = 1;
-    if(generateMipmaps)
-        levels = Texture::maxMipmaps(width, height, 1);
-
-    GLenum internalFormat = 0;
-    GLenum inputFormat = 0;
-    if(numComponents == 1)
-    {
-        internalFormat = GL_R8;
-        inputFormat = GL_RED;
-    }
-    else if(numComponents == 2)
-    {
-        internalFormat = GL_RG8;
-        inputFormat = GL_RG;
-    }
-    else if(numComponents == 3)
-    {
-        internalFormat = GL_RGB8;
-        inputFormat = GL_RGB;
-    }
-    else if(numComponents == 4)
-    {
-        internalFormat = GL_RGBA8;
-        inputFormat = GL_RGBA;
-    }
-    else
-    {
-        logERROR("Texture") << "numComponents needs to be between 1 and 4!";
-        logFlush();
-        throw std::logic_error("numComponents needs to be between 1 and 4!");
-    }
-
-    auto tex = std::make_unique<Texture>(TextureTypes::texture2D, internalFormat, levels, width, height);
-    tex->uploadData(pixels.get(), inputFormat, GL_UNSIGNED_BYTE);
-
-    if(generateMipmaps)
-        tex->generateMipmaps();
-
-    return std::move(tex);
-}
-
-std::unique_ptr<Texture> makeTextureFromFileHDR(const std::string& filename, int numComponents, bool generateMipmaps)
-{
-    int width;
-    int height;
-    auto pixels = loadImageFileHDR(filename, width, height, numComponents);
-
-    int levels = 1;
-    if(generateMipmaps)
-        levels = Texture::maxMipmaps(width, height, 1);
-
-    GLenum internalFormat = 0;
-    GLenum inputFormat = 0;
-    if(numComponents == 1)
-    {
-        internalFormat = GL_R32F;
-        inputFormat = GL_RED;
-    }
-    else if(numComponents == 2)
-    {
-        internalFormat = GL_RG32F;
-        inputFormat = GL_RG;
-    }
-    else if(numComponents == 3)
-    {
-        internalFormat = GL_RGB32F;
-        inputFormat = GL_RGB;
-    }
-    else if(numComponents == 4)
-    {
-        internalFormat = GL_RGBA32F;
-        inputFormat = GL_RGBA;
-    }
-    else
-    {
-        logERROR("Texture") << "numComponents needs to be between 1 and 4!";
-        logFlush();
-        throw std::logic_error("numComponents needs to be between 1 and 4!");
-    }
-
-    auto tex = std::make_unique<Texture>(TextureTypes::texture2D, internalFormat, levels, width, height);
-    tex->uploadData(pixels.get(), inputFormat, GL_FLOAT);
-
-    if(generateMipmaps)
-        tex->generateMipmaps();
-
-    return std::move(tex);
-}
-
-std::unique_ptr<Texture>
-makeTextureFromData(const unsigned char* data, int length, int numComponents, bool generateMipmaps)
-{
-    int width;
-    int height;
-    auto pixels = loadImageData(data, length, width, height, numComponents);
-
-    int levels = 1;
-    if(generateMipmaps)
-        levels = Texture::maxMipmaps(width, height, 1);
-
-    GLenum internalFormat = 0;
-    GLenum inputFormat = 0;
-    if(numComponents == 1)
-    {
-        internalFormat = GL_R8;
-        inputFormat = GL_RED;
-    }
-    else if(numComponents == 2)
-    {
-        internalFormat = GL_RG8;
-        inputFormat = GL_RG;
-    }
-    else if(numComponents == 3)
-    {
-        internalFormat = GL_RGB8;
-        inputFormat = GL_RGB;
-    }
-    else if(numComponents == 4)
-    {
-        internalFormat = GL_RGBA8;
-        inputFormat = GL_RGBA;
-    }
-    else
-    {
-        logERROR("Texture") << "numComponents needs to be between 1 and 4!";
-        logFlush();
-        throw std::logic_error("numComponents needs to be between 1 and 4!");
-    }
-
-    auto tex = std::make_unique<Texture>(TextureTypes::texture2D, internalFormat, levels, width, height);
-    tex->uploadData(pixels.get(), inputFormat, GL_UNSIGNED_BYTE);
-
-    if(generateMipmaps)
-        tex->generateMipmaps();
-
-    return std::move(tex);
-}
-
-std::unique_ptr<Texture>
-makeTextureFromDataHDR(const unsigned char* data, int length, int numComponents, bool generateMipmaps)
-{
-    int width;
-    int height;
-    auto pixels = loadImageDataHDR(data, length, width, height, numComponents);
-
-    int levels = 1;
-    if(generateMipmaps)
-        levels = Texture::maxMipmaps(width, height, 1);
-
-    GLenum internalFormat = 0;
-    GLenum inputFormat = 0;
-    if(numComponents == 1)
-    {
-        internalFormat = GL_R32F;
-        inputFormat = GL_RED;
-    }
-    else if(numComponents == 2)
-    {
-        internalFormat = GL_RG32F;
-        inputFormat = GL_RG;
-    }
-    else if(numComponents == 3)
-    {
-        internalFormat = GL_RGB32F;
-        inputFormat = GL_RGB;
-    }
-    else if(numComponents == 4)
-    {
-        internalFormat = GL_RGBA32F;
-        inputFormat = GL_RGBA;
-    }
-    else
-    {
-        logERROR("Texture") << "numComponents needs to be between 1 and 4!";
-        logFlush();
-        throw std::logic_error("numComponents needs to be between 1 and 4!");
-    }
-
-    auto tex = std::make_unique<Texture>(TextureTypes::texture2D, internalFormat, levels, width, height);
-    tex->uploadData(pixels.get(), inputFormat, GL_FLOAT);
-
-    if(generateMipmaps)
-        tex->generateMipmaps();
-
-    return std::move(tex);
+    Image8 img(filename,numComponents);
+    return makeTextureFromImage(img);
 }
 
 std::unique_ptr<Texture>
@@ -522,136 +368,6 @@ makeTexture2DArray(int width, int height, int numberOfLayers, GLenum internalFor
 }
 
 std::unique_ptr<Texture>
-makeTexture2DArrayFromFiles(const std::vector<std::string>& files, int numComponents, bool generateMipmaps)
-{
-    int width;
-    int height;
-    auto pixels = loadImageFile(files[0], width, height, numComponents);
-
-    int levels = 1;
-    if(generateMipmaps)
-        levels = Texture::maxMipmaps(width, height, 1);
-
-    GLenum internalFormat = 0;
-    GLenum inputFormat = 0;
-    if(numComponents == 1)
-    {
-        internalFormat = GL_R8;
-        inputFormat = GL_RED;
-    }
-    else if(numComponents == 2)
-    {
-        internalFormat = GL_RG8;
-        inputFormat = GL_RG;
-    }
-    else if(numComponents == 3)
-    {
-        internalFormat = GL_RGB8;
-        inputFormat = GL_RGB;
-    }
-    else if(numComponents == 4)
-    {
-        internalFormat = GL_RGBA8;
-        inputFormat = GL_RGBA;
-    }
-    else
-    {
-        logERROR("Texture") << "numComponents needs to be between 1 and 4!";
-        logFlush();
-        throw std::logic_error("numComponents needs to be between 1 and 4!");
-    }
-
-    auto tex = std::make_unique<Texture>(TextureTypes::texture2DArray, internalFormat, levels, width, height, files.size());
-    tex->upload2DLayer(pixels.get(), 0, inputFormat, GL_UNSIGNED_BYTE);
-
-    for(size_t i=1; i < files.size(); ++i)
-    {
-        int new_width;
-        int new_height;
-        pixels = loadImageFile(files[0], new_width, new_height, numComponents);
-
-        if(new_width != width || new_height != height)
-        {
-            logERROR("Texture") << "Textures in a texture array need to have the same size!";
-            logFlush();
-            throw std::logic_error("Textures in a texture array need to have the same size!");
-        }
-
-        tex->upload2DLayer(pixels.get(), i, inputFormat, GL_UNSIGNED_BYTE);
-    }
-
-    if(generateMipmaps)
-        tex->generateMipmaps();
-
-    return std::move(tex);
-}
-
-std::unique_ptr<Texture>
-makeTexture2DArrayFromFilesHDR(const std::vector<std::string>& files, int numComponents, bool generateMipmaps)
-{
-    int width;
-    int height;
-    auto pixels = loadImageFileHDR(files[0], width, height, numComponents);
-
-    int levels = 1;
-    if(generateMipmaps)
-        levels = Texture::maxMipmaps(width, height, 1);
-
-    GLenum internalFormat = 0;
-    GLenum inputFormat = 0;
-    if(numComponents == 1)
-    {
-        internalFormat = GL_R32F;
-        inputFormat = GL_RED;
-    }
-    else if(numComponents == 2)
-    {
-        internalFormat = GL_RG32F;
-        inputFormat = GL_RG;
-    }
-    else if(numComponents == 3)
-    {
-        internalFormat = GL_RGB32F;
-        inputFormat = GL_RGB;
-    }
-    else if(numComponents == 4)
-    {
-        internalFormat = GL_RGBA32F;
-        inputFormat = GL_RGBA;
-    }
-    else
-    {
-        logERROR("Texture") << "numComponents needs to be between 1 and 4!";
-        logFlush();
-        throw std::logic_error("numComponents needs to be between 1 and 4!");
-    }
-
-    auto tex = std::make_unique<Texture>(TextureTypes::texture2DArray, internalFormat, levels, width, height, files.size());
-    tex->upload2DLayer(pixels.get(), 0, inputFormat, GL_FLOAT);
-
-    for(int i=1; i < files.size(); ++i)
-    {
-        int new_width;
-        int new_height;
-        pixels = loadImageFileHDR(files[0], new_width, new_height, numComponents);
-
-        if(new_width != width || new_height != height)
-        {
-            logERROR("Texture") << "Textures in a texture array need to have the same size!";
-            logFlush();
-            throw std::logic_error("Textures in a texture array need to have the same size!");
-        }
-
-        tex->upload2DLayer(pixels.get(), i, inputFormat, GL_FLOAT);
-    }
-
-    if(generateMipmaps)
-        tex->generateMipmaps();
-
-    return std::move(tex);
-}
-
-std::unique_ptr<Texture>
 makeCubemap(int size, GLenum internalFormat, const void* data, GLenum format, GLenum type, int levels, bool genMipmaps)
 {
     if(levels == 0)
@@ -663,132 +379,6 @@ makeCubemap(int size, GLenum internalFormat, const void* data, GLenum format, GL
         tex->uploadData(data, format, type);
 
     if(genMipmaps)
-        tex->generateMipmaps();
-
-    return std::move(tex);
-}
-
-std::unique_ptr<Texture>
-makeCubemapFromFiles(const std::vector<std::string>& files, int numComponents, bool generateMipmaps)
-{
-    int width;
-    int height;
-    auto pixels = loadImageFile(files[0], width, height, numComponents);
-
-    int levels = 1;
-    if(generateMipmaps)
-        levels = Texture::maxMipmaps(width, height, 1);
-
-    GLenum internalFormat = 0;
-    GLenum inputFormat = 0;
-    if(numComponents == 1)
-    {
-        internalFormat = GL_R8;
-        inputFormat = GL_RED;
-    } else if(numComponents == 2)
-    {
-        internalFormat = GL_RG8;
-        inputFormat = GL_RG;
-    } else if(numComponents == 3)
-    {
-        internalFormat = GL_RGB8;
-        inputFormat = GL_RGB;
-    } else if(numComponents == 4)
-    {
-        internalFormat = GL_RGBA8;
-        inputFormat = GL_RGBA;
-    } else
-    {
-        logERROR("Texture") << "numComponents needs to be between 1 and 4!";
-        logFlush();
-        throw std::logic_error("numComponents needs to be between 1 and 4!");
-    }
-
-    auto tex = std::make_unique<Texture>(TextureTypes::cubemap, internalFormat, levels, width, height, files.size());
-    tex->upload2DLayer(pixels.get(), 0, inputFormat, GL_UNSIGNED_BYTE);
-
-    for(size_t i = 1; i < files.size(); ++i)
-    {
-        int new_width;
-        int new_height;
-        pixels = loadImageFile(files[0], new_width, new_height, numComponents);
-
-        if(new_width != width || new_height != height)
-        {
-            logERROR("Texture") << "Textures in a cubemap need to have the same size!";
-            logFlush();
-            throw std::logic_error("Textures in a cubemap need to have the same size!");
-        }
-
-        tex->upload2DLayer(pixels.get(), i, internalFormat, GL_UNSIGNED_BYTE);
-    }
-
-    if(generateMipmaps)
-        tex->generateMipmaps();
-
-    return std::move(tex);
-}
-
-std::unique_ptr<Texture>
-makeCubemapFromFilesHDR(const std::vector<std::string>& files, int numComponents, bool generateMipmaps)
-{
-    int width;
-    int height;
-    auto pixels = loadImageFileHDR(files[0], width, height, numComponents);
-
-    int levels = 1;
-    if(generateMipmaps)
-        levels = Texture::maxMipmaps(width, height, 1);
-
-    GLenum internalFormat = 0;
-    GLenum inputFormat = 0;
-    if(numComponents == 1)
-    {
-        internalFormat = GL_R32F;
-        inputFormat = GL_RED;
-    }
-    else if(numComponents == 2)
-    {
-        internalFormat = GL_RG32F;
-        inputFormat = GL_RG;
-    }
-    else if(numComponents == 3)
-    {
-        internalFormat = GL_RGB32F;
-        inputFormat = GL_RGB;
-    }
-    else if(numComponents == 4)
-    {
-        internalFormat = GL_RGBA32F;
-        inputFormat = GL_RGBA;
-    }
-    else
-    {
-        logERROR("Texture") << "numComponents needs to be between 1 and 4!";
-        logFlush();
-        throw std::logic_error("numComponents needs to be between 1 and 4!");
-    }
-
-    auto tex = std::make_unique<Texture>(TextureTypes::cubemap, internalFormat, levels, width, height, files.size());
-    tex->upload2DLayer(pixels.get(), 0, inputFormat, GL_FLOAT);
-
-    for(size_t i=1; i < files.size(); ++i)
-    {
-        int new_width;
-        int new_height;
-        pixels = loadImageFileHDR(files[0], new_width, new_height, numComponents);
-
-        if(new_width != width || new_height != height)
-        {
-            logERROR("Texture") << "Textures in a cubemap need to have the same size!";
-            logFlush();
-            throw std::logic_error("Textures in a cubemap need to have the same size!");
-        }
-
-        tex->upload2DLayer(pixels.get(), i, inputFormat, GL_FLOAT);
-    }
-
-    if(generateMipmaps)
         tex->generateMipmaps();
 
     return std::move(tex);

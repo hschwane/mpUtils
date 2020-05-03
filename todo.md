@@ -30,20 +30,14 @@
 - add better sprite management
 
 ### graphics in general
-- add better handling of bindless textures with multiple samplers
 - add resource manager
-
-### bit manipulation
-- add macros or constexpr functions for bit manipulation
 
 ### bugfix
 - make timers use a steady clock
 
-### math
-- better floating point comparism modes
-
 ## low priority / ideas / long term projects
 
+- add image class for image loading and manipulation
 - add double / triple buffering helper
 - better + safer handling of uniforms for shaders
 - add utility to parse command line input
@@ -62,6 +56,10 @@
 - add text rendering
 - add a proper 3d scene renderer
 - more other graphics related features
+- better floating point comparism modes
+- add macros or constexpr functions for bit manipulation
+
+
 
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted

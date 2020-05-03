@@ -19,6 +19,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "mpUtils/Graphics/Opengl/Sampler.h"
+#include "mpUtils/Misc/Image.h"
 #include <cinttypes>
 #include <string>
 #include <memory>
@@ -308,40 +309,21 @@ std::unique_ptr<Texture> makeTexture2D(int width, int height, GLenum internalFor
 std::unique_ptr<Texture> makeTexture3D(int width, int height, int depth, GLenum internalFormat, const GLvoid* data = nullptr, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE, int levels=0, bool genMipmaps = true);
 
 /**
- * @brief makes a 2D texture from an image file
+ * @brief makes a 2D texture from an Image8 object
+ * @param filename path to the image file
+ * @param generateMipmaps should mipmaps be generated
+ * @return a unique pointer to the resulting texture object
+ */
+std::unique_ptr<Texture> makeTextureFromImage(const Image8& image, bool generateMipmaps = true);
+
+/**
+ * @brief makes a 2D texture from an image file will scale images doen to 8bit per channel
  * @param filename path to the image file
  * @param number of components to fill 3=RGB, 4=RGBA, 1=Gray, 2=Gray+Alpha
  * @param generateMipmaps should mipmaps be generated
  * @return a unique pointer to the resulting texture object
  */
 std::unique_ptr<Texture> makeTextureFromFile(const std::string& filename, int numComponents = 4, bool generateMipmaps = true);
-
-/**
- * @brief makes a 2D HDR texture from an image file
- * @param filename path to the image file
- * @param number of components to fill 3=RGB, 4=RGBA, 1=Gray, 2=Gray+Alpha
- * @param generateMipmaps should mipmaps be generated
- * @return a unique pointer to the resulting texture object
- */
-std::unique_ptr<Texture> makeTextureFromFileHDR(const std::string& filename, int numComponents = 4,  bool generateMipmaps = true);
-
-/**
- * @brief makes a 2D texture from an image file already in memory (data is first passed to stb_image for decoding / decompression)
- * @param filename path to the image file
- * @param number of components to fill 3=RGB, 4=RGBA, 1=Gray, 2=Gray+Alpha
- * @param generateMipmaps should mipmaps be generated
- * @return a unique pointer to the resulting texture object
- */
-std::unique_ptr<Texture> makeTextureFromData( const unsigned char * data, int length, int numComponents = 4, bool generateMipmaps = true);
-
-/**
- * @brief makes a 2D HDR texture from an image file already in memory (data is first passed to stb_image for decoding / decompression)
- * @param filename path to the image file
- * @param number of components to fill 3=RGB, 4=RGBA, 1=Gray, 2=Gray+Alpha
- * @param generateMipmaps should mipmaps be generated
- * @return a unique pointer to the resulting texture object
- */
-std::unique_ptr<Texture> makeTextureFromDataHDR( const unsigned char * data, int length, int numComponents = 4, bool generateMipmaps = true);
 
 /**
  * @brief Generates an array of 1D textures optionally data can be uploaded to level 0. Data is expected to be big enough to fill the entire array.
@@ -373,24 +355,6 @@ std::unique_ptr<Texture> makeTexture1DArray(int size, int numberOfLayers, GLenum
 std::unique_ptr<Texture> makeTexture2DArray(int width, int height, int numberOfLayers, GLenum internalFormat, const GLvoid* data = nullptr, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE, int levels=0, bool genMipmaps = true);
 
 /**
- * @brief makes an array of 2D textures from a list of image files
- * @param files list of paths to the imag files
- * @param number of components to fill 3=RGB, 4=RGBA, 1=Gray, 2=Gray+Alpha
- * @param generateMipmaps should mipmaps be generated
- * @return a unique pointer to the resulting texture object
- */
-std::unique_ptr<Texture> makeTexture2DArrayFromFiles(const std::vector<std::string>& files, int numComponents = 4, bool generateMipmaps = true);
-
-/**
- * @brief makes an array of 2D HDR textures from a list of image files
- * @param files list of paths to the imag files
- * @param number of components to fill 3=RGB, 4=RGBA, 1=Gray, 2=Gray+Alpha
- * @param generateMipmaps should mipmaps be generated
- * @return a unique pointer to the resulting texture object
- */
-std::unique_ptr<Texture> makeTexture2DArrayFromFilesHDR(const std::vector<std::string>& files, int numComponents = 4, bool generateMipmaps = true);
-
-/**
  * @brief Generates a cube map texture. Optionally data can be uploaded to level 0. Data is expected to be big enough to fill all 6 faces.
  * @param size with / height of a single cube map face (cube map faces need to be squares)
  * @param internalFormat the internal format of the texture
@@ -402,24 +366,6 @@ std::unique_ptr<Texture> makeTexture2DArrayFromFilesHDR(const std::vector<std::s
  * @return returns a unique pointer to the resulting texture object
  */
 std::unique_ptr<Texture> makeCubemap(int size, GLenum internalFormat, const GLvoid* data = nullptr, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE, int levels=0, bool genMipmaps = true);
-
-/**
- * @brief makes a cube map from a list of 6 files
- * @param files list of paths to the imag files
- * @param number of components to fill 3=RGB, 4=RGBA, 1=Gray, 2=Gray+Alpha
- * @param generateMipmaps should mipmaps be generated
- * @return a unique pointer to the resulting texture object
- */
-std::unique_ptr<Texture> makeCubemapFromFiles(const std::vector<std::string>& files, int numComponents = 4, bool generateMipmaps = true);
-
-/**
- * @brief makes a HDR cube map from a list of 6 files
- * @param files list of paths to the imag files
- * @param number of components to fill 3=RGB, 4=RGBA, 1=Gray, 2=Gray+Alpha
- * @param generateMipmaps should mipmaps be generated
- * @return a unique pointer to the resulting texture object
- */
-std::unique_ptr<Texture> makeCubemapFromFilesHDR(const std::vector<std::string>& files, int numComponents = 4, bool generateMipmaps = true);
 
 /**
  * @brief casts texture to a pointer that can be passed into imgui::Image

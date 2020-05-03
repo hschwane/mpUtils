@@ -56,7 +56,7 @@ public:
      * @param forward forward direction in radians, 0 means to the right pi to the left
      * @param tileFactor texture will be tiled that many times
      */
-    Sprite2D(const unsigned char * data, int length, bool semiTransparent=false, glm::vec2 size={1,1}, float forward=0, float tileFactor=1);
+//    Sprite2D(const unsigned char * data, int length, bool semiTransparent=false, glm::vec2 size={1,1}, float forward=0, float tileFactor=1);
 
     /**
      * @brief returns a transformation matrix to transform a 1x1 quad into correct size and direction

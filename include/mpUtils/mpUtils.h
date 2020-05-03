@@ -51,7 +51,7 @@
 #include "Timer/Timer.h"
 
 // image loading
-#include "Misc/imageLoading.h"
+#include "Misc/Image.h"
 
 // compiletime math
 #include "mpUtils/external/gcem/gcem.hpp"
