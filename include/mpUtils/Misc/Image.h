@@ -77,7 +77,7 @@ public:
     struct constRowProxy //!< row struct allows acces to collums of a const row
     {
     public:
-        constRowProxy(InternalType* data, int channels) : rowData(data), channels(channels) {}
+        constRowProxy(const InternalType* data, int channels) : rowData(data), channels(channels) {}
         const InternalType *operator[](int col) const { return &rowData[col * channels]; } //!< access a column
     private:
         const InternalType* rowData;
@@ -98,7 +98,7 @@ public:
 
     // operations on the pixels
     void setZero(int row, int col, int maxRow, int maxCol, int channel=-1); //!< sets the entire image data to zero, or a specific channel if given
-    Image cloneSubregion(int row, int col, int maxRow, int maxCol); //!< returns a new image containing a subregion of the current image
+    Image cloneSubregion(int row, int col, int maxRow, int maxCol) const; //!< returns a new image containing a subregion of the current image
     void normalize(InternalType maxValue); //!< divide every value in the image by max value
 
 private:
@@ -282,7 +282,7 @@ void Image<storeT>::setZero(int row, int col, int maxRow, int maxCol, int channe
 }
 
 template <typename storeT>
-Image<storeT> Image<storeT>::cloneSubregion(int row, int col, int maxRow, int maxCol)
+Image<storeT> Image<storeT>::cloneSubregion(int row, int col, int maxRow, int maxCol) const
 {
     Image<storeT> result(maxCol-col,maxRow-row,m_channels);
     for(int i=row;i<maxRow;++i)
