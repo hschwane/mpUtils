@@ -64,7 +64,8 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
--replace cfg handler with toml11
+- rename incbin resource to embedded data
+- replace cfg handler with toml11
 - add CallbackHandler for all classes that providew callbacks
 - add simple imgui popups for messages
 - add texture to imgui helper function

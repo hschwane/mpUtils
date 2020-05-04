@@ -20,7 +20,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "mpUtils/Graphics/Input.h"
-#include "mpUtils/Misc/Resource.h"
+#include "mpUtils/Misc/EmbeddedData.h"
 //--------------------
 
 

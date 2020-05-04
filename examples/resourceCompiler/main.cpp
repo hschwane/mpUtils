@@ -16,11 +16,11 @@
 #include "mpUtils/mpUtils.h"
 
 
-ADD_RESOURCE(Text, "blubber/hw.txt");
+ADD_EMBEDDED_DATA(Text, "blubber/hw.txt");
 
 int main()
 {
-    mpu::Resource text = LOAD_RESOURCE(Text);
+    mpu::EmbeddedData text = LOAD_EMBEDDED_DATA(Text);
     std::cout << std::string(reinterpret_cast<const char*>(text.data()), text.size()) << std::endl;
 //    for(int i =0; i<gTextSize;i++)
 //        std::cout << gTextData[i];

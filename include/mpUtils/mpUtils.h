@@ -29,7 +29,7 @@
     #include "Misc/preprocessorUtils.h"
     #include "Misc/alignment.h"
 #endif
-#include "Misc/Resource.h"
+#include "Misc/EmbeddedData.h"
 #include "mpUtils/Misc/CallbackHandler.h"
 #include "mpUtils/Misc/StateMachine.h"
 

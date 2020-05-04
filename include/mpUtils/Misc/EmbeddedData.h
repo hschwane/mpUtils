@@ -5,15 +5,15 @@
  * @author: Hendrik Schwanekamp
  * @mail:   hendrik.schwanekamp@gmx.net
  *
- * Implements the Resource class
+ * Implements the EmbeddedData class
  *
  * Copyright (c) 2019 Hendrik Schwanekamp
  * Based on blogpost: https://beesbuzz.biz/code/4399-Embedding-binary-resources-with-CMake-and-C-11 (found on 08.04.2019)
  *
  */
 
-#ifndef MPUTILS_RESOURCE_H
-#define MPUTILS_RESOURCE_H
+#ifndef MPUTILS_EMBEDDEDDATA_H
+#define MPUTILS_EMBEDDEDDATA_H
 
 // includes
 //--------------------
@@ -28,7 +28,7 @@ namespace mpu {
 
 //-------------------------------------------------------------------
 /**
- * class Resource
+ * class EmbeddedData
  * Access a resource embedded into the executable.
  *
  * usage:
@@ -46,14 +46,14 @@ namespace mpu {
  * where the file was located at resources/test.txt
  *
  */
-class Resource
+class EmbeddedData
 {
 public:
-    Resource(const unsigned char *start, const unsigned char *end) : m_data(start), m_signedData(reinterpret_cast<const char*>(start)),
-                                                                    mSize(end - start)
+    EmbeddedData(const unsigned char *start, const unsigned char *end) : m_data(start), m_signedData(reinterpret_cast<const char*>(start)),
+                                                                         mSize(end - start)
     {}
 
-    Resource(const unsigned char *start, size_t size) : m_data(start), m_signedData(reinterpret_cast<const char*>(start)), mSize(size)
+    EmbeddedData(const unsigned char *start, size_t size) : m_data(start), m_signedData(reinterpret_cast<const char*>(start)), mSize(size)
     {}
 
     const unsigned char * const &data() const { return m_data; }
@@ -72,22 +72,22 @@ private:
 /**
  * @brief uses inline assembler to add a resource to the translation unit. Needs to be called from global scope.
  */
-#define ADD_RESOURCE(NAME,PATH) INCBIN(NAME, PATH)
+#define ADD_EMBEDDED_DATA(NAME,PATH) INCBIN(NAME, PATH)
 
 /**
  * @brief add resources that is already addded in another compilation unit
  */
-#define ADD_EXT_RESOURCE(NAME) INCBIN_EXTERN(NAME)
+#define ADD_EXT_EMBEDDED_DATA(NAME) INCBIN_EXTERN(NAME)
 
 /**
  * @brief loads a previously added resource in the current scope (returns a resource object)
  */
-#define LOAD_RESOURCE(NAME) ([]() \
+#define LOAD_EMBEDDED_DATA(NAME) ([]() \
 {               \
-    return mpu::Resource((g##NAME##Data), g##NAME##Size);          \
+    return mpu::EmbeddedData((g##NAME##Data), g##NAME##Size);          \
 })()
 
 
 }
 
-#endif //MPUTILS_RESOURCE_H
+#endif //MPUTILS_EMBEDDEDDATA_H
