@@ -117,34 +117,38 @@ void Renderer2D::addSprite(const Sprite2D& sprite, const glm::mat4& transform, i
 void Renderer2D::render()
 {
     m_spriteShader.use();
-    m_spriteShader.uniform1b("alphaDiscard",true);
 
-    // sort opaque sprites back to front, upload and draw
-    std::sort(m_opaqueSprites.begin(),m_opaqueSprites.end(),[](const spriteData& a, const spriteData& b)
+    if(!m_opaqueSprites.empty())
     {
-        return a.model[3][2] > b.model[3][2];
-    });
+        // sort opaque sprites back to front, upload and draw
+        std::sort(m_opaqueSprites.begin(), m_opaqueSprites.end(), [](const spriteData& a, const spriteData& b)
+        {
+            return a.model[3][2] > b.model[3][2];
+        });
 
-    Buffer<spriteData> opaque_data(m_opaqueSprites);
-    opaque_data.bindBase(0,GL_SHADER_STORAGE_BUFFER);
-    glDrawArrays(GL_TRIANGLES,0,6*m_opaqueSprites.size());
-    m_opaqueSprites.clear();
+        m_spriteShader.uniform1b("alphaDiscard",true);
+        Buffer<spriteData> opaque_data(m_opaqueSprites);
+        opaque_data.bindBase(0, GL_SHADER_STORAGE_BUFFER);
+        glDrawArrays(GL_TRIANGLES, 0, 6 * m_opaqueSprites.size());
+        m_opaqueSprites.clear();
+    }
 
-    // sort transparent sprites front to back, upload and draw
-    std::sort(m_transparentSprites.begin(),m_transparentSprites.end(),[](const spriteData& a, const spriteData& b)
+    if(!m_opaqueSprites.empty())
     {
-        return a.model[3][2] < b.model[3][2];
-    });
+        // sort transparent sprites front to back, upload and draw
+        std::sort(m_transparentSprites.begin(), m_transparentSprites.end(), [](const spriteData& a, const spriteData& b)
+        {
+            return a.model[3][2] < b.model[3][2];
+        });
 
-    glDepthMask(GL_FALSE);
-    m_spriteShader.uniform1b("alphaDiscard",false);
-    Buffer<spriteData> transparent_data(m_transparentSprites);
-    transparent_data.bindBase(0,GL_SHADER_STORAGE_BUFFER);
-    glDrawArrays(GL_TRIANGLES,0,6*m_transparentSprites.size());
-    m_transparentSprites.clear();
-
-    glDepthMask(GL_TRUE);
+        glDepthMask(GL_FALSE);
+        m_spriteShader.uniform1b("alphaDiscard", false);
+        Buffer<spriteData> transparent_data(m_transparentSprites);
+        transparent_data.bindBase(0, GL_SHADER_STORAGE_BUFFER);
+        glDrawArrays(GL_TRIANGLES, 0, 6 * m_transparentSprites.size());
+        m_transparentSprites.clear();
+        glDepthMask(GL_TRUE);
+    }
 }
-
 
 }}
