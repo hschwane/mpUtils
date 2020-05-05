@@ -25,6 +25,7 @@
 #include "Misc/Range.h"
 #include "Misc/pointPicking.h"
 #include "Misc/additionalMath.h"
+#include "mpUtils/Misc/CopyMoveAtomic.h"
 #if !defined(MPU_NO_PREPROCESSOR_UTILS)
     #include "Misc/preprocessorUtils.h"
     #include "Misc/alignment.h"
