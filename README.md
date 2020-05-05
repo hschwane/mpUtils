@@ -170,3 +170,5 @@ GLShader by Johannes Braun (https://github.com/johannes-braun/GLshader)
 EnTT by Michele Caini aka skypjack (https://github.com/skypjack/entt)
 
 toml11 by Toru Niin (https://github.com/ToruNiina/toml11)
+
+Thread Pool by Jakob Progsch and Václav Zeman (https://github.com/log4cplus/Threadpool)

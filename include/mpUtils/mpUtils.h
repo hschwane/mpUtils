@@ -25,7 +25,6 @@
 #include "Misc/Range.h"
 #include "Misc/pointPicking.h"
 #include "Misc/additionalMath.h"
-#include "mpUtils/Misc/CopyMoveAtomic.h"
 #if !defined(MPU_NO_PREPROCESSOR_UTILS)
     #include "Misc/preprocessorUtils.h"
     #include "Misc/alignment.h"
@@ -33,6 +32,10 @@
 #include "Misc/EmbeddedData.h"
 #include "mpUtils/Misc/CallbackHandler.h"
 #include "mpUtils/Misc/StateMachine.h"
+#include "mpUtils/Misc/CopyMoveAtomic.h"
+
+// image loading
+#include "Misc/Image.h"
 
 // configuration util
 #include "mpUtils/external/toml/toml.hpp"
@@ -52,9 +55,6 @@
 #include "Timer/Stopwatch.h"
 #include "Timer/Timer.h"
 
-// image loading
-#include "Misc/Image.h"
-
 // compiletime math
 #include "mpUtils/external/gcem/gcem.hpp"
 
@@ -63,6 +63,9 @@
 
 // EnTT entity component system
 #include "mpUtils/external/entt/entt.hpp"
+
+// Jakob Progsch thread pool
+#include "mpUtils/external/threadPool/ThreadPool.h"
 
 // matrix type might be useful without cuda
 #include "Cuda/Matrix.h"
