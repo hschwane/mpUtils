@@ -109,6 +109,8 @@ int main(int, char**)
     {
         ImGui::ShowDemoWindow();
 
+        mpu::gph::showBasicPerformanceWindow();
+
         ImGui::Begin("Input Test");
         {
 

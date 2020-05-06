@@ -25,6 +25,11 @@ namespace gph {
 //--------------------
 
 /**
+ * @brief window to display fps and ms per frame
+ */
+void showBasicPerformanceWindow(bool* show= nullptr, bool drawAsChild=false);
+
+/**
  * @brief debug window to monitor and manage the resource manager, do not open multiple windows
  */
 template <typename ... CacheTs>
@@ -280,7 +285,7 @@ void showResourceManagerDebugWindow( ResourceManager<CacheTs...>& resourceManage
                 int t[] = {0, ((void)(drawSelectedResource(resourceManager.template get<typename CacheTs::ResourceType>())), 1)...};
                 (void)t[0]; // silence compiler warning about t being unused
             }
-            ImGui::End();
+            ImGui::EndChild();
 
         }
         ImGui::EndChild();

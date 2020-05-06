@@ -102,6 +102,7 @@ int main()
         cam.update();
         renderer.setView(cam.viewMatrix());
 
+        mpu::gph::showBasicPerformanceWindow();
         mpu::gph::showResourceManagerDebugWindow(resourceManager);
 
         gph::Sprite2D sprite6(*testTexture);
