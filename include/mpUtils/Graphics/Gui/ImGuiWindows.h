@@ -25,6 +25,13 @@ namespace gph {
 //--------------------
 
 /**
+ * @brief simple overlay that shows fps in top left corner
+ * @brief distance distance from selected corner
+ * @brief corner 0= top left, 1= top right, 2 = bottom left, 3 = bottom right
+ */
+void showFPSOverlay(int corner = 0, ImVec2 distance={5.0f,5.0f});
+
+/**
  * @brief window to display fps and ms per frame
  */
 void showBasicPerformanceWindow(bool* show= nullptr, bool drawAsChild=false);

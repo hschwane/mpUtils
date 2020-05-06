@@ -84,8 +84,8 @@ int main(int, char**)
     Log myLog( LogLvl::ALL, ConsoleSink());
     myLog.printHeader("imGuiTest", MPU_VERSION_STRING, MPU_VERSION_COMMIT, "");
 
-    int width = 800;
-    int height = 600;
+    int width = 1000;
+    int height = 800;
     gph::Window window(width, height,"mpUtils imGui test");
 
     gph::Input::addDropCallback([](gph::Window& wnd, const std::vector<std::string>& files)
@@ -110,6 +110,7 @@ int main(int, char**)
         ImGui::ShowDemoWindow();
 
         mpu::gph::showBasicPerformanceWindow();
+        mpu::gph::showFPSOverlay(1);
 
         ImGui::Begin("Input Test");
         {
