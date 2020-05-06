@@ -12,6 +12,7 @@
 // includes
 //--------------------
 #include "mpUtils/Graphics/Gui/ImGuiWindows.h"
+#include "mpUtils/Graphics/Gui/ImGuiStyles.h"
 #include "mpUtils/Graphics/Utils/misc.h"
 #include "mpUtils/Graphics/Input.h"
 //--------------------
@@ -21,6 +22,52 @@
 namespace mpu {
 namespace gph {
 //--------------------
+
+void showStyleSelectorWindow(bool* show, bool drawAsChild)
+{
+    bool visible;
+    if(drawAsChild)
+    {
+        visible = ImGui::BeginChild("Style Selector");
+    }
+    else
+    {
+        ImGui::SetNextWindowSize(ImVec2(2400,120),ImGuiCond_FirstUseEver);
+        visible = ImGui::Begin("Style Selector", show);
+    }
+
+    if(visible)
+    {
+        static int selected=-1;
+        if(ImGui::Combo("style",&selected,"ImGui Default Dark\0ImGui Default Light\0ImGui Default Classic\0"
+                                       "Corporate Grey Flat\0Corporate Grey\0Darcula\0Pagghiu\0LightGreen\0"
+                                       "Yet Another Dark Theme\0Gold and Black\0\0"))
+        {
+            switch(selected)
+            {
+                case 0: ImGui::StyleImGuiDefaultDark(); break;
+                case 1: ImGui::StyleImGuiDefaultLight(); break;
+                case 2: ImGui::StyleImGuiDefaultClassic(); break;
+                case 3: ImGui::StyleCorporateGreyFlat(); break;
+                case 4: ImGui::StyleCorporateGrey(); break;
+                case 5: ImGui::StyleDarcula(); break;
+                case 6: ImGui::StylePagghiu(); break;
+                case 7: ImGui::StyleLightGreen(); break;
+                case 8: ImGui::StyleYetAnotherDarktheme(); break;
+                case 9: ImGui::StyleGoldAndBlack(); break;
+                default: break;
+            }
+        }
+
+        if(ImGui::CollapsingHeader("Style Editor"))
+            ImGui::ShowStyleEditor();
+    }
+
+    if(drawAsChild)
+        ImGui::EndChild();
+    else
+        ImGui::End();
+}
 
 void showFPSOverlay(int corner, ImVec2 distance)
 {

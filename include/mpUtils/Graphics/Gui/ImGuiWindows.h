@@ -25,6 +25,11 @@ namespace gph {
 //--------------------
 
 /**
+ * @brief window allows to switch between shipped styled and open the imgui style editor
+ */
+void showStyleSelectorWindow(bool* show= nullptr, bool drawAsChild=false);
+
+/**
  * @brief simple overlay that shows fps in top left corner
  * @brief distance distance from selected corner
  * @brief corner 0= top left, 1= top right, 2 = bottom left, 3 = bottom right

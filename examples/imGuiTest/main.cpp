@@ -111,6 +111,7 @@ int main(int, char**)
 
         mpu::gph::showBasicPerformanceWindow();
         mpu::gph::showFPSOverlay(1);
+        mpu::gph::showStyleSelectorWindow();
 
         ImGui::Begin("Input Test");
         {
