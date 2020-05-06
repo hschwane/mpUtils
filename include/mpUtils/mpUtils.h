@@ -45,6 +45,7 @@
 #include "mpUtils/ResourceManager/readData.h"
 #include "mpUtils/ResourceManager/Resource.h"
 #include "mpUtils/ResourceManager/ResourceCache.h"
+#include "mpUtils/ResourceManager/ResourceManager.h"
 
 // the logger
 #include "Log/ConsoleSink.h"

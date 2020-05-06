@@ -72,7 +72,7 @@ public:
     using PreloadType = PreloadDataT;
     using HandleType = RefcountingHelper::HandleType;
 
-    ResourceCache(std::function<std::unique_ptr<PreloadDataT>(std::string data)> preloadAsync,
+    ResourceCache(std::function<std::unique_ptr<PreloadDataT>(std::string)> preloadAsync,
             std::function<std::unique_ptr<T>(std::unique_ptr<PreloadDataT>)> loadSync,
             std::string workDir, std::function<void(std::function<void()>)> startTask,
             std::unique_ptr<T> defaultResource)
@@ -94,13 +94,14 @@ public:
     void forceReloadAll(); //!< force reload on all resources race conditions might occur if resource is simultaneously accessed in another thread
     void forceReload(const std::string& path); //!< force reload a specific resource  race conditions might occur if resources simultaneously accessed in another thread
     void tryReleaseAll(); //!< removes all resources that are not used anymore
-    void tryRelease(std::string path); //! releases resource, if it is not used anymore
+    void tryRelease(const std::string& path); //! releases resource, if it is not used anymore
 
     // for debugging and analysis:
     int numLoaded(); //!< returns number of loaded resources
     HandleType getHandle(const std::string& path); //!< returns internal resource handle (for debugging)
     std::tuple<const T*,const PreloadDataT*,int,ResourceState> getResourceInfo(HandleType h); //!< get information about resource h. Returns memory addresss, preload data adress, refcount and state. (for debugging)
     void doForEachResource(std::function<void(const std::string&, HandleType h)> f); //!< calls f for every currently loaded resource (for debugging)
+    const std::string& getWorkDir() {return m_workDir;} //!< returns the working directory
 
 private:
     RefcountingHelper m_refcounter;
@@ -200,7 +201,7 @@ Resource<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
     }
 
     expected = ResourceState::preloaded;
-    bool failed;
+    bool failed=false;
     if(m_resources[h].state.compare_exchange_strong(expected,ResourceState::loading))
     {
         std::unique_ptr<PreloadDataT> pd = std::move(m_resources[h].preloadData);
@@ -409,7 +410,7 @@ void ResourceCache<T, PreloadDataT>::tryReleaseAll()
 }
 
 template <typename T, typename PreloadDataT>
-void ResourceCache<T, PreloadDataT>::tryRelease(std::string path)
+void ResourceCache<T, PreloadDataT>::tryRelease(const std::string& path)
 {
     logDEBUG("ResourceManager") << "Trying to release " + path;
     HandleType h = getResourceHandle(path);

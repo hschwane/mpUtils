@@ -29,15 +29,11 @@
 - add 2d lighting and shadows
 - add better sprite management
 
-### graphics in general
-- add resource manager
-
 ### bugfix
 - make timers use a steady clock
 
 ## low priority / ideas / long term projects
 
-- add image class for image loading and manipulation
 - add double / triple buffering helper
 - better + safer handling of uniforms for shaders
 - add utility to parse command line input
@@ -64,9 +60,11 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add resource manager
 - rename incbin resource to embedded data
 - replace cfg handler with toml11
-- add CallbackHandler for all classes that providew callbacks
+- add image class for image loading and manipulation
+- add CallbackHandler for all classes that provide callbacks
 - add simple imgui popups for messages
 - add texture to imgui helper function
 - add state machine class
