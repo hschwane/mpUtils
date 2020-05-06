@@ -16,6 +16,7 @@
 
 // includes
 //--------------------
+#include <unordered_map>
 #include <string>
 #include <atomic>
 #include <mutex>
@@ -25,6 +26,7 @@
 #include "mpUtils/ResourceManager/readData.h"
 #include "mpUtils/Log/Log.h"
 #include "mpUtils/Misc/CopyMoveAtomic.h"
+#include "mpUtils/Misc/timeUtils.h"
 //--------------------
 
 // namespace
@@ -75,11 +77,11 @@ public:
     ResourceCache(std::function<std::unique_ptr<PreloadDataT>(std::string)> preloadAsync,
             std::function<std::unique_ptr<T>(std::unique_ptr<PreloadDataT>)> loadSync,
             std::string workDir, std::function<void(std::function<void()>)> startTask,
-            std::unique_ptr<T> defaultResource)
+            std::unique_ptr<T> defaultResource, std::string debugName)
             : m_asyncPreload(std::move(preloadAsync)), m_syncFinishLoad(std::move(loadSync)),
             m_startTask(std::move(startTask)), m_workDir(std::move(workDir)),
             m_refcounter(std::bind(&ResourceCache::signalConstruction,this,std::placeholders::_1), std::bind(&ResourceCache::signalDestruction,this,std::placeholders::_1)),
-            m_defaultResource(std::move(defaultResource))
+            m_defaultResource(std::move(defaultResource)), m_debugName(debugName)
     {
     }
 
@@ -102,6 +104,7 @@ public:
     std::tuple<const T*,const PreloadDataT*,int,ResourceState> getResourceInfo(HandleType h); //!< get information about resource h. Returns memory addresss, preload data adress, refcount and state. (for debugging)
     void doForEachResource(std::function<void(const std::string&, HandleType h)> f); //!< calls f for every currently loaded resource (for debugging)
     const std::string& getWorkDir() {return m_workDir;} //!< returns the working directory
+    std::string& getDebugName() {return m_debugName;} //!< returns the name shown in the debugger
 
 private:
     RefcountingHelper m_refcounter;
@@ -112,6 +115,7 @@ private:
     void doReload(const std::string& path, HandleType handle); //!< synchronously reloads a resource into the same memory address as it was before
 
     std::string m_workDir; //!< working directory of the loader, will be prepended to all filenames
+    std::string m_debugName; //!< name of this chache used for debugging and imgui
 
     std::function<void(std::function<void()>)> m_startTask; //!< forward a task to the used tasking system
     std::function<std::unique_ptr<PreloadDataT>(std::string data)> m_asyncPreload;    //!< executes part of loading that can be done in any thread, string contains binary or text data
@@ -348,7 +352,7 @@ void ResourceCache<T, PreloadDataT>::doReload(const std::string& path, ResourceC
 template <typename T, typename PreloadDataT>
 void ResourceCache<T, PreloadDataT>::forceReloadAll()
 {
-    logINFO("ResourceManager") << "Reloading everything.";
+    logINFO("ResourceManager") << m_debugName << " reloading everything.";
     std::unique_lock<std::shared_timed_mutex> lck(m_reloadAllLock);
     // start preloading on all resources first,
     // to use multiple threads

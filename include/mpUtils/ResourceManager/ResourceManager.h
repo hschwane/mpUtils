@@ -51,6 +51,7 @@ public:
         std::function<std::unique_ptr<T>(std::unique_ptr<PreloadDataT>)>  syncLoadFunc; //!< function to finish loading synchronously
         std::string workingDir; //!< working directory for this kind of resources
         std::unique_ptr<T> defaultResource; //!< default resource, used if resource is missing
+        std::string debugName; //!< name of ths cache used in imgui
     };
 
     explicit ResourceManager( cacheCreationData<typename CacheT::ResourceType, typename CacheT::PreloadType> ... caches);
@@ -91,7 +92,8 @@ ResourceManager<CacheT...>::ResourceManager( cacheCreationData<typename CacheT::
                                                                 caches.syncLoadFunc,
                                                                 caches.workingDir,
                                                                 [this](std::function<void()> f){this->m_threadPool.enqueue(f);},
-                                                                std::move(caches.defaultResource)     ) ... )
+                                                                std::move(caches.defaultResource),
+                                                                caches.debugName) ... )
 {
 }
 
@@ -99,62 +101,42 @@ template <typename... CacheT>
 template <typename T>
 Resource<T> ResourceManager<CacheT...>::load(const std::string& path)
 {
-    static_assert(has_type_v<T,resourceTypes>,"Resource manager has no cache to deal with resources of that type.");
-
-    // get preload type to the given resource type
-    using PreloadType = std::tuple_element_t<index_of_v<T,resourceTypes>,preloadTypes>;
-    return std::get<std::unique_ptr<ResourceCache<T,PreloadType>>>(m_caches)->load(path);
+    return get<T>().load(path);
 }
 
 template <typename... CacheT>
 template <typename T>
 void ResourceManager<CacheT...>::preload(const std::string& path)
 {
-    static_assert(has_type_v<T,resourceTypes>,"Resource manager has no cache to deal with resources of that type.");
-
-    // get preload type to the given resource type
-    using PreloadType = std::tuple_element_t<index_of_v<T,resourceTypes>,preloadTypes>;
-    std::get<std::unique_ptr<ResourceCache<T,PreloadType>>>(m_caches)->preload(path);
+    get<T>().preload(path);
 }
 
 template <typename... CacheT>
 template <typename T>
 bool ResourceManager<CacheT...>::isReady(const std::string& path)
 {
-    static_assert(has_type_v<T,resourceTypes>,"Resource manager has no cache to deal with resources of that type.");
-
-    // get preload type to the given resource type
-    using PreloadType = std::tuple_element_t<index_of_v<T,resourceTypes>,preloadTypes>;
-    return std::get<std::unique_ptr<ResourceCache<T,PreloadType>>>(m_caches)->isReady(path);
+    return get<T>().isReady(path);
 }
 
 template <typename... CacheT>
 template <typename T>
 bool ResourceManager<CacheT...>::isPreloaded(const std::string& path)
 {
-    static_assert(has_type_v<T,resourceTypes>,"Resource manager has no cache to deal with resources of that type.");
-
-    // get preload type to the given resource type
-    using PreloadType = std::tuple_element_t<index_of_v<T,resourceTypes>,preloadTypes>;
-    return std::get<std::unique_ptr<ResourceCache<T,PreloadType>>>(m_caches)->isPreloaded(path);
+    return get<T>().isPreloaded(path);
 }
 
 template <typename... CacheT>
 template <typename T>
 void ResourceManager<CacheT...>::forceReload(const std::string& path)
 {
-    // get preload type to the given resource type
-    using PreloadType = std::tuple_element_t<index_of_v<T,resourceTypes>,preloadTypes>;
-    return std::get<std::unique_ptr<ResourceCache<T,PreloadType>>>(m_caches)->forceReload(path);
+    get<T>().forceReload(path);
 }
 
 template <typename... CacheT>
 template <typename T>
 void ResourceManager<CacheT...>::tryRelease(const std::string& path)
 {
-    // get preload type to the given resource type
-    using PreloadType = std::tuple_element_t<index_of_v<T,resourceTypes>,preloadTypes>;
-    return std::get<std::unique_ptr<ResourceCache<T,PreloadType>>>(m_caches)->tryRelease(path);
+    get<T>().tryRelease(path);
 }
 
 template <typename... CacheT>
@@ -166,33 +148,56 @@ int ResourceManager<CacheT...>::getNumThreads()
 template <typename... CacheT>
 void ResourceManager<CacheT...>::setNumThreads(int threads)
 {
+    logINFO("ResourceManager") << "Set number of loading threads to " << threads;
     m_threadPool.setPoolSize(threads);
 }
+
+namespace detail {
+        template<typename T>
+        T varor(T first) {
+            return first;
+        }
+
+        template<typename T, typename... Args>
+        T varor(T first, Args... args) {
+            return first && varor(args...);
+        }
+
+        template<typename T>
+        T varsum(T first) {
+            return first;
+        }
+
+        template<typename T, typename... Args>
+        T varsum(T first, Args... args) {
+            return first + varsum(args...);
+        }
+    }
 
 template <typename... CacheT>
 bool ResourceManager<CacheT...>::loadOne()
 {
-    return (std::get<CacheT>(m_caches).loadOne() | ...);
+    return detail::varor(std::get<std::unique_ptr<CacheT>>(m_caches)->loadOne()...);
 }
 
 template <typename... CacheT>
 void ResourceManager<CacheT...>::forceReloadAll()
 {
-    int t[] = {0, ((void)( std::get<CacheT>(m_caches)->forceReloadAll() ),1)...};
+    int t[] = {0, ((void)( std::get<std::unique_ptr<CacheT>>(m_caches)->forceReloadAll() ),1)...};
     (void)t[0]; // silence compiler warning about t being unused
 }
 
 template <typename... CacheT>
 void ResourceManager<CacheT...>::tryReleaseAll()
 {
-    int t[] = {0, ((void)( std::get<CacheT>(m_caches)->tryReleaseAll() ),1)...};
+    int t[] = {0, ((void)( std::get<std::unique_ptr<CacheT>>(m_caches)->tryReleaseAll() ),1)...};
     (void)t[0]; // silence compiler warning about t being unused
 }
 
 template <typename... CacheT>
 int ResourceManager<CacheT...>::numLoaded()
 {
-    return (std::get<CacheT>(m_caches).numLoaded() + ...);
+    return detail::varsum(std::get<std::unique_ptr<CacheT>>(m_caches)->numLoaded()...);
 }
 
 template <typename... CacheT>
