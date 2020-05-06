@@ -50,14 +50,14 @@ public:
     }
 
     Resource(const Resource& other)
-            : m_resource(other.m_handle), m_handle(other.m_handle), m_refcount(other.m_refcount)
+            : m_resource(other.m_resource), m_handle(other.m_handle), m_refcount(other.m_refcount)
     {
         if(m_refcount)
             m_refcount->signalConstruction(m_handle);
     }
 
     Resource(Resource&& other)
-            : m_resource(other.m_handle), m_handle(other.m_handle), m_refcount(other.m_refcount)
+            : m_resource(other.m_resource), m_handle(other.m_handle), m_refcount(other.m_refcount)
     {
         // we dont have a default constructor, so we cannot swap, simply steal from the other object
         // and make sure it does not decrease the ref counter on construction
@@ -77,8 +77,8 @@ public:
             m_refcount->signalDestruction(m_handle);
     }
 
-    T operator->() { return m_resource; }
-    T operator*() { return *m_resource; }
+    const T* operator->() { return m_resource; }
+    const T& operator*() { return *m_resource; }
     const T* get() { return m_resource; }
     explicit operator bool() const noexcept {return (m_resource != nullptr);}
 

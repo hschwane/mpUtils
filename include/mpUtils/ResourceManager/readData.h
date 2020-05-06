@@ -29,7 +29,7 @@ namespace mpu {
  * @param path path to the file
  * @return string containing data of the file
  */
-std::string readFile(const std::string& path)
+inline std::string readFile(const std::string& path)
 {
     if(*(path.end()-1) == '/')
         throw std::runtime_error("Passed path to folder instead of file: " + path);

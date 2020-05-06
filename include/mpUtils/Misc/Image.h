@@ -90,8 +90,8 @@ public:
     InternalType &operator()(int idx) { return m_data[idx]; } //!< access value
     const InternalType &operator()(int idx) const { return m_data[idx]; } //!< access value
 
-    InternalType* T(int row, size_t col) { return &this[col][row];} //!< access pixel as if matrix was transposed
-    const InternalType* T(int row, size_t col) const { return &this[col][row];} //!< access pixel as if matrix was transposed
+    InternalType* T(int row, size_t col) { return (*this)[col][row];} //!< access pixel as if matrix was transposed
+    const InternalType* T(int row, size_t col) const { return (*this)[col][row];} //!< access pixel as if matrix was transposed
 
     InternalType* data() {return m_data.data();} //!< direct access to the internal data
     const InternalType* data() const {return m_data.data();} //!< direct access to the internal data
@@ -110,9 +110,17 @@ private:
 };
 
 // some default image specializations
+// -------------------------------------------------------------------
 using Image8 = Image<uint8_t>;
 using Image16 = Image<uint16_t>;
 using Image32 = Image<float>;
+
+// instantiate templates so they can be linked
+//-------------------------------------------------------------------
+extern template class Image<uint8_t>;
+extern template class Image<uint16_t>;
+extern template class Image<float>;
+
 
 // template function definition
 //-------------------------------------------------------------------

@@ -57,31 +57,11 @@ int main()
     renderer.setProjection(-1*aspect,1*aspect,-1,1);
 
     // test resource management
-    using ImageResource = Resource<Image8>;
-    using ImageRC = ResourceCache<Image8,Image8>;
-    auto preloadImage = [](std::string data)
-            {
-                return make_unique<Image8>(reinterpret_cast<unsigned char*>(data.data()),data.size());
-            };
+    ResourceManager< ImageRC,Image16RC > resourceManager( {preloadImage,finalLoadImage,MPU_LIB_RESOURCE_PATH,
+                                                            getDefaultImage(), "Image-8bit"},
+                                                {preloadImage16,finalLoadImage16,MPU_LIB_RESOURCE_PATH,
+                                                 getDefaultImage16(), "Image-16bit"} );
 
-    auto loadImage = [](std::unique_ptr<Image8> img) { return img;};
-
-    using Image16Resource = Resource<Image16>;
-    using Image16RC = ResourceCache<Image16,Image16>;
-    auto preloadImage16 = [](std::string data)
-    {
-        return make_unique<Image16>(reinterpret_cast<unsigned char*>(data.data()),data.size());
-    };
-
-    auto loadImage16 = [](std::unique_ptr<Image16> img) { return img;};
-
-
-    ResourceManager< ImageRC,Image16RC > resourceManager( {preloadImage,loadImage,MPU_LIB_RESOURCE_PATH,
-                                                 std::make_unique<Image8>(MPU_LIB_RESOURCE_PATH"missingTexture.png"),
-                                                 "Image-8bit"},
-                                                {preloadImage16,loadImage16,MPU_LIB_RESOURCE_PATH,
-                                                 std::make_unique<Image16>(MPU_LIB_RESOURCE_PATH"missingTexture.png"),
-                                                 "Image-16bit"}        );
     Image16Resource checker16 = resourceManager.load<Image16>("checker-map.png");
     checker16.unload();
 

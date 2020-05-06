@@ -487,7 +487,7 @@ bool ResourceCache<T, PreloadDataT>::loadOne()
         {
             sharedLckR.unlock();
             sharedLckRH.unlock();
-            load(handle.second);
+            load(handle.first);
             return true;
         }
     }

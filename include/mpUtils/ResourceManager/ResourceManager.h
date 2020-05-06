@@ -33,6 +33,8 @@ namespace mpu {
  * class ResourceManager
  *
  * Resource manager packs together multiple resource caches for the management of resources of different types.
+ * For mpUtils classes that might be used as a resource, aliases and template instantiations,
+ * as well as load and preload functions are available in mpUtilsResources.h.
  *
  */
 template <typename ... CacheT>
