@@ -208,6 +208,29 @@ struct instantiate_from_tuple<Class, std::tuple<TupleTs...>>
 template <template<typename ...>class Class, typename Tuple>
 using instantiate_from_tuple_t = typename instantiate_from_tuple<Class,Tuple>::type;
 
+/**
+ * @brief Has Tuple type T? Will evaluate to std::true_type if T is in Tuple, std::false_type otherwise
+ */
+template <typename T, typename Tuple>
+struct has_type;
+
+template <typename T>
+struct has_type<T, std::tuple<>> : std::false_type {};
+
+template <typename T, typename U, typename... Ts>
+struct has_type<T, std::tuple<U, Ts...>> : has_type<T, std::tuple<Ts...>> {};
+
+template <typename T, typename... Ts>
+struct has_type<T, std::tuple<T, Ts...>> : std::true_type {};
+
+//!< shorthand for has_type<>::type
+template <typename T, typename Tuple>
+using has_type_t = typename has_type<T, Tuple>::type;
+
+//!< shorthand for has_type<>::value
+template <typename T, typename Tuple>
+static constexpr bool has_type_v = has_type<T, Tuple>::value;
+
 //-------------------------------------------------------------------
 // operations / helper on std::integer_list
 
