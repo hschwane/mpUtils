@@ -41,6 +41,11 @@
 #include "mpUtils/external/toml/toml.hpp"
 #include "mpUtils/Misc/tomlStore.h"
 
+// resource management
+#include "mpUtils/ResourceManager/readData.h"
+#include "mpUtils/ResourceManager/Resource.h"
+#include "mpUtils/ResourceManager/ResourceCache.h"
+
 // the logger
 #include "Log/ConsoleSink.h"
 #include "Log/FileSink.h"
