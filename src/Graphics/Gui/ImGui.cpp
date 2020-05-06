@@ -275,4 +275,16 @@ ImFont* loadFont(std::string file, float size, bool addIcons)
     return it->second;
 }
 
+void pushDisabled()
+{
+    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.6f);
+}
+
+void popDisabled()
+{
+    ImGui::PopItemFlag();
+    ImGui::PopStyleVar();
+}
+
 }

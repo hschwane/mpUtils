@@ -62,6 +62,9 @@ namespace ImGui { // we extend the imgui namespace inside mpu
     #define ICON_BEGIN() ImGui::PushFont(ImGui::iconFont) //!< enables the use of standalone icons by pushing icon font
     #define ICON_END() ImGui::PopFont() //!< ends use of icons by popping icon font from the stack
     extern ImFont* iconFont;
+
+    void pushDisabled(); //!< starts regieon with disabled widgets
+    void popDisabled(); //!< ends region with disabled widgets
 }
 
 #endif //MPUTILS_IMGUI_H
