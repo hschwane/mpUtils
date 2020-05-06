@@ -14,7 +14,6 @@
 // includes
 //--------------------
 #include "mpUtils/Graphics/Gui/ImGui.h"
-#include <mpUtils/external/imgui/imgui_internal.h>
 //--------------------
 
 namespace ImGui {
@@ -41,6 +40,21 @@ void SimpleModal(const std::string& header, std::string text, std::vector<std::s
  */
 int SimpleBlockingModal(const std::string& header, std::string text, std::vector<std::string> buttons,
                  std::string icon="");
+
+/**
+ * @brief Splits current region in two parts and allows to move the splitter
+ * @param split_vertically
+ * @param thickness
+ * @param size1
+ * @param size2
+ * @param min_size1
+ * @param min_size2
+ * @param splitter_long_axis_size
+ * @param visible should the splitter be visible
+ * @return
+ */
+bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f, bool visible = true);
+
 }
 
 #endif  // RAPTOR_IMGUIELEMENTS_H

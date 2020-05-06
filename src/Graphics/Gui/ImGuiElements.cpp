@@ -13,6 +13,7 @@
 //--------------------
 #include "mpUtils/Graphics/Window.h"
 #include "mpUtils/Graphics/Gui/ImGuiElements.h"
+#include <mpUtils/external/imgui/imgui_internal.h>
 #include "mpUtils/Misc/pointPicking.h"
 #include "mpUtils/Graphics/Input.h"
 #include "imgui_impl_glfw.h"
@@ -340,6 +341,84 @@ int SimpleBlockingModal(const std::string& header, std::string text, std::vector
     return button;
 }
 
+bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size, bool visible)
+{
+    using namespace ImGui;
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+    ImGuiID id = window->GetID("##Splitter");
+    ImRect bb;
+    bb.Min.x = window->DC.CursorPos.x + (split_vertically ? *size1 : 0.0f);
+    bb.Min.y = window->DC.CursorPos.y + (split_vertically ? 0.0f : *size1);
+
+    ImVec2 itemSize = CalcItemSize(split_vertically ? ImVec2(thickness, splitter_long_axis_size) : ImVec2(splitter_long_axis_size, thickness), 0.0f, 0.0f);
+    bb.Max.x = bb.Min.x + itemSize.x;
+    bb.Max.y = bb.Min.y + itemSize.y;
+
+    ImGuiAxis axis = split_vertically ? ImGuiAxis_X : ImGuiAxis_Y;
+    float hover_extend=1.0f;
+    float hover_visibility_delay=0.f;
+
+    // --------------------------------------------------------------
+    // copied from  ImGui::SplitterBehavior and modified
+    const ImGuiItemFlags item_flags_backup = window->DC.ItemFlags;
+    window->DC.ItemFlags |= ImGuiItemFlags_NoNav | ImGuiItemFlags_NoNavDefaultFocus;
+    bool item_add = ItemAdd(bb, id);
+    window->DC.ItemFlags = item_flags_backup;
+    if (!item_add)
+        return false;
+
+    bool hovered, held;
+    ImRect bb_interact = bb;
+    bb_interact.Expand(axis == ImGuiAxis_Y ? ImVec2(0.0f, hover_extend) : ImVec2(hover_extend, 0.0f));
+    ButtonBehavior(bb_interact, id, &hovered, &held, ImGuiButtonFlags_FlattenChildren | ImGuiButtonFlags_AllowItemOverlap);
+    if (g.ActiveId != id)
+        SetItemAllowOverlap();
+
+    if (held || (g.HoveredId == id && g.HoveredIdPreviousFrame == id && g.HoveredIdTimer >= hover_visibility_delay))
+        SetMouseCursor(axis == ImGuiAxis_Y ? ImGuiMouseCursor_ResizeNS : ImGuiMouseCursor_ResizeEW);
+
+    ImRect bb_render = bb;
+    if (held)
+    {
+        ImVec2 mouse_delta_2d;
+        mouse_delta_2d.x = g.IO.MousePos.x - g.ActiveIdClickOffset.x - bb_interact.Min.x;
+        mouse_delta_2d.y = g.IO.MousePos.y - g.ActiveIdClickOffset.y - bb_interact.Min.y;
+        float mouse_delta = (axis == ImGuiAxis_Y) ? mouse_delta_2d.y : mouse_delta_2d.x;
+
+        // Minimum pane size
+        float size_1_maximum_delta = ImMax(0.0f, *size1 - min_size1);
+        float size_2_maximum_delta = ImMax(0.0f, *size2 - min_size2);
+        if (mouse_delta < -size_1_maximum_delta)
+            mouse_delta = -size_1_maximum_delta;
+        if (mouse_delta > size_2_maximum_delta)
+            mouse_delta = size_2_maximum_delta;
+
+        // Apply resize
+        if (mouse_delta != 0.0f)
+        {
+            if (mouse_delta < 0.0f)
+                IM_ASSERT(*size1 + mouse_delta >= min_size1);
+            if (mouse_delta > 0.0f)
+                IM_ASSERT(*size2 - mouse_delta >= min_size2);
+            *size1 += mouse_delta;
+            *size2 -= mouse_delta;
+            bb_render.Translate((axis == ImGuiAxis_X) ? ImVec2(mouse_delta, 0.0f) : ImVec2(0.0f, mouse_delta));
+            MarkItemEdited(id);
+        }
+    }
+
+    // Render
+    if(visible)
+    {
+        const ImU32 col = GetColorU32(
+                held ? ImGuiCol_SeparatorActive : (hovered && g.HoveredIdTimer >= hover_visibility_delay)
+                                                  ? ImGuiCol_SeparatorHovered : ImGuiCol_Separator);
+        window->DrawList->AddRectFilled(bb_render.Min, bb_render.Max, col, 0.0f);
+    }
+
+    return held;
+}
 
 
 }
