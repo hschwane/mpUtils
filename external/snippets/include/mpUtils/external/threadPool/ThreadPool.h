@@ -41,6 +41,13 @@
 
 namespace mpu {
 
+/**
+ * @brief create a simple thread pool using the given amount of threads
+ * jobs can be added using the enqueue function, which will  return the result inside a std::future
+ * When max queue size is reached, enqueue will block until an element gets processed.
+ * Number of threads can be changed using setPoolSize.
+ * waitUntilEmpty waits until all jobs are executed.
+ */
 class ThreadPool {
 public:
     explicit ThreadPool(std::size_t threads
@@ -48,10 +55,10 @@ public:
     template<class F, class... Args>
     auto enqueue(F&& f, Args&&... args)
         -> std::future<typename std::result_of<F(Args...)>::type>;
-    void wait_until_empty();
-    void wait_until_nothing_in_flight();
-    void set_queue_size_limit(std::size_t limit);
-    void set_pool_size(std::size_t limit);
+    void waitUntilEmpty();
+    void waitUntilNothingInFlight();
+    void setQueueSizeLimit(std::size_t limit);
+    void setPoolSize(std::size_t limit);
     ~ThreadPool();
 
 private:
@@ -158,21 +165,21 @@ inline ThreadPool::~ThreadPool()
     assert(in_flight == 0);
 }
 
-inline void ThreadPool::wait_until_empty()
+inline void ThreadPool::waitUntilEmpty()
 {
     std::unique_lock<std::mutex> lock(this->queue_mutex);
     this->condition_producers.wait(lock,
         [this]{ return this->tasks.empty(); });
 }
 
-inline void ThreadPool::wait_until_nothing_in_flight()
+inline void ThreadPool::waitUntilNothingInFlight()
 {
     std::unique_lock<std::mutex> lock(this->in_flight_mutex);
     this->in_flight_condition.wait(lock,
         [this]{ return this->in_flight == 0; });
 }
 
-inline void ThreadPool::set_queue_size_limit(std::size_t limit)
+inline void ThreadPool::setQueueSizeLimit(std::size_t limit)
 {
     std::unique_lock<std::mutex> lock(this->queue_mutex);
 
@@ -185,7 +192,7 @@ inline void ThreadPool::set_queue_size_limit(std::size_t limit)
         condition_producers.notify_all();
 }
 
-inline void ThreadPool::set_pool_size(std::size_t limit)
+inline void ThreadPool::setPoolSize(std::size_t limit)
 {
     if (limit < 1)
         limit = 1;
