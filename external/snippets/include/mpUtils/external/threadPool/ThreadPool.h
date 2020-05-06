@@ -59,6 +59,7 @@ public:
     void waitUntilNothingInFlight();
     void setQueueSizeLimit(std::size_t limit);
     void setPoolSize(std::size_t limit);
+    std::size_t getPoolSize() const;
     ~ThreadPool();
 
 private:
@@ -190,6 +191,11 @@ inline void ThreadPool::setQueueSizeLimit(std::size_t limit)
     max_queue_size = (std::max)(limit, std::size_t(1));
     if (old_limit < max_queue_size)
         condition_producers.notify_all();
+}
+
+std::size_t ThreadPool::getPoolSize() const
+{
+    return pool_size;
 }
 
 inline void ThreadPool::setPoolSize(std::size_t limit)
