@@ -56,6 +56,16 @@ void StylePagghiu();
  */
 void StyleLightGreen();
 
+/**
+ * @brief clean back and blue color scheme. Taken from https://github.com/ocornut/imgui/issues/707#issuecomment-512669512
+ */
+void StyleYetAnotherDarktheme();
+
+/**
+ * @brief dar base color with golden details. Taken from https://github.com/ocornut/imgui/issues/707#issuecomment-622934113
+ */
+void StyleGoldAndBlack();
+
 }
 
 #endif //MPUTILS_IMGUISTYLES_H
