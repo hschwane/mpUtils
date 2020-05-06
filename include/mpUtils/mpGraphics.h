@@ -47,6 +47,7 @@
 #include "mpUtils/Graphics/Gui/ImGui.h"
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"
 #include "mpUtils/Graphics/Gui/ImGuiElements.h"
+#include "mpUtils/Graphics/Gui/ImGuiWindows.h"
 #include "mpUtils/Graphics/Input.h"
 //--------------------
 
