@@ -52,6 +52,9 @@ void LogBuffer::addLine(LogMessage line)
     {
         m_filtered.emplace_back(m_data[p]);
         m_newFilterState = true;
+
+        if(filteredSize() > size())
+            rebuildFilter();
     }
     m_newMessage = true;
 }
@@ -195,7 +198,6 @@ void LogBuffer::rebuildFilter()
     }
     else if(!m_rebuildingTheFilterAsync)
     {
-        std::cout << "start async" << std::endl;
         m_filtered.clear();
         m_rebuildingTheFilterAsync = true;
         static std::future<void> r;

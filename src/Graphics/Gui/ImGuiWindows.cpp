@@ -15,6 +15,7 @@
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"
 #include "mpUtils/Graphics/Utils/misc.h"
 #include "mpUtils/Graphics/Input.h"
+#include <mpUtils/external/imgui/imgui_internal.h>
 //--------------------
 
 // namespace
@@ -32,7 +33,7 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
     }
     else
     {
-        ImGui::SetNextWindowSize(ImVec2(2400,120),ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(700,360),ImGuiCond_FirstUseEver);
         visible = ImGui::Begin("Log", show);
     }
 
@@ -126,29 +127,33 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
         ImGui::Button(ICON_FA_FILTER);
         if(ImGui::BeginPopupContextItem("filter by level",0))
         {
-            if(ImGui::Button("Enable all"))
+            ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+            if(ImGui::MenuItem("Enable all"))
             {
                 allowedLogLevels = {true,true,true,true,true,true,true};
                 buffer.setAllowedLogLevels(allowedLogLevels);
             }
 
-            if(ImGui::Button("Disable all"))
+            if(ImGui::MenuItem("Disable all"))
             {
                 allowedLogLevels = {false,false,false,false,false,false,false};
                 buffer.setAllowedLogLevels(allowedLogLevels);
             }
 
+            ImGui::Separator();
+
             bool allowedLevelChanged = false;
-            allowedLevelChanged |= ImGui::Checkbox("Other", &allowedLogLevels[0]);
-            allowedLevelChanged |= ImGui::Checkbox("Debug2", &allowedLogLevels[6]);
-            allowedLevelChanged |= ImGui::Checkbox("Debug", &allowedLogLevels[5]);
-            allowedLevelChanged |= ImGui::Checkbox("Info", &allowedLogLevels[4]);
-            allowedLevelChanged |= ImGui::Checkbox("Warning", &allowedLogLevels[3]);
-            allowedLevelChanged |= ImGui::Checkbox("Error", &allowedLogLevels[2]);
-            allowedLevelChanged |= ImGui::Checkbox("Fatal", &allowedLogLevels[1]);
+            allowedLevelChanged |= ImGui::MenuItem("Other",nullptr, &allowedLogLevels[0]);
+            allowedLevelChanged |= ImGui::MenuItem("Debug2",nullptr, &allowedLogLevels[6]);
+            allowedLevelChanged |= ImGui::MenuItem("Debug",nullptr, &allowedLogLevels[5]);
+            allowedLevelChanged |= ImGui::MenuItem("Info",nullptr, &allowedLogLevels[4]);
+            allowedLevelChanged |= ImGui::MenuItem("Warning",nullptr, &allowedLogLevels[3]);
+            allowedLevelChanged |= ImGui::MenuItem("Error",nullptr, &allowedLogLevels[2]);
+            allowedLevelChanged |= ImGui::MenuItem("Fatal",nullptr, &allowedLogLevels[1]);
             if(allowedLevelChanged)
                 buffer.setAllowedLogLevels(allowedLogLevels);
 
+            ImGui::PopItemFlag();
             ImGui::EndPopup();
         }
         if(ImGui::IsItemHovered())
@@ -162,7 +167,7 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
             ImGui::SetTooltip("Filter by module (\"-\" to exclude)");
 
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(140);
+        ImGui::SetNextItemWidth(160);
         if(ImGui::InputText("text",&messageFilter))
             buffer.setMessageFilter(messageFilter);
         if(ImGui::IsItemHovered())
@@ -219,7 +224,7 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
         // buffer capacity
         ImGui::SameLine();
         static int cap = buffer.capacity();
-        ImGui::SetNextItemWidth(40);
+        ImGui::SetNextItemWidth(60);
         ImGui::DragInt("##",&cap,0.5,10,1000000);
         if(ImGui::IsItemDeactivatedAfterEdit())
             buffer.changeCapacity(cap);
@@ -227,6 +232,60 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
             cap = buffer.capacity();
         if(ImGui::IsItemHovered())
             ImGui::SetTooltip("change buffer capacity");
+
+        // copy to clipboard
+        static bool copyFilename = false;
+        ImGui::SameLine();
+        if(ImGui::Button(ICON_FA_CLIPBOARD))
+        {
+            std::ostringstream clipboard;
+
+            for(int i=0; i < buffer.filteredSize(); i++)
+            {
+                LogMessage& msg = buffer.filtered(i);
+
+                struct tm timeStruct;
+                #ifdef __linux__
+                localtime_r(&msg.timepoint, &timeStruct);
+                #elif _WIN32
+                localtime_s(&timeStruct, &msg.timepoint);
+                #else
+                    #error please implement this for your operating system
+                #endif
+
+                if(msg.plaintext)
+                {
+                    if(msg.plaintext)
+                        clipboard << msg.sMessage << std::endl;
+                } else
+                {
+                    clipboard << "[" << toString(msg.lvl) << "]"
+                              << " [" << std::put_time(&timeStruct, "%c") << "]";
+
+                    if(!msg.sModule.empty())
+                        clipboard << " (" << msg.sModule << "):";
+
+                    clipboard << "\t" << msg.sMessage
+                              << "\tThread: " << std::setbase(16) << msg.threadId << std::setbase(10);
+
+                    if(copyFilename && !msg.sFilePosition.empty())
+                        clipboard << "\t@File: " << msg.sFilePosition;
+
+                    clipboard << std::endl;
+                }
+            }
+            ImGui::SetClipboardText(clipboard.str().c_str());
+        }
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("copy log to clipboard\nRight click for options.");
+        if(ImGui::BeginPopupContextItem())
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+            ImGui::MenuItem("enable copy filenames",nullptr,&copyFilename);
+            ImGui::PopItemFlag();
+            ImGui::EndPopup();
+        }
+
 
         // clear buffer
         ImGui::SameLine();
@@ -244,6 +303,7 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
 
         ImGui::Separator();
 
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(0,0));
         ImGui::BeginChild("scroll");
         {
             static float lastScrollWndWidth = ImGui::GetWindowWidth();
@@ -303,25 +363,67 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
                     }
                     if(ImGui::BeginPopupContextItem("popup"))
                     {
-                        if(ImGui::Button("Show only this Module"))
+                        if(ImGui::MenuItem("Show only this Module"))
                         {
                             moduleFilter = msg.sModule;
                             buffer.setModuleFilter(moduleFilter);
                             ImGui::CloseCurrentPopup();
                         }
-                        if(ImGui::Button("Show only this Thread"))
+                        if(ImGui::MenuItem("Show only this Thread"))
                         {
                             threadFilter = msg.threadId;
                             buffer.setThreadFilter(threadFilter);
                             ImGui::CloseCurrentPopup();
                         }
-                        if(ImGui::Button("Show only this File"))
+                        if(ImGui::MenuItem("Show only this File"))
                         {
                             auto p = msg.sFilePosition.find(' ');
                             fileFilter = msg.sFilePosition.substr(0,p);
                             buffer.setFileFilter(fileFilter);
                             ImGui::CloseCurrentPopup();
                         }
+                        ImGui::Separator();
+                        if(ImGui::MenuItem("Copy to clipboard"))
+                        {
+                            std::ostringstream clipboard;
+
+                            struct tm timeStruct;
+                            #ifdef __linux__
+                                localtime_r(&msg.timepoint, &timeStruct);
+                            #elif _WIN32
+                                localtime_s(&timeStruct, &msg.timepoint);
+                            #else
+                                #error please implement this for your operating system
+                            #endif
+
+                            if(msg.plaintext)
+                            {
+                                if(msg.plaintext)
+                                    clipboard << msg.sMessage << std::endl;
+                            }
+                            else
+                            {
+                                clipboard <<  "[" << toString(msg.lvl) << "]"
+                                     << " [" << std::put_time( &timeStruct, "%c") << "]";
+
+                                if(!msg.sModule.empty())
+                                    clipboard << " (" << msg.sModule << "):";
+
+                                clipboard << "\t" << msg.sMessage
+                                     << "\tThread: " << std::setbase(16) << msg.threadId << std::setbase(10);
+
+                                if(copyFilename && !msg.sFilePosition.empty())
+                                    clipboard << "\t@File: " << msg.sFilePosition;
+
+                                clipboard << std::endl;
+                            }
+                            ImGui::SetClipboardText(clipboard.str().c_str());
+
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+                        ImGui::MenuItem("enable copy filename",nullptr,&copyFilename);
+                        ImGui::PopItemFlag();
                         ImGui::EndPopup();
                     }
 
@@ -353,6 +455,7 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
 
         }
         ImGui::EndChild();
+        ImGui::PopStyleVar();
 
     }
 
