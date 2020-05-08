@@ -81,7 +81,8 @@ void setupInputs()
 
 int main(int, char**)
 {
-    Log myLog( LogLvl::ALL, ConsoleSink());
+    LogBuffer buffer(1000);
+    Log myLog( LogLvl::ALL, ConsoleSink(), BufferedSink(buffer));
     myLog.printHeader("imGuiTest", MPU_VERSION_STRING, MPU_VERSION_COMMIT, "");
 
     int width = 1000;
@@ -104,6 +105,9 @@ int main(int, char**)
 
     ImFont* otherFont = ImGui::loadFont(MPU_LIB_RESOURCE_PATH"fonts/DroidSans.ttf",14.0,true);
 
+    // generate som more log data
+
+
     // Main loop
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
@@ -112,6 +116,8 @@ int main(int, char**)
         mpu::gph::showBasicPerformanceWindow();
         mpu::gph::showFPSOverlay(1);
         mpu::gph::showStyleSelectorWindow();
+        mpu::gph::showLoggerWindow(buffer);
+
 
         ImGui::Begin("Input Test");
         {

@@ -14,11 +14,7 @@
 - functions to change keys afterwards
 - allow to trigger keys from the code
 - some default / common used hotkeys
-
-### imgui extensions
-- add hotkey support
-- include usefull imgui addons
-- write some good windows, ie logging, performance display, changing keys
+- maybe add a imgui window?
 
 ### 3d rendering
 - add some geometric primitives
@@ -60,6 +56,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add imgui windows for resource manager, performance, syle selection and the log
 - add resource manager
 - rename incbin resource to embedded data
 - replace cfg handler with toml11

@@ -55,6 +55,19 @@ int SimpleBlockingModal(const std::string& header, std::string text, std::vector
  */
 bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f, bool visible = true);
 
+/**
+ * @brief returns true if previous item was hovered for at least time seconds
+ */
+bool IsItemHovered(ImGuiHoveredFlags flags, float time);
+
+/**
+ * @brief Toggleable button, changes state when clicked, returns true when state was changed
+ * @param label the label
+ * @param v value contains current state, will be changed when state changes
+ * @param size size of the button
+ */
+bool ToggleButton(const char* label, bool* v, const ImVec2& size = ImVec2(0,0));
+
 }
 
 #endif  // RAPTOR_IMGUIELEMENTS_H

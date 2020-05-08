@@ -119,7 +119,7 @@ struct LogMessage
 {
     std::string sMessage;
     std::string sFilePosition;
-    std::string sModue;
+    std::string sModule;
     LogLvl lvl;
     time_t timepoint;
     std::thread::id threadId;

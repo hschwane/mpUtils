@@ -420,5 +420,34 @@ bool Splitter(bool split_vertically, float thickness, float* size1, float* size2
     return held;
 }
 
+bool IsItemHovered(ImGuiHoveredFlags flags, float time)
+{
+    return IsItemHovered(flags) && GImGui->HoveredIdTimer > time;
+}
+
+bool ToggleButton(const char* label, bool* v, const ImVec2& size)
+{
+    if(*v)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+        if(ImGui::Button(label,size))
+        {
+            *v = false;
+            ImGui::PopStyleColor(2);
+            return true;
+        }
+        ImGui::PopStyleColor(2);
+
+    } else
+    {
+        if(ImGui::Button(label,size))
+        {
+            *v = true;
+            return true;
+        }
+    }
+    return false;
+}
 
 }

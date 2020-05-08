@@ -139,6 +139,7 @@ target_sources(mpUtils PRIVATE
                 "src/Log/LogStream.cpp"
                 "src/Log/FileSink.cpp"
                 "src/Log/ConsoleSink.cpp"
+                "src/Log/BufferedSink.cpp"
                 #"src/Log/SyslogSink.cpp"
                 "src/Log/Log.cpp"
                 "external/snippets/src/stb_image_impl.cpp"

@@ -48,8 +48,8 @@ void ConsoleSink::operator()(const LogMessage &msg)
             << " [" << std::put_time(&timeStruct, "%x %X") << "]"
             << "\033[m ";
 
-        if(!msg.sModue.empty())
-            *os << " (" << msg.sModue << "):";
+        if(!msg.sModule.empty())
+            *os << " (" << msg.sModule << "):";
 
         *os << "\t" << msg.sMessage << "\33[1;90m"
             << "\tThread: " << std::setbase(16) << msg.threadId

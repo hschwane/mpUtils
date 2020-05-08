@@ -23,6 +23,345 @@ namespace mpu {
 namespace gph {
 //--------------------
 
+void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
+{
+    bool visible;
+    if(drawAsChild)
+    {
+        visible = ImGui::BeginChild("Log");
+    }
+    else
+    {
+        ImGui::SetNextWindowSize(ImVec2(2400,120),ImGuiCond_FirstUseEver);
+        visible = ImGui::Begin("Log", show);
+    }
+
+    if(visible)
+    {
+        auto logLevelToColor = [](LogLvl lvl)
+        {
+            switch(lvl)
+            {
+                case LogLvl::FATAL_ERROR:
+                    return ImVec4(0.95f,0.2f,0.2f,1.0f);
+                case LogLvl::ERROR:
+                    return ImVec4(0.95f,0.35f,0.35f,1.0f);
+                case LogLvl::WARNING:
+                    return ImVec4(0.92f,0.88f,0.53f,0.9f);
+                case LogLvl::INFO:
+                    return ImVec4(0.574f,0.93f,0.3534f,0.9f);
+                case LogLvl::DEBUG:
+                    return ImVec4(0.7661f,0.470f,0.84f,0.9f);
+                case LogLvl::DEBUG2:
+                    return ImVec4(0.7675f,0.5576f,0.82f,0.9f);
+                default:
+                    return ImVec4(1.0f,1.0f,1.0f,1.0f);
+            }
+        };
+
+        // debug stuff
+        if(ImGui::BeginPopupContextWindow("debug context popup"))
+        {
+            if(ImGui::MenuItem("Add 6 dummy entries"))
+            {
+                for(int i = 0; i < 1; i++)
+                {
+                    logDEBUG2("Test") << "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...";
+                    logDEBUG("Test") << "Morbi quam";
+                    logINFO("Test") << "Maecenas quis eros fringilla.";
+                    logWARNING("Test") << "Mauris felis magna, porta sit amet massa vitae, hendrerit mattis.";
+                    logERROR("Test") << " Lorem ipsum dolor sit amet.";
+                    logFATAL_ERROR("Test") << "Quisque eu est eget ipsum facilisis.";
+                }
+            }
+
+            if(ImGui::MenuItem("Add 60 dummy entries"))
+            {
+                for(int i = 0; i < 10; i++)
+                {
+                    logDEBUG2("Test") << "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...";
+                    logDEBUG("Test") << "Morbi quam";
+                    logINFO("Test") << "Maecenas quis eros fringilla.";
+                    logWARNING("Test") << "Mauris felis magna, porta sit amet massa vitae, hendrerit mattis.";
+                    logERROR("Test") << " Lorem ipsum dolor sit amet.";
+                    logFATAL_ERROR("Test") << "Quisque eu est eget ipsum facilisis.";
+                }
+            }
+
+            if(ImGui::MenuItem("Add 600 dummy entries"))
+            {
+                for(int i = 0; i < 100; i++)
+                {
+                    logDEBUG2("Test") << "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...";
+                    logDEBUG("Test") << "Morbi quam";
+                    logINFO("Test") << "Maecenas quis eros fringilla.";
+                    logWARNING("Test") << "Mauris felis magna, porta sit amet massa vitae, hendrerit mattis.";
+                    logERROR("Test") << " Lorem ipsum dolor sit amet.";
+                    logFATAL_ERROR("Test") << "Quisque eu est eget ipsum facilisis.";
+                }
+            }
+
+            if(ImGui::MenuItem("Add 6000 dummy entries"))
+            {
+                for(int i = 0; i < 1000; i++)
+                {
+                    logDEBUG2("Test") << "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...";
+                    logDEBUG("Test") << "Morbi quam";
+                    logINFO("Test") << "Maecenas quis eros fringilla.";
+                    logWARNING("Test") << "Mauris felis magna, porta sit amet massa vitae, hendrerit mattis.";
+                    logERROR("Test") << " Lorem ipsum dolor sit amet.";
+                    logFATAL_ERROR("Test") << "Quisque eu est eget ipsum facilisis.";
+                }
+            }
+            ImGui::EndPopup();
+        }
+
+        // filter
+        static std::string messageFilter;
+        static std::string moduleFilter;
+        static std::string fileFilter;
+        static std::array<bool,7> allowedLogLevels = {true,true,true,true,true,true,true};
+        static std::thread::id threadFilter;
+
+        ImGui::Button(ICON_FA_FILTER);
+        if(ImGui::BeginPopupContextItem("filter by level",0))
+        {
+            if(ImGui::Button("Enable all"))
+            {
+                allowedLogLevels = {true,true,true,true,true,true,true};
+                buffer.setAllowedLogLevels(allowedLogLevels);
+            }
+
+            if(ImGui::Button("Disable all"))
+            {
+                allowedLogLevels = {false,false,false,false,false,false,false};
+                buffer.setAllowedLogLevels(allowedLogLevels);
+            }
+
+            bool allowedLevelChanged = false;
+            allowedLevelChanged |= ImGui::Checkbox("Other", &allowedLogLevels[0]);
+            allowedLevelChanged |= ImGui::Checkbox("Debug2", &allowedLogLevels[6]);
+            allowedLevelChanged |= ImGui::Checkbox("Debug", &allowedLogLevels[5]);
+            allowedLevelChanged |= ImGui::Checkbox("Info", &allowedLogLevels[4]);
+            allowedLevelChanged |= ImGui::Checkbox("Warning", &allowedLogLevels[3]);
+            allowedLevelChanged |= ImGui::Checkbox("Error", &allowedLogLevels[2]);
+            allowedLevelChanged |= ImGui::Checkbox("Fatal", &allowedLogLevels[1]);
+            if(allowedLevelChanged)
+                buffer.setAllowedLogLevels(allowedLogLevels);
+
+            ImGui::EndPopup();
+        }
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("filter by level");
+
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(120);
+        if(ImGui::InputText("module",&moduleFilter))
+            buffer.setModuleFilter(moduleFilter);
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("Filter by module (\"-\" to exclude)");
+
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(140);
+        if(ImGui::InputText("text",&messageFilter))
+            buffer.setMessageFilter(messageFilter);
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("Filter by message (\"-\" to exclude)");
+
+        ImGui::SameLine();
+        ImGui::Button(ICON_FA_SLIDERS);
+        if(ImGui::BeginPopupContextItem("advanced filter",0))
+        {
+            std::ostringstream ss;
+            ss << std::setbase(16) << threadFilter;
+            if(ss.str() == "thread::id of a non-executing thread")
+                ss.str("All");
+            ImGui::Text("Only showing Thread: %s",ss.str().c_str());
+
+            if(ImGui::Button("Show all threads"))
+            {
+                threadFilter = std::thread::id();
+                buffer.setThreadFilter(threadFilter);
+            }
+
+            ImGui::Text("Only show File:");
+            if(ImGui::InputText("##filfilter",&fileFilter))
+                buffer.setFileFilter(fileFilter);
+
+            ImGui::EndPopup();
+        }
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("Advanced filter options");
+
+        ImGui::SameLine();
+        if(ImGui::Button(ICON_FA_TIMES))
+        {
+            allowedLogLevels = {true,true,true,true,true,true,true};
+            messageFilter = "";
+            moduleFilter = "";
+            fileFilter = "";
+            threadFilter = std::thread::id();
+            buffer.setMessageFilter(messageFilter);
+            buffer.setModuleFilter(moduleFilter);
+            buffer.setFileFilter(moduleFilter);
+            buffer.setAllowedLogLevels(allowedLogLevels);
+            buffer.setThreadFilter(threadFilter);
+        }
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("Clear filter");
+
+        // num of lines
+        ImGui::SameLine();
+        ImGui::Text("%i / %i /", buffer.filteredSize(), buffer.size());
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("num shown / num total / buffer capacity");
+
+        // buffer capacity
+        ImGui::SameLine();
+        static int cap = buffer.capacity();
+        ImGui::SetNextItemWidth(40);
+        ImGui::DragInt("##",&cap,0.5,10,1000000);
+        if(ImGui::IsItemDeactivatedAfterEdit())
+            buffer.changeCapacity(cap);
+        else if(!ImGui::IsItemActive())
+            cap = buffer.capacity();
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("change buffer capacity");
+
+        // clear buffer
+        ImGui::SameLine();
+        if(ImGui::Button(ICON_FA_TRASH_O))
+            ImGui::SimpleModal("Clear logs","Sure you want to clear logs?",{"Yes","Cancel"},"",[&buffer](int i){ if(i==0) buffer.clear();});
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("clear logs");
+
+        // autoscroll
+        static bool autoscroll=true;
+        ImGui::SameLine();
+        ImGui::ToggleButton(ICON_FA_ARROW_DOWN,&autoscroll);
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("Scroll to end.");
+
+        ImGui::Separator();
+
+        ImGui::BeginChild("scroll");
+        {
+            static float lastScrollWndWidth = ImGui::GetWindowWidth();
+            float scrollWndWidth = ImGui::GetWindowWidth();
+
+            // setup columns
+            ImGui::Columns(3,nullptr,true);
+            static bool setColWidth=true;
+            if(scrollWndWidth != lastScrollWndWidth)
+            {
+                lastScrollWndWidth = scrollWndWidth;
+                setColWidth = true;
+            }
+            if(setColWidth)
+            {
+                ImGui::SetColumnWidth(0, 110);
+                ImGui::SetColumnWidth(1, 120);
+                setColWidth = false;
+            }
+
+            ImGuiListClipper clipper(buffer.filteredSize());
+            while(clipper.Step())
+                for(int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                {
+                    ImGui::PushID(i);
+                    LogMessage& msg = buffer.filtered(i);
+
+                    // setup invisible selectable to highlight line and show tooltip
+                    ImGui::PushStyleColor(ImGuiCol_HeaderHovered,ImVec4(0.45f,0.45f,0.45f,0.25f));
+                    ImGui::PushStyleColor(ImGuiCol_HeaderActive,ImVec4(0.45f,0.45f,0.45f,0.25f));
+                    ImGui::Selectable("",false,ImGuiSelectableFlags_SpanAllColumns|ImGuiSelectableFlags_AllowItemOverlap);
+                    ImGui::PopStyleColor(2);
+                    if(ImGui::IsItemHovered(0,0.25f))
+                    {
+                        struct tm timeStruct;
+                        #ifdef __linux__
+                            localtime_r(&msg.timepoint, &timeStruct);
+                        #elif _WIN32
+                            localtime_s(&timeStruct, &msg.timepoint);
+                        #else
+                            #error "please implement this for your operating system"
+                        #endif
+
+                        ImGui::BeginTooltip();
+
+                        std::ostringstream ss;
+                        ss << std::put_time(&timeStruct, "%x %X");
+                        ImGui::Text("Time: [%s]", ss.str().c_str());
+                        ss.str("");
+                        ss << std::setbase(16) << msg.threadId;
+                        ImGui::Text("Thread: %s",ss.str().c_str());
+                        ImGui::PushTextWrapPos(scrollWndWidth);
+                        ImGui::TextWrapped("File: %s",msg.sFilePosition.c_str());
+                        ImGui::Text("Right click for options.");
+                        ImGui::PopTextWrapPos();
+                        ImGui::EndTooltip();
+                    }
+                    if(ImGui::BeginPopupContextItem("popup"))
+                    {
+                        if(ImGui::Button("Show only this Module"))
+                        {
+                            moduleFilter = msg.sModule;
+                            buffer.setModuleFilter(moduleFilter);
+                            ImGui::CloseCurrentPopup();
+                        }
+                        if(ImGui::Button("Show only this Thread"))
+                        {
+                            threadFilter = msg.threadId;
+                            buffer.setThreadFilter(threadFilter);
+                            ImGui::CloseCurrentPopup();
+                        }
+                        if(ImGui::Button("Show only this File"))
+                        {
+                            auto p = msg.sFilePosition.find(' ');
+                            fileFilter = msg.sFilePosition.substr(0,p);
+                            buffer.setFileFilter(fileFilter);
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
+                    }
+
+                    // draw lvl and module
+                    ImGui::SameLine();
+                    if(!msg.plaintext)
+                    {
+                        ImGui::TextColored(logLevelToColor(msg.lvl), "[%s]", toString(msg.lvl).c_str());
+                        ImGui::NextColumn();
+
+                        ImGui::Text("(%s)", msg.sModule.c_str());
+                        ImGui::NextColumn();
+                    } else
+                    {
+                        ImGui::NextColumn();
+                        ImGui::NextColumn();
+                    }
+
+                    // draw actual text
+                    ImGui::Text("%s", msg.sMessage.c_str());
+                    ImGui::NextColumn();
+
+                    ImGui::PopID();
+                }
+
+            // autoscroll, but set it for two frames
+            if (autoscroll && buffer.filterChanged())
+                ImGui::SetScrollHereY(1.0f);
+
+        }
+        ImGui::EndChild();
+
+    }
+
+    if(drawAsChild)
+        ImGui::EndChild();
+    else
+        ImGui::End();
+}
+
 void showStyleSelectorWindow(bool* show, bool drawAsChild)
 {
     bool visible;

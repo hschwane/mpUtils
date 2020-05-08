@@ -57,8 +57,8 @@ void FileSink::operator()(const LogMessage &msg)
         file <<  "[" << toString(msg.lvl) << "]"
              << " [" << std::put_time( &timeStruct, "%c") << "]";
 
-        if(!msg.sModue.empty())
-            file << " (" << msg.sModue << "):";
+        if(!msg.sModule.empty())
+            file << " (" << msg.sModule << "):";
 
         file << "\t" << msg.sMessage
              << "\tThread: " << std::setbase(16) << msg.threadId << std::setbase(10);

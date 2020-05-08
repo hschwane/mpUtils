@@ -133,7 +133,7 @@ LogStream Log::operator()(const LogLvl lvl, std::string&& sFilepos, std::string&
     LogMessage* lm = new LogMessage;
     lm->lvl = lvl;
     lm->sFilePosition = std::move(sFilepos);
-    lm->sModue = std::move(sModule);
+    lm->sModule = std::move(sModule);
     lm->threadId = std::this_thread::get_id();
     lm->timepoint = time(nullptr);
 
@@ -170,4 +170,5 @@ void Log::loggerMainfunc()
 
 // static variables
 Log* Log::globalLog = nullptr;
+
 }

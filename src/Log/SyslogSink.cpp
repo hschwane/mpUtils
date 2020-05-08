@@ -69,8 +69,8 @@ void SyslogSink::operator()(const LogMessage &msg)
     std::ostringstream ss;
     ss <<  "[" << toString(msg.lvl) << "]";
 
-    if(!msg.sModue.empty())
-        ss << " (" << msg.sModue << "):";
+    if(!msg.sModule.empty())
+        ss << " (" << msg.sModule << "):";
 
     ss << " " << msg.sMessage
          << "    Thread: " << std::setbase(16) << msg.threadId << std::setbase(10);

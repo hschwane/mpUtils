@@ -16,6 +16,7 @@
 #include "ImGui.h"
 #include "ImGuiElements.h"
 #include "mpUtils/ResourceManager/ResourceManager.h"
+#include "mpUtils/Log/BufferedSink.h"
 //--------------------
 
 // namespace
@@ -23,6 +24,11 @@
 namespace mpu {
 namespace gph {
 //--------------------
+
+/**
+ * @brief create and pass to the logger as a sink
+ */
+void showLoggerWindow(LogBuffer& buffer, bool* show= nullptr, bool drawAsChild=false);
 
 /**
  * @brief window allows to switch between shipped styled and open the imgui style editor

@@ -52,6 +52,7 @@
 #include "Log/ConsoleSink.h"
 #include "Log/FileSink.h"
 #include "Log/Log.h"
+#include "Log/BufferedSink.h"
 #ifdef __linux__
     #include "Log/SyslogSink.h"
 #endif
