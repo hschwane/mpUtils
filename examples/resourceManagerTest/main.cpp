@@ -57,10 +57,15 @@ int main()
     renderer.setProjection(-1*aspect,1*aspect,-1,1);
 
     // test resource management
-    ResourceManager< ImageRC,Image16RC > resourceManager( {preloadImage,finalLoadImage,MPU_LIB_RESOURCE_PATH,
+    ImageRC* imageRc = nullptr;
+    ResourceManager< ImageRC,Image16RC,gph::Sprite2DRC > resourceManager( {preloadImage,finalLoadImage,MPU_LIB_RESOURCE_PATH,
                                                             getDefaultImage(), "Image-8bit"},
                                                 {preloadImage16,finalLoadImage16,MPU_LIB_RESOURCE_PATH,
-                                                 getDefaultImage16(), "Image-16bit"} );
+                                                 getDefaultImage16(), "Image-16bit"},
+                                                 { [&](const std::string& data){ return gph::preloadSprite(imageRc,data); },
+                                                  gph::finalLoadSprite2D,
+                                                  MPU_LIB_RESOURCE_PATH, gph::getDefaultSprite(), "Sprite2D"} );
+    imageRc = &resourceManager.get<Image8>();
 
     Image16Resource checker16 = resourceManager.load<Image16>("checker-map.png");
     checker16.unload();
@@ -95,6 +100,11 @@ int main()
 
     ImageResource testTexture = resourceManager.load<Image8>("../examples/resourceManagerTest/test_texture.png");
 
+    // try to load some sprites
+    gph::Sprite2DResource spriteReource = resourceManager.load<gph::Sprite2D>("../examples/resourceManagerTest/testSprite.sprite");
+
+    gph::Sprite2D sprite6(*testTexture);
+
     // Main loop
     while (window.frameEnd(), gph::Input::update(), window.frameBegin())
     {
@@ -105,7 +115,8 @@ int main()
         mpu::gph::showBasicPerformanceWindow();
         mpu::gph::showResourceManagerDebugWindow(resourceManager);
 
-        gph::Sprite2D sprite6(*testTexture);
+        renderer.addSprite(*spriteReource,glm::translate(glm::vec3(0.5f,0.5f,0.0f)));
+
         renderer.addSprite(sprite6);
 
         renderer.render();

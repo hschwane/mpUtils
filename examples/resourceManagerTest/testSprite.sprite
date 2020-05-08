@@ -1,0 +1,10 @@
+[Sprite]
+displayName = ""            # name displayed in UI, internally assets are accessed by filename
+spritesheet = ""            # the spritesheet (if any) where this sprite belongs to
+texture="checker-map.png"                  # name of the texture used from the sprite editor working directory
+rectInImage=[0,0,4096,2048]     # rectangle inside the image used by this sprite, [x,y,width,height]
+semitransparent=false       # should be treated as semitransparent?
+worldSize=[1.0,0.5]         # size of the texture in world coordinates
+pivot=[1.0,1.0]             # pivot of the sprite, (0,0) means center, (1,1) is upper right corner, (-1,-1) lower left
+forward=1.0                 # direction considered forward in radians, 0 = to the right
+tileFactor=1.0              # how often will the texture be repeated

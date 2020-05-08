@@ -57,8 +57,8 @@ int main()
     float aspect = float(width)/height;
     renderer.setProjection(-1*aspect,1*aspect,-1,1);
 
-    gph::Sprite2D testSprite( MPU_LIB_RESOURCE_PATH"checker-map.png84",false,glm::vec2(0.5f,0.5f),glm::radians(90.0f) );
-    gph::Sprite2D testSprite2( MPU_LIB_RESOURCE_PATH"checker-map_vertical.png",false,glm::vec2(0.5f,0.25f),glm::radians(90.0f),2 );
+    gph::Sprite2D testSprite( MPU_LIB_RESOURCE_PATH"checker-map.png",false,glm::vec2(0.5f,0.5f),glm::vec2{0,0},glm::radians(0.0f) );
+    gph::Sprite2D testSprite2( MPU_LIB_RESOURCE_PATH"checker-map_vertical.png",false,glm::vec2(0.25f,0.5f),glm::vec2{0.5,0},glm::radians(0.0f));
 
     gph::Transform2D tf;
     bool lookAtCenter=false;

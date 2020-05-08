@@ -23,7 +23,6 @@
 - add a rendering animated sprites
 - add 2d particle systems
 - add 2d lighting and shadows
-- add better sprite management
 
 ### bugfix
 - make timers use a steady clock
@@ -56,6 +55,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- resources for 2d sprites as well as 
 - add imgui windows for resource manager, performance, syle selection and the log
 - add resource manager
 - rename incbin resource to embedded data

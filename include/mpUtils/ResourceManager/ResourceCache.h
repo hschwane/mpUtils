@@ -166,8 +166,7 @@ void ResourceCache<T, PreloadDataT>::preload(const std::string& path)
     HandleType h = getResourceHandle(path);
 
     std::shared_lock<std::shared_timed_mutex> sharedLck(m_rmtx);
-    ResourceState expected = ResourceState::none;
-    if(m_resources[h].state.compare_exchange_strong(expected,ResourceState::preloading))
+    if(m_resources[h].state == ResourceState::none)
     {
         sharedLck.unlock();
         m_startTask(std::bind(&ResourceCache::doPreload,this, path, h));
@@ -185,15 +184,14 @@ Resource<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
     if(m_resources[h].state == ResourceState::ready || m_resources[h].state == ResourceState::defaulted)
         return Resource<T>(m_resources[h].resource.get(),h,&m_refcounter);
 
-    ResourceState expected = ResourceState::none;
-    if(m_resources[h].state.compare_exchange_strong(expected,ResourceState::preloading))
+    if(m_resources[h].state == ResourceState::none)
     {
         // execute preloading step syncronously
         sharedLck.unlock();
         doPreload(path,h);
         sharedLck.lock();
     }
-    else if(expected == ResourceState::preloading)
+    else if(m_resources[h].state == ResourceState::preloading)
     {
         // wait for preloading to finish
         while(m_resources[h].state == ResourceState::preloading)
@@ -204,7 +202,7 @@ Resource<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
         }
     }
 
-    expected = ResourceState::preloaded;
+    ResourceState expected = ResourceState::preloaded;
     bool failed=false;
     if(m_resources[h].state.compare_exchange_strong(expected,ResourceState::loading))
     {
@@ -253,6 +251,10 @@ Resource<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
 template <typename T, typename PreloadDataT>
 void ResourceCache<T, PreloadDataT>::doPreload(const std::string& path, HandleType handle)
 {
+    ResourceState expected = ResourceState::none;
+    if(!m_resources[handle].state.compare_exchange_strong(expected,ResourceState::preloading))
+        return;
+
     try
     {
         std::string data = readFile(m_workDir + path);
@@ -344,7 +346,7 @@ void ResourceCache<T, PreloadDataT>::doReload(const std::string& path, ResourceC
     } else
     {
         m_resources[h].state = ResourceState::loading;
-        *(m_resources[h].resource) = *r;
+        *(m_resources[h].resource) = std::move(*r);
         m_resources[h].state = ResourceState::ready;
     }
 }

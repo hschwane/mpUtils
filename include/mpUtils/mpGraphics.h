@@ -51,4 +51,9 @@
 #include "mpUtils/Graphics/Input.h"
 //--------------------
 
+// graphics resources
+//--------------------
+#include "mpUtils/ResourceManager/mpGraphicsResources.h"
+//--------------------
+
 #endif //MPUTILS_MPGRAPHICS_H

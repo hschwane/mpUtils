@@ -1,0 +1,4 @@
+[Spritesheet]
+displayName = "" # name displayed in ui, internally is referred to by filename
+texture = "" # texture of the spritesheet
+sprites = ["testSprite.sprite"] # array of filenames pointing to the contained sprites
