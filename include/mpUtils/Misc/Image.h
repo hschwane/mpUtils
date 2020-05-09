@@ -29,7 +29,10 @@ namespace mpu {
 //-------------------------------------------------------------------
 /**
  * @brief class representing an image as an array of pixels on the cpu
- *      Indexing starts in the lower left of the image (by opengl convention).
+ *      Indexing with [][] uses image coordinates (i,j) / (row,column) with the origin in the upper left.
+ *      gCoord() uses graphics (x,y) coordinates, starting in the lower left of the image ( as by opengl convention).
+ *      When iterating, graphical coordinates are recommended, as images are stored in memory row major, starting
+ *      with the bottom left pixel.
  * @tparam storeT the type used by every element of a pixel
  */
 template <typename storeT>
@@ -84,14 +87,17 @@ public:
         const int channels;
     };
 
-    rowProxy operator[](int row) { return rowProxy( &m_data[row*m_width*m_channels],m_channels); } //!< access a row
-    constRowProxy operator[](int row) const { return constRowProxy(&m_data[row*m_width*m_channels],m_channels); } //!< access a row
+    rowProxy operator[](int row) { return rowProxy( &m_data[(m_height-1-row)*m_width*m_channels],m_channels); } //!< access a row
+    constRowProxy operator[](int row) const { return constRowProxy(&m_data[(m_height-1-row)*m_width*m_channels],m_channels); } //!< access a row
 
-    InternalType &operator()(int idx) { return m_data[idx]; } //!< access value
-    const InternalType &operator()(int idx) const { return m_data[idx]; } //!< access value
+    InternalType* gCoord(int x, int y) {return &m_data[ (y*m_width+x)*m_channels ];} //!< access pixel using graphics coordinates (x,y) with origin at lower left corner
+    const InternalType* gCoord(int x, int y) const {return &m_data[ (y*m_width+x)*m_channels ];} //!< access pixel using graphics coordinates (x,y) with origin at lower left corner
 
     InternalType* T(int row, size_t col) { return (*this)[col][row];} //!< access pixel as if matrix was transposed
     const InternalType* T(int row, size_t col) const { return (*this)[col][row];} //!< access pixel as if matrix was transposed
+
+    InternalType* operator()(int idx) { return &m_data[idx]; } //!< access value
+    const InternalType* operator()(int idx) const { return &m_data[idx]; } //!< access value
 
     InternalType* data() {return m_data.data();} //!< direct access to the internal data
     const InternalType* data() const {return m_data.data();} //!< direct access to the internal data
@@ -99,6 +105,7 @@ public:
     // operations on the pixels
     void setZero(int row, int col, int maxRow, int maxCol, int channel=-1); //!< sets the entire image data to zero, or a specific channel if given
     Image cloneSubregion(int row, int col, int maxRow, int maxCol) const; //!< returns a new image containing a subregion of the current image
+    Image cloneSubregionGCoord(int x, int y, int maxCol, int maxRow) const; //!< returns a new image containing a subregion of the current image given in graphics coordinates
     void normalize(InternalType maxValue); //!< divide every value in the image by max value
 
 private:
@@ -293,10 +300,21 @@ template <typename storeT>
 Image<storeT> Image<storeT>::cloneSubregion(int row, int col, int maxRow, int maxCol) const
 {
     Image<storeT> result(maxCol-col,maxRow-row,m_channels);
-    for(int i=row;i<maxRow;++i)
-        for(int j=col;j<maxCol;++j)
+    for(int i=maxRow-1;i>=row;--i)
+        for(int j=maxCol-1;j>=col;--j)
             for(int c=0;c<m_channels;++c)
                 result[i-row][j-col][c] = (*this)[i][j][c];
+    return result;
+}
+
+template <typename storeT>
+Image<storeT> Image<storeT>::cloneSubregionGCoord(int x, int y, int maxCol, int maxRow) const
+{
+    Image<storeT> result(maxCol-x,maxRow-y,m_channels);
+    for(int py=y; py<maxRow;++py)
+        for(int px=x; px<maxCol; ++px)
+            for(int c=0;c<m_channels;++c)
+                result.gCoord(px-x,py-y)[c] = this->gCoord(px,py)[c];
     return result;
 }
 

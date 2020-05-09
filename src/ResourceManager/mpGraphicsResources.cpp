@@ -30,7 +30,7 @@ preloadSprite(ImageRC*& imgrc, const std::string& data)
     auto image = imgrc->load(spd.texture);
     auto preloadData = std::make_unique<Sprite2DPreloadData>();
 
-    preloadData->subImage = image->cloneSubregion(spd.rectInImage.y,spd.rectInImage.y,spd.rectInImage.w,spd.rectInImage.z);
+    preloadData->subImage = image->cloneSubregionGCoord(spd.rectInImage.x,spd.rectInImage.y,spd.rectInImage.z,spd.rectInImage.w);
     preloadData->pivot = spd.pivot;
     preloadData->semiTransparent = spd.semiTransparent;
     preloadData->worldSize = spd.worldSize;
