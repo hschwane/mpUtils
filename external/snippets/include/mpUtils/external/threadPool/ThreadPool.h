@@ -193,7 +193,7 @@ inline void ThreadPool::setQueueSizeLimit(std::size_t limit)
         condition_producers.notify_all();
 }
 
-std::size_t ThreadPool::getPoolSize() const
+inline std::size_t ThreadPool::getPoolSize() const
 {
     return pool_size;
 }

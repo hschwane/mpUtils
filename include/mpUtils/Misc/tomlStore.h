@@ -20,7 +20,7 @@
 namespace toml {
 
 //!< stores toml table in file
-void store(const std::string& filename, const toml::value& tlv)
+inline void store(const std::string& filename, const toml::value& tlv)
 {
     std::ofstream outFile(filename, std::fstream::out | std::fstream::trunc);
     assert_critical(outFile.is_open(),"tomlStore", "File " + filename + "could not be opened for writing");
@@ -29,7 +29,7 @@ void store(const std::string& filename, const toml::value& tlv)
 
 //!< appends toml table to file
 //!< no checks are performed to make sure the resulting file is a proper toml file
-void storeAppend(const std::string& filename, const toml::value& tlv)
+inline void storeAppend(const std::string& filename, const toml::value& tlv)
 {
     std::ofstream outFile(filename, std::fstream::out | std::fstream::app);
     assert_critical(outFile.is_open(),"tomlStore", "File " + filename + "could not be opened for writing");
