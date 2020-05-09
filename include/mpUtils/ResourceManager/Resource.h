@@ -64,6 +64,14 @@ public:
         other.m_refcount = nullptr;
     }
 
+    //!< construct new resource (used by the manager)
+    Resource(const T* pointerToResource, HandleType handle, RefcountingHelper* refcount)
+            : m_resource(pointerToResource), m_handle(handle), m_refcount(refcount)
+    {
+        if(m_refcount)
+            m_refcount->signalConstruction(m_handle);
+    }
+
     //!< assign (move and copy)
     Resource& operator=(Resource other)
     {
@@ -94,16 +102,6 @@ public:
     }
 
 private:
-
-    //!< construct new resource (used by the manager)
-    Resource(const T* pointerToResource, HandleType handle, RefcountingHelper* refcount)
-            : m_resource(pointerToResource), m_handle(handle), m_refcount(refcount)
-    {
-        if(m_refcount)
-            m_refcount->signalConstruction(m_handle);
-    }
-    template<typename U, typename V> friend class ResourceCache;
-
     const T* m_resource; //!< pointer to the resource
     HandleType m_handle; //!< handle to the resource in the manager
     RefcountingHelper* m_refcount; //!< rhe resource manager used to create the resource
