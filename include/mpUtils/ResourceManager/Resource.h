@@ -77,9 +77,9 @@ public:
             m_refcount->signalDestruction(m_handle);
     }
 
-    const T* operator->() { return m_resource; }
-    const T& operator*() { return *m_resource; }
-    const T* get() { return m_resource; }
+    const T* operator->() const { return m_resource; }
+    const T& operator*() const { return *m_resource; }
+    const T* get() const { return m_resource; }
     explicit operator bool() const noexcept {return (m_resource != nullptr);}
 
     void unload() {m_resource=nullptr; if(m_refcount)m_refcount->signalDestruction(m_handle); m_refcount= nullptr; }

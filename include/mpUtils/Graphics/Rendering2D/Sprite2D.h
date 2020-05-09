@@ -95,8 +95,7 @@ private:
 };
 
 //-------------------------------------------------------------------
-// helper functions to load sprites and use the resource manager
-
+// helper functions to load and store sprites
 /**
  * class Sprite2DData
  * @brief stores all data known stored in a .sprite file and can read from a string / store into a string
