@@ -21,7 +21,7 @@ To use the graphics functionality you will also need:
 - graphics drivers supporting some OpenGL version (preferably 4.5+)
 
 To use the cuda functionality you will need:
-- CUDA-toolkit version 9+
+- CUDA-toolkit version 10+
 
 ###### HINT
 If some of the dependencies are missing mpUtils will build and install fine, but give you a warning.

@@ -1,9 +1,8 @@
 #ifndef HELPER_MATH_MISSING_H
 #define HELPER_MATH_MISSING_H
 
-#include "cuda_runtime.h"
-#include <math.h>
-#include <math_functions.h>
+#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
 #include "mpUtils/external/cuda/helper_math.h"
 
 typedef unsigned int uint;
