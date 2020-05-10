@@ -53,7 +53,6 @@ std::unique_ptr<Sprite2D> getDefaultSprite()
 }
 // instantiate some templates, so they can be linked
 //-------------------------------------------------------------------
-template class Resource<gph::Sprite2D>;
 template class ResourceCache<gph::Sprite2D,gph::Sprite2DPreloadData>;
 
 }

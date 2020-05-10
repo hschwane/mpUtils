@@ -42,6 +42,7 @@ class ResourceManager
 {
 public:
     using resourceTypes = std::tuple<typename CacheT::ResourceType ...> ;
+    using HandleType = typename std::tuple_element_t<0, std::tuple<CacheT...> >::HandleType;
 
     /**
      * @brief one of those needs to be passed to the constructor for each used resource
@@ -59,7 +60,7 @@ public:
     explicit ResourceManager( cacheCreationData<typename CacheT::ResourceType, typename CacheT::PreloadType> ... caches);
 
     template <typename T> void preload(const std::string& path); //!< preloads a resource of type T with name path
-    template <typename T> Resource<T> load(const std::string& path); //!< loads a resource of type T with name path
+    template <typename T> std::shared_ptr<T> load(const std::string& path); //!< loads a resource of type T with name path
 
     template <typename T> bool isReady(const std::string& path); //!< check if resource is ready for use
     template <typename T> bool isPreloaded(const std::string& path); //!< check if resource is done preloading
@@ -108,7 +109,7 @@ ResourceManager<CacheT...>::ResourceManager( cacheCreationData<typename CacheT::
 
 template <typename... CacheT>
 template <typename T>
-Resource<T> ResourceManager<CacheT...>::load(const std::string& path)
+std::shared_ptr<T> ResourceManager<CacheT...>::load(const std::string& path)
 {
     return get<T>().load(path);
 }

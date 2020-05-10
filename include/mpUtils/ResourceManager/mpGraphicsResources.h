@@ -14,7 +14,6 @@
 // includes
 //--------------------
 #include "mpUtils/Graphics/Rendering2D/Sprite2D.h"
-#include "mpUtils/ResourceManager/Resource.h"
 #include "mpUtils/ResourceManager/ResourceCache.h"
 #include "mpUtils/ResourceManager/mpUtilsResources.h"
 #include <memory>
@@ -45,7 +44,6 @@ struct Sprite2DPreloadData
     float tileFactor{1.0f};
 };
 
-using Sprite2DResource = Resource<Sprite2D>; //!< resource to use sprite2D with the resource manager
 using Sprite2DRC = ResourceCache<Sprite2D, Sprite2DPreloadData>; //!< resource cache to use sprite2D with the resource maanger
 
 /**
@@ -59,8 +57,7 @@ std::unique_ptr<Sprite2D> getDefaultSprite(); //!< loads a default sprite, shown
 }
 // instantiate some templates, so they can be linked
 //-------------------------------------------------------------------
-//extern template class Resource<gph::Sprite2D>;
-//extern template class ResourceCache<gph::Sprite2D,gph::Sprite2DPreloadData>;
+extern template class ResourceCache<gph::Sprite2D,gph::Sprite2DPreloadData>;
 
 }
 #endif //MPUTILS_MPGRAPHICSRESOURCES_H

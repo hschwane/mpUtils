@@ -61,7 +61,7 @@ template <typename... CacheTs>
 void showResourceManagerDebugWindow( ResourceManager<CacheTs...>& resourceManager,
                                      bool drawAsChild, bool* show)
 {
-    using HandleType = RefcountingHelper::HandleType;
+    using HandleType = typename ResourceManager<CacheTs...>::HandleType;
 
     bool visible;
     if(drawAsChild)

@@ -67,8 +67,8 @@ int main()
                                                   MPU_LIB_RESOURCE_PATH, gph::getDefaultSprite(), "Sprite2D"} );
     imageRc = &resourceManager.get<Image8>();
 
-    Image16Resource checker16 = resourceManager.load<Image16>("checker-map.png");
-    checker16.unload();
+    std::shared_ptr<Image16> checker16 = resourceManager.load<Image16>("checker-map.png");
+    checker16 = nullptr;
 
     resourceManager.preload<Image8>("checker-map.png");
     resourceManager.preload<Image8>("../examples/resourceManagerTest/test_texture.png");
@@ -76,9 +76,9 @@ int main()
     resourceManager.preload<Image8>("checker-map_vertical.png");
     mpu::sleep_ms(500);
     mpu::SimpleStopwatch sw;
-    ImageResource checker = resourceManager.load<Image8>("checker-map.png");
-    ImageResource checker2 = resourceManager.load<Image8>("checker-map_horizontal.png");
-    ImageResource checker3 = resourceManager.load<Image8>("checker-map_vertical.png");
+    std::shared_ptr<Image8> checker = resourceManager.load<Image8>("checker-map.png");
+    std::shared_ptr<Image8> checker2 = resourceManager.load<Image8>("checker-map_horizontal.png");
+    std::shared_ptr<Image8> checker3 = resourceManager.load<Image8>("checker-map_vertical.png");
     logINFO("Test") << "loading took " << sw.getSeconds();
 
     resourceManager.forceReload<Image8>("checker-map.png");
@@ -87,21 +87,21 @@ int main()
     gph::Sprite2D sprite2(*checker2);
 
     sw.reset();
-    ImageResource checker5 = resourceManager.load<Image8>("checker-map.png");
-    ImageResource checker6 = resourceManager.load<Image8>("checker-map_horizontal.png");
-    ImageResource checker7 = resourceManager.load<Image8>("checker-map_vertical.png");
+    std::shared_ptr<Image8> checker5 = resourceManager.load<Image8>("checker-map.png");
+    std::shared_ptr<Image8> checker6 = resourceManager.load<Image8>("checker-map_horizontal.png");
+    std::shared_ptr<Image8> checker7 = resourceManager.load<Image8>("checker-map_vertical.png");
     logINFO("Test") << "access took " << sw.getSeconds();
 
     gph::Sprite2D sprite4(*checker5);
     gph::Sprite2D sprite5(*checker6);
 
-    checker7.unload();
-    checker3.unload();
+    checker7 = nullptr;
+    checker3 = nullptr;
 
-    ImageResource testTexture = resourceManager.load<Image8>("../examples/resourceManagerTest/test_texture.png");
+    std::shared_ptr<Image8> testTexture = resourceManager.load<Image8>("../examples/resourceManagerTest/test_texture.png");
 
     // try to load some sprites
-    gph::Sprite2DResource spriteReource = resourceManager.load<gph::Sprite2D>("../examples/resourceManagerTest/testSprite.sprite");
+    std::shared_ptr<gph::Sprite2D> spriteReource = resourceManager.load<gph::Sprite2D>("../examples/resourceManagerTest/testSprite.sprite");
 
     gph::Sprite2D sprite6(*testTexture);
 

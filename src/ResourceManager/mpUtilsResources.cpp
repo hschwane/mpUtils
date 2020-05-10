@@ -70,11 +70,8 @@ std::unique_ptr<Image32> getDefaultImage32()
 
 // instantiate some templates, so they can be linked
 //-------------------------------------------------------------------
-template class Resource<Image8>;
 template class ResourceCache<Image8, Image8>;
-template class Resource<Image16>;
 template class ResourceCache<Image16, Image16>;
-template class Resource<Image32>;
 template class ResourceCache<Image32, Image32>;
 
 }

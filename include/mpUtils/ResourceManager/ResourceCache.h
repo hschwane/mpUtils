@@ -21,8 +21,6 @@
 #include <atomic>
 #include <mutex>
 #include <shared_mutex>
-#include "mpUtils/ResourceManager/RefcountingHelper.h"
-#include "mpUtils/ResourceManager/Resource.h"
 #include "mpUtils/ResourceManager/readData.h"
 #include "mpUtils/Log/Log.h"
 #include "mpUtils/Misc/CopyMoveAtomic.h"
@@ -72,7 +70,7 @@ class ResourceCache
 public:
     using ResourceType = T;
     using PreloadType = PreloadDataT;
-    using HandleType = RefcountingHelper::HandleType;
+    using HandleType = unsigned int;
 
     ResourceCache(std::function<std::unique_ptr<PreloadDataT>(std::string)> preloadAsync,
             std::function<std::unique_ptr<T>(std::unique_ptr<PreloadDataT>)> loadSync,
@@ -80,15 +78,14 @@ public:
             std::unique_ptr<T> defaultResource, std::string debugName)
             : m_asyncPreload(std::move(preloadAsync)), m_syncFinishLoad(std::move(loadSync)),
             m_startTask(std::move(startTask)), m_workDir(std::move(workDir)),
-            m_refcounter(std::bind(&ResourceCache::signalConstruction,this,std::placeholders::_1), std::bind(&ResourceCache::signalDestruction,this,std::placeholders::_1)),
-            m_defaultResource(std::move(defaultResource)), m_debugName(debugName)
+            m_defaultResource(std::move(defaultResource)), m_debugName(std::move(debugName))
     {
     }
 
     void setAddTaskFunc(std::function<void(std::function<void()>)> startTask); //!< change the add task function
 
     void preload(const std::string& path); //!< start preloading a resource
-    Resource<T> load(const std::string& path); //!< block until loading is finished
+    std::shared_ptr<T> load(const std::string& path); //!< block until loading is finished
 
     bool isReady(const std::string& path); //!< check if resource is ready for use
     bool isPreloaded(const std::string& path); //!< check if resource is done preloading
@@ -109,9 +106,6 @@ public:
     std::string& getDebugName() {return m_debugName;} //!< returns the name shown in the debugger
 
 private:
-    RefcountingHelper m_refcounter;
-    void signalConstruction(HandleType h);
-    void signalDestruction(HandleType h);
     HandleType getResourceHandle(const std::string& path); //!< get a handle to the the path
     void doPreload(const std::string& path, HandleType handle); //!< function handles load from file, calling m_asyncPreload and creating the object
     void doReload(const std::string& path, HandleType handle); //!< synchronously reloads a resource into the same memory address as it was before
@@ -128,9 +122,8 @@ private:
     struct ResourceEntry
     {
         ResourceEntry() = default;
-        std::unique_ptr<T> resource{nullptr};
+        std::shared_ptr<T> resource{nullptr};
         std::unique_ptr<PreloadDataT> preloadData{nullptr};
-        CopyMoveAtomic<int> refcount{0};
         CopyMoveAtomic<ResourceState> state{ResourceState::none};
     };
     std::vector<ResourceEntry> m_resources; //!< actual resources
@@ -141,21 +134,21 @@ private:
     std::mutex m_freeHandlesMtx; //!< mutex for free handles buffer
     std::shared_timed_mutex m_reloadAllLock; //!< allow only one reload all operartion at a time
 
-    std::unique_ptr<T> m_defaultResource; //!< this will be used whenever a resource is missing
+    std::shared_ptr<T> m_defaultResource; //!< this will be used whenever a resource is missing
 
-    template< typename A = T, typename std::enable_if<std::is_copy_constructible<A>::value,int>::type =0> Resource<T> handleDefaultResource(HandleType h)
+    template< typename A = T, typename std::enable_if<std::is_copy_constructible<A>::value,int>::type =0> std::shared_ptr<T> handleDefaultResource(HandleType h)
     {
         if(! m_resources[h].resource)
-            m_resources[h].resource = std::make_unique<T>(*m_defaultResource);
+            m_resources[h].resource = std::make_shared<T>(*m_defaultResource);
         else
             *(m_resources[h].resource) = *m_defaultResource;
         m_resources[h].state = ResourceState::defaulted;
-        return Resource<T>(m_resources[h].resource.get(),h,&m_refcounter);
+        return m_resources[h].resource;
     }
-    template< typename A = T, typename std::enable_if< !std::is_copy_constructible<A>::value,int>::type =0> Resource<T> handleDefaultResource(HandleType h)
+    template< typename A = T, typename std::enable_if< !std::is_copy_constructible<A>::value,int>::type =0> std::shared_ptr<T> handleDefaultResource(HandleType h)
     {
         m_resources[h].state = ResourceState::failed;
-        return Resource<T>(m_defaultResource.get(),0, nullptr);
+        return m_defaultResource;
     }
 };
 
@@ -176,7 +169,7 @@ void ResourceCache<T, PreloadDataT>::preload(const std::string& path)
 }
 
 template <typename T, typename PreloadDataT>
-Resource<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
+std::shared_ptr<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
 {
     HandleType h = getResourceHandle(path);
 
@@ -184,7 +177,7 @@ Resource<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
 
     // quick path in case resource is ready
     if(m_resources[h].state == ResourceState::ready || m_resources[h].state == ResourceState::defaulted)
-        return Resource<T>(m_resources[h].resource.get(),h,&m_refcounter);
+        return m_resources[h].resource;
 
     if(m_resources[h].state == ResourceState::none)
     {
@@ -247,7 +240,7 @@ Resource<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
 
     assert_true(m_resources[h].state == ResourceState::ready || m_resources[h].state == ResourceState::defaulted,
             "ResourceManager", "Resource is not ready after loading.");
-    return Resource<T>(m_resources[h].resource.get(),h,&m_refcounter);
+    return m_resources[h].resource;
 }
 
 template <typename T, typename PreloadDataT>
@@ -310,21 +303,6 @@ typename ResourceCache<T,PreloadDataT>::HandleType ResourceCache<T,PreloadDataT>
         h = it->second;
     }
     return h;
-}
-
-template <typename T, typename PreloadDataT>
-void ResourceCache<T,PreloadDataT>::signalConstruction(ResourceCache::HandleType h)
-{
-    std::shared_lock<std::shared_timed_mutex> lck(m_rmtx);
-    m_resources[h].refcount++;
-}
-
-template <typename T, typename PreloadDataT>
-void ResourceCache<T,PreloadDataT>::signalDestruction(ResourceCache::HandleType h)
-{
-    std::shared_lock<std::shared_timed_mutex> lck(m_rmtx);
-    m_resources[h].refcount--;
-    assert_true(m_resources[h].refcount>=0,"ResourceManager","Reference counting error!");
 }
 
 template <typename T, typename PreloadDataT>
@@ -404,7 +382,7 @@ void ResourceCache<T, PreloadDataT>::tryReleaseAll()
     for(auto it = m_resourceHandles.cbegin(); it!=m_resourceHandles.cend(); )
     {
         HandleType h = it->second;
-        if(m_resources[h].refcount == 0 && (m_resources[h].state == ResourceState::defaulted
+        if(m_resources[h].resource.use_count() == 1 && (m_resources[h].state == ResourceState::defaulted
             ||  m_resources[h].state == ResourceState::failed || m_resources[h].state == ResourceState::ready))
         {
             m_resources[h].state = ResourceState::none;
@@ -434,7 +412,7 @@ void ResourceCache<T, PreloadDataT>::tryRelease(const std::string& path)
 
     std::unique_lock<std::shared_timed_mutex> lckRH(m_rhmtx);
     std::unique_lock<std::shared_timed_mutex> lckR(m_rmtx);
-    if(m_resources[h].refcount == 0 && (m_resources[h].state == ResourceState::defaulted
+    if(m_resources[h].resource.use_count() == 1 && (m_resources[h].state == ResourceState::defaulted
         ||  m_resources[h].state == ResourceState::failed || m_resources[h].state == ResourceState::ready))
     {
         m_resources[h].state = ResourceState::none;
@@ -459,7 +437,7 @@ template <typename T, typename PreloadDataT>
 std::tuple<const T*, const PreloadDataT*, int, ResourceState> ResourceCache<T, PreloadDataT>::getResourceInfo(ResourceCache::HandleType h)
 {
     std::shared_lock<std::shared_timed_mutex> sharedLck(m_rmtx);
-    return std::tuple<const T*, const PreloadDataT*, int, ResourceState>(m_resources[h].resource.get(),m_resources[h].preloadData.get(),m_resources[h].refcount,m_resources[h].state);
+    return std::tuple<const T*, const PreloadDataT*, int, ResourceState>(m_resources[h].resource.get(),m_resources[h].preloadData.get(),m_resources[h].resource.use_count()-1,m_resources[h].state);
 }
 
 template <typename T, typename PreloadDataT>
