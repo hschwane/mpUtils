@@ -47,6 +47,12 @@ enum class ResourceState
     defaulted   //!< default resource is used instead of this resource, as an error occured while loading
 };
 
+class ReloadMode
+{
+protected:
+    static thread_local bool enabled;
+};
+
 //-------------------------------------------------------------------
 /**
  * class ResourceCache
@@ -65,7 +71,7 @@ enum class ResourceState
  *
  */
 template <typename T, typename PreloadDataT>
-class ResourceCache
+class ResourceCache : private ReloadMode
 {
 public:
     using ResourceType = T;
@@ -154,7 +160,6 @@ private:
 
 // template function definition
 //-------------------------------------------------------------------
-
 template <typename T, typename PreloadDataT>
 void ResourceCache<T, PreloadDataT>::preload(const std::string& path)
 {
@@ -177,7 +182,12 @@ std::shared_ptr<T> ResourceCache<T, PreloadDataT>::load(const std::string& path)
 
     // quick path in case resource is ready
     if(m_resources[h].state == ResourceState::ready || m_resources[h].state == ResourceState::defaulted)
+    {
+        if(ReloadMode::enabled)
+            forceReload(path);
+
         return m_resources[h].resource;
+    }
 
     if(m_resources[h].state == ResourceState::none)
     {
@@ -342,7 +352,11 @@ void ResourceCache<T, PreloadDataT>::forceReloadAll()
 {
     logINFO("ResourceManager") << m_debugName << " reloading everything.";
     std::unique_lock<std::shared_timed_mutex> lck(m_reloadAllLock);
-    // start preloading on all resources first,
+
+    // make sure all dependencies are also reloaded
+    bool prevReloadMode = ReloadMode::enabled;
+    ReloadMode::enabled = true;
+
     // to use multiple threads
     std::shared_lock<std::shared_timed_mutex> sharedLckRH(m_rhmtx);
     for(auto& handle : m_resourceHandles)
@@ -354,12 +368,16 @@ void ResourceCache<T, PreloadDataT>::forceReloadAll()
             doReload(handle.first,h);
         }
     }
+
+    // reset previous reload mode
+    ReloadMode::enabled = prevReloadMode;
+
 }
 
 template <typename T, typename PreloadDataT>
 void ResourceCache<T, PreloadDataT>::forceReload(const std::string& path)
 {
-    std::shared_lock<std::shared_timed_mutex> lck(m_reloadAllLock); // make sure noby is reloading everything right now
+    std::shared_lock<std::shared_timed_mutex> lck(m_reloadAllLock); // make sure nobody is reloading everything right now
     logINFO("ResourceManager") << "Forced to reload " + path;
     HandleType h = getResourceHandle(path);
 
@@ -369,8 +387,15 @@ void ResourceCache<T, PreloadDataT>::forceReload(const std::string& path)
         logDEBUG("ResourceManager") << "Force reload called on " << path << " which is not loaded";
     }
 
+    // make sure all dependencies are also reloaded
+    bool prevReloadMode = ReloadMode::enabled;
+    ReloadMode::enabled = true;
+
     // reload to the same memory position
     doReload(path,h);
+
+    // reset previous reload mode
+    ReloadMode::enabled = prevReloadMode;
 }
 
 template <typename T, typename PreloadDataT>

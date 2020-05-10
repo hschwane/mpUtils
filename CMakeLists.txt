@@ -146,6 +146,7 @@ target_sources(mpUtils PRIVATE
                 "external/snippets/src/stb_image_write_impl.cpp"
                 "external/snippets/src/tinyfd/tinyfiledialogs.c"
                 "src/ResourceManager/mpUtilsResources.cpp"
+                "src/ResourceManager/ResourceCache.cpp"
                 "src/Misc/Image.cpp"
               )
 

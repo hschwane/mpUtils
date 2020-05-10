@@ -56,7 +56,6 @@ Sprite2D::Sprite2D(const Image8& image, bool semiTransparent, const glm::vec2& w
 
 void Sprite2D::computeBaseTransform(const glm::vec2& worldSize, const glm::vec2& pivot, float forward)
 {
-    logDEBUG("Sprite") << glm::to_string(pivot);
     m_baseTransform = glm::mat4(1.0);
     m_baseTransform = glm::rotate(m_baseTransform, glm::two_pi<float>() - forward,glm::vec3{0.0f,0.0f,1.0f});
     m_baseTransform = glm::scale(m_baseTransform, glm::vec3(worldSize*0.5f, 1.0f));

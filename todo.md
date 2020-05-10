@@ -16,6 +16,9 @@
 - some default / common used hotkeys
 - maybe add a imgui window?
 
+### resource manager
+- allow to specify dependencies for "loadOne" method to handle bigger composite resources
+
 ### 3d rendering
 - add some geometric primitives
 
