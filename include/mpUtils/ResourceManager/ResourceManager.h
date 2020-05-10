@@ -58,6 +58,8 @@ public:
 
     explicit ResourceManager( cacheCreationData<typename CacheT::ResourceType, typename CacheT::PreloadType> ... caches);
 
+    ~ResourceManager() {tryReleaseAll();}
+
     template <typename T> void preload(const std::string& path); //!< preloads a resource of type T with name path
     template <typename T> Resource<T> load(const std::string& path); //!< loads a resource of type T with name path
 
@@ -79,10 +81,10 @@ public:
     void setNumThreads(int threads); //!< number of threads that are used for background loading
 
 private:
+    ThreadPool m_threadPool;
+
     using preloadTypes = std::tuple<typename CacheT::PreloadType ...>;
     std::tuple<std::unique_ptr<CacheT>...> m_caches;
-
-    ThreadPool m_threadPool;
 };
 
 // template function definition
@@ -93,10 +95,17 @@ ResourceManager<CacheT...>::ResourceManager( cacheCreationData<typename CacheT::
     : m_threadPool(2), m_caches( std::make_unique<CacheT>( caches.asyncPreloadFunc,
                                                                 caches.syncLoadFunc,
                                                                 caches.workingDir,
-                                                                [this](std::function<void()> f){this->m_threadPool.enqueue(f);},
+                                                                [](std::function<void()> f){ f();},
                                                                 std::move(caches.defaultResource),
                                                                 caches.debugName) ... )
 {
+    auto foo = [this](std::function<void()> f)
+    {
+        this->m_threadPool.enqueue(f);
+    };
+
+    int t[] = {0, ((void)( std::get<std::unique_ptr<CacheT>>(m_caches)->setAddTaskFunc(foo) ),1)...};
+    (void)t[0]; // silence compiler warning about t being unuse
 }
 
 template <typename... CacheT>

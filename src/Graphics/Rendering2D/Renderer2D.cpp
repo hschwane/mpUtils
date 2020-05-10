@@ -133,7 +133,7 @@ void Renderer2D::render()
         m_opaqueSprites.clear();
     }
 
-    if(!m_opaqueSprites.empty())
+    if(!m_transparentSprites.empty())
     {
         // sort transparent sprites front to back, upload and draw
         std::sort(m_transparentSprites.begin(), m_transparentSprites.end(), [](const spriteData& a, const spriteData& b)

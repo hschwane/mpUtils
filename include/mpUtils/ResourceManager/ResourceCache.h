@@ -85,6 +85,8 @@ public:
     {
     }
 
+    void setAddTaskFunc(std::function<void(std::function<void()>)> startTask); //!< change the add task function
+
     void preload(const std::string& path); //!< start preloading a resource
     Resource<T> load(const std::string& path); //!< block until loading is finished
 
@@ -268,6 +270,12 @@ void ResourceCache<T, PreloadDataT>::doPreload(const std::string& path, HandleTy
         std::shared_lock<std::shared_timed_mutex> sharedLck(m_rmtx);
         m_resources[handle].state = ResourceState::preloadFailed;
     }
+}
+
+template <typename T, typename PreloadDataT>
+void ResourceCache<T, PreloadDataT>::setAddTaskFunc(std::function<void(std::function<void()>)> startTask)
+{
+    m_startTask = std::move(startTask);
 }
 
 template <typename T, typename PreloadDataT>
