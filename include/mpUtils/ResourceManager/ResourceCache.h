@@ -416,6 +416,9 @@ void ResourceCache<T, PreloadDataT>::tryReleaseAll()
 
             std::unique_lock<std::mutex> lckFreeHandles(m_freeHandlesMtx);
             m_freeHandles.push_back(h);
+            lckFreeHandles.unlock();
+            lckRH.lock();
+            lckR.lock();
         } else
         {
             it++;

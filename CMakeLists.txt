@@ -300,7 +300,7 @@ endif()
 
 # link unix specific stuff
 if(UNIX)
-    target_link_libraries(mpUtils PUBLIC Threads::Threads stdc++fs)
+    target_link_libraries(mpUtils PUBLIC stdc++fs)
 endif()
 
 

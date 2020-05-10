@@ -51,12 +51,12 @@ std::unique_ptr<Image32> getDefaultImage32(); //!< loads a default image to be p
 
 // instantiate some templates, so they can be linked
 //-------------------------------------------------------------------
-extern template class Resource<Image8>;
-extern template class ResourceCache<Image8,Image8>;
-extern template class Resource<Image16>;
-extern template class ResourceCache<Image16,Image16>;
-extern template class Resource<Image32>;
-extern template class ResourceCache<Image32,Image32>;
+//extern template class Resource<Image8>;
+//extern template class ResourceCache<Image8,Image8>;
+//extern template class Resource<Image16>;
+//extern template class ResourceCache<Image16,Image16>;
+//extern template class Resource<Image32>;
+//extern template class ResourceCache<Image32,Image32>;
 
 }
 #endif //MPUTILS_MPUTILSRESOURCES_H

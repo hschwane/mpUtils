@@ -58,8 +58,6 @@ public:
 
     explicit ResourceManager( cacheCreationData<typename CacheT::ResourceType, typename CacheT::PreloadType> ... caches);
 
-    ~ResourceManager() {tryReleaseAll();}
-
     template <typename T> void preload(const std::string& path); //!< preloads a resource of type T with name path
     template <typename T> Resource<T> load(const std::string& path); //!< loads a resource of type T with name path
 

@@ -59,8 +59,8 @@ std::unique_ptr<Sprite2D> getDefaultSprite(); //!< loads a default sprite, shown
 }
 // instantiate some templates, so they can be linked
 //-------------------------------------------------------------------
-extern template class Resource<gph::Sprite2D>;
-extern template class ResourceCache<gph::Sprite2D,gph::Sprite2DPreloadData>;
+//extern template class Resource<gph::Sprite2D>;
+//extern template class ResourceCache<gph::Sprite2D,gph::Sprite2DPreloadData>;
 
 }
 #endif //MPUTILS_MPGRAPHICSRESOURCES_H
