@@ -25,6 +25,8 @@ using namespace std::chrono;
 class BaseState
 {
 public:
+    virtual ~BaseState() = default;
+
     void onActivation()
     {
         logINFO("State") << "activated";

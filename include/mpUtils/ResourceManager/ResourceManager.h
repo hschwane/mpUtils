@@ -98,6 +98,13 @@ ResourceManager<CacheT...>::ResourceManager( cacheCreationData<typename CacheT::
                                                                 std::move(caches.defaultResource),
                                                                 caches.debugName) ... )
 {
+//    int t[] = {0, ((void)( std::get<std::unique_ptr<CacheT>>(m_caches)->setAddTaskFunc([this](std::function<void()> f)
+//                                                                                       {
+//                                                                                           this->m_threadPool.enqueue(f);
+//                                                                                       }) ),1)...};
+//    (void)t[0]; // silence compiler warning about t being unused
+
+    // workaround for gcc bug
     auto foo = [this](std::function<void()> f)
     {
         this->m_threadPool.enqueue(f);

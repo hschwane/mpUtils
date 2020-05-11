@@ -26,7 +26,7 @@ namespace mpu {
 //-------------------------------------------------------------------
 
 
-LogStream::LogStream(LogStream&& other)  : logger(logger), lm(other.lm), std::ostringstream(std::move(other))
+LogStream::LogStream(LogStream&& other)  : logger(other.logger), lm(other.lm), std::ostringstream(std::move(other))
 {
 
 }

@@ -47,6 +47,7 @@ public:
     CopyMoveAtomic &operator=(T t)
     {
         std::atomic<T>::store(t);
+        return *this;
     }
 
     CopyMoveAtomic(const std::atomic<T>& a)

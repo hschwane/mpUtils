@@ -87,7 +87,7 @@ namespace glshader::process::impl::macro
             "..."))
         {
             ++processed.error_count;
-            syntax_error_print(current_file, current_line, strfmt(strings::serr_non_matching_argc, name));
+            syntax_error_print(current_file, current_line, strfmt(strings::serr_non_matching_argc, name.c_str()));
             return "";
         }
 

@@ -81,7 +81,7 @@ private:
     class Renderbuffer
     {
     public:
-        explicit Renderbuffer(nullptr_t) : m_rbHandle(0) {}
+        explicit Renderbuffer(std::nullptr_t) : m_rbHandle(0) {}
         Renderbuffer() : m_rbHandle(0) {glCreateRenderbuffers(1,&m_rbHandle);}
         ~Renderbuffer() {glDeleteRenderbuffers(1,&m_rbHandle);}
 
