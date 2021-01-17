@@ -97,7 +97,7 @@ void Renderer2D::addRect(const glm::vec4& color, const glm::vec2& size, const gl
         m_opaqueSprites.emplace_back(model,color,m_rectTextureHandle,1);
 }
 
-void Renderer2D::addSprite(const Sprite2D& sprite, const glm::mat4& transform, int layer, const glm::vec4& color)
+void Renderer2D::addSprite(const Sprite2D& sprite, const glm::mat4& transform, float layer, const glm::vec4& color)
 {
     if(color.a < 0.00001f)
         return;
