@@ -61,6 +61,17 @@ int main()
     std::cout << toml::find(fromFile,"test","string") << std::endl;
     std::cout << toml::find_or<std::string>(fromFile["test"],"stringire","missing");
     std::cout << toml::find_or<std::string>(fromFile["testere"],"string","missing");
+    std::cout << std::endl;
+
+    std::vector<std::string> vos = {"blub", "bla"};
+    toml::value tvos(vos);
+    toml::value table3{{"vos",tvos}};
+
+    auto v = toml::find<std::vector<std::string>>(table3,"vos");
+
+    std::cout << v[1];
+
+    std::cout << std::setw(20) << tvos;
 
     return 0;
 }
