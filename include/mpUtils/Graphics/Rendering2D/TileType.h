@@ -30,7 +30,8 @@ namespace gph {
 enum class AutotileMode {
     none=0,
     corners=1,
-    blob=2,
+    blobInner=2,
+    blobOuter=3,
 };
 
 //-------------------------------------------------------------------
