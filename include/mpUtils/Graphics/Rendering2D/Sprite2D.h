@@ -95,7 +95,11 @@ private:
 };
 
 //-------------------------------------------------------------------
-// helper functions to load and store sprites
+// helper functions
+std::shared_ptr<Sprite2D> getEmptySprite(); //!< returns an empty sprite
+
+//-------------------------------------------------------------------
+// helper to load and store sprites
 /**
  * class Sprite2DData
  * @brief stores all data known stored in a .sprite file and can read from a string / store into a string

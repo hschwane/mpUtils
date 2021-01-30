@@ -163,6 +163,7 @@ if (USE_OPENGL)
                     "src/Graphics/Rendering2D/Camera2D.cpp"
                     "src/Graphics/Rendering2D/Sprite2D.cpp"
                     "src/Graphics/Rendering2D/Renderer2D.cpp"
+                    "src/Graphics/Rendering2D/TileType.cpp"
                     "src/Graphics/Utils/Transform.cpp"
                     "src/Graphics/Utils/Transform2D.cpp"
                     "src/Graphics/Window.cpp"

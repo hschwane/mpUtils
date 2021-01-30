@@ -44,6 +44,7 @@
 #include "mpUtils/Graphics/Rendering2D/Sprite2D.h"
 #include "mpUtils/Graphics/Rendering2D/Renderer2D.h"
 #include "mpUtils/Graphics/Rendering2D/Camera2D.h"
+#include "mpUtils/Graphics/Rendering2D/TileType.h"
 #include "mpUtils/Graphics/Gui/ImGui.h"
 #include "mpUtils/Graphics/Gui/ImGuiStyles.h"
 #include "mpUtils/Graphics/Gui/ImGuiElements.h"

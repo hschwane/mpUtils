@@ -33,6 +33,7 @@
 #include "mpUtils/Misc/CallbackHandler.h"
 #include "mpUtils/Misc/StateMachine.h"
 #include "mpUtils/Misc/CopyMoveAtomic.h"
+#include "mpUtils/Misc/unordered_map2d.h"
 
 // image loading
 #include "Misc/Image.h"

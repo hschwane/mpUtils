@@ -62,6 +62,12 @@ void Sprite2D::computeBaseTransform(const glm::vec2& worldSize, const glm::vec2&
     m_baseTransform = glm::translate(m_baseTransform, glm::vec3(-pivot,0));
 }
 
+std::shared_ptr<Sprite2D> getEmptySprite()
+{
+    static auto _none_sprite = std::make_shared<mpu::gph::Sprite2D>(MPU_LIB_RESOURCE_PATH"none.png");
+    return _none_sprite;
+}
+
 Sprite2DData::Sprite2DData(const std::string& tomlString)
 {
     std::istringstream stream(tomlString);
