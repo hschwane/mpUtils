@@ -1,0 +1,10 @@
+[Sprite]
+displayName = "water_0"
+spritesheet = ""
+texture = "images/water_0.png"
+rectInImage = [0,0,32,32]
+semitransparent=false
+worldSize=[1.0,1.0]
+pivot=[0.0,0.0]
+forward=0.0
+tileFactor=1.0

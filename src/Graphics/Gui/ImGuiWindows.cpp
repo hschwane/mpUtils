@@ -336,7 +336,7 @@ void showLoggerWindow(LogBuffer& buffer, bool* show, bool drawAsChild)
                     ImGui::PushStyleColor(ImGuiCol_HeaderActive,ImVec4(0.45f,0.45f,0.45f,0.25f));
                     ImGui::Selectable("",false,ImGuiSelectableFlags_SpanAllColumns|ImGuiSelectableFlags_AllowItemOverlap);
                     ImGui::PopStyleColor(2);
-                    if(ImGui::IsItemHovered(0,0.25f))
+                    if(ImGui::IsItemHovered(0,0.3f))
                     {
                         struct tm timeStruct;
                         #ifdef __linux__

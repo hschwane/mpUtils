@@ -52,14 +52,14 @@ void showBasicPerformanceWindow(bool* show= nullptr, bool drawAsChild=false);
  */
 template <typename ... CacheTs>
 void showResourceManagerDebugWindow( ResourceManager<CacheTs...>& resourceManager,
-                                        bool drawAsChild=false, bool* show=nullptr);
+                                        bool* show=nullptr, bool drawAsChild=false);
 
 // template function definition
 //-------------------------------------------------------------------
 
 template <typename... CacheTs>
 void showResourceManagerDebugWindow( ResourceManager<CacheTs...>& resourceManager,
-                                     bool drawAsChild, bool* show)
+                                     bool* show, bool drawAsChild)
 {
     using HandleType = typename ResourceManager<CacheTs...>::HandleType;
 

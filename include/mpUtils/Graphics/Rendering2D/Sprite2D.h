@@ -112,7 +112,6 @@ public:
     explicit Sprite2DData(const std::string& tomlString); //!< parse toml string into the struct
     toml::value toToml(); //!< store into a tomle struct, that can be serialized to a string or file
 
-    std::string displayName;
     std::string spritesheet;
     std::string texture;
     glm::ivec4 rectInImage{0,0,1,1};

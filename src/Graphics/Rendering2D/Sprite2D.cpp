@@ -74,7 +74,6 @@ Sprite2DData::Sprite2DData(const std::string& tomlString)
     auto parsedData = toml::parse(stream);
     auto& sprite = toml::find(parsedData,"Sprite");
 
-    displayName = toml::find<std::string>(sprite, "displayName");
     spritesheet = toml::find<std::string>(sprite, "spritesheet");
     texture = toml::find<std::string>(sprite, "texture");
 
@@ -105,10 +104,9 @@ toml::value Sprite2DData::toToml()
     toml::value ri({rectInImage.x,rectInImage.y,rectInImage.z,rectInImage.w});
     toml::value tex(texture);
     toml::value sprs(spritesheet);
-    toml::value dspn(displayName);
 
     toml::value table({ {"tileFactor",tf}, {"forward",fw}, {"pivot",pv}, {"worldSize",ws}, {"semitransparent",st},
-                        {"rectInImage",ri}, {"texture",tex}, {"spritesheet",sprs}, {"displayName",dspn} });
+                        {"rectInImage",ri}, {"texture",tex}, {"spritesheet",sprs} });
     return toml::value({ {"Sprite",table} });
 }
 
