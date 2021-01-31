@@ -85,8 +85,16 @@ private:
     fs::path m_workdir;
 
     // selection
-    int m_selectedSprite{-1};
-    int m_selectedTile{-1};
+    std::set<int> m_selectedSprites;
+    void select(int item, std::set<int>& selectedSet);
+    bool isSelected(int item, std::set<int>& selectedSet);
+    std::set<std::string> m_selectionByFilename;
+    void applySelectionsfromFilenameList();
+
+    // modification
+    void duplicateSelected(); //!< duplicate selected files
+    void removeSelected(); //!< deletes selected files
+    void editSprite(int i); //!< edit a sprite
 
     // assets
     std::vector<metaSprite> m_sprites;

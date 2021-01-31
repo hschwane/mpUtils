@@ -62,9 +62,9 @@ TilemapEditor::TilemapEditor(mpu::LogBuffer& buffer)
     // enable drag and drop
     mpu::gph::Input::addDropCallback([this](mpu::gph::Window& wnd, std::vector<std::string> files)
     {
+        m_selectionByFilename.clear();
         for(const auto& file : files) {
             fs::path p(file);
-
             if(fs::is_regular_file(p) && p.has_extension())
             {
                 // compy image and create sprite
@@ -75,15 +75,20 @@ TilemapEditor::TilemapEditor(mpu::LogBuffer& buffer)
                     fs::path target = "images/";
                     target += p.filename();
                     for(int i=0; fs::exists(target); ++i) {
-                        target.replace_filename(std::string(target.stem()) + "_" + std::to_string(i)
-                            + std::string(target.extension()));
+                        target.replace_filename(std::string(target.stem()) + "_copy" + std::string(target.extension()));
                     }
                     fs::copy(p,target);
 
                     // create sprite
                     auto sd = mpu::gph::makeSimpleSprite(target);
-                    toml::store( "sprites/" + std::string(target.stem()) + ".sprite", sd.toToml());
 
+                    // check if file exists
+                    fs::path sprf = "sprites/" + std::string(target.stem()) + ".sprite";
+                    for(int i=0; fs::exists(sprf); ++i) {
+                        sprf.replace_filename(std::string(sprf.stem()) + "_copy" + std::string(sprf.extension()));
+                    }
+                    toml::store( sprf, sd.toToml());
+                    m_selectionByFilename.insert(sprf);
                 }
                 else if(p.extension() == ".sprite") {
 
@@ -97,6 +102,7 @@ TilemapEditor::TilemapEditor(mpu::LogBuffer& buffer)
             }
         }
         reloadAssets();
+        applySelectionsfromFilenameList();
     });
 }
 
@@ -144,7 +150,7 @@ void TilemapEditor::reloadAssets()
     for(const auto& p : spritePaths) {
         metaSprite s;
         std::string content = mpu::readFile(p);
-        s.filename = p.stem();
+        s.filename = p;
         s.data = mpu::gph::Sprite2DData(content);
         s.sprite = getRM().load<mpu::gph::Sprite2D>(p);
         m_sprites.push_back(s);
@@ -163,7 +169,8 @@ void TilemapEditor::setupInputs()
 
     ip::addButton("Toggle Fullscreen","Switch between window and fullscreen.",[](Window& wnd){ wnd.toggleFullscreen();});
     ip::addButton("Toggle GUI","Hides / shows GUI.",[](Window& wnd){ ImGui::toggleVisibility();});
-
+    ip::addButton("Remove","Removes selected items.",[this](Window& wnd){removeSelected();});
+    ip::addButton("Duplicate","Duplicate selected items.",[this](Window& wnd){duplicateSelected();});
 }
 
 void TilemapEditor::setupKeybindings()
@@ -173,6 +180,8 @@ void TilemapEditor::setupKeybindings()
 
     ip::mapKeyToInput("Toggle Fullscreen",GLFW_KEY_F11);
     ip::mapKeyToInput("Toggle GUI",GLFW_KEY_F10);
+    ip::mapKeyToInput("Remove",GLFW_KEY_DELETE);
+    ip::mapKeyToInput("Duplicate",GLFW_KEY_D,ip::ButtonBehavior::onPress, ip::AxisBehavior::positive, GLFW_MOD_CONTROL);
 
     ip::mapScrollToInput("Camera2DZoom");
     ip::mapKeyToInput("Camera2DMoveDownUp",GLFW_KEY_W,ip::ButtonBehavior::whenDown,ip::AxisBehavior::positive);
@@ -187,9 +196,19 @@ void TilemapEditor::handleMainMenu()
         if(ImGui::BeginMenu("File")) {
             ImGui::EndMenu();
         }
+        if(ImGui::BeginMenu("Edit")) {
+            if(ImGui::MenuItem("Remove","Del"))
+                removeSelected();
+            if(ImGui::MenuItem("Duplicate","Ctrl+D"))
+                duplicateSelected();
+            ImGui::Separator();
+            if(ImGui::MenuItem("Edit Sprite","",false,m_selectedSprites.size()==1))
+                editSprite(*m_selectedSprites.begin());
+            ImGui::EndMenu();
+        }
         if(ImGui::BeginMenu("View")) {
             if(ImGui::MenuItem("Toggle Fullscreen","F10"))
-//                wnd.toggleFullscreen();
+                ImGui::getAttatchedWindow().toggleFullscreen();
             ImGui::MenuItem("Show FPS", nullptr, &m_showFPS);
             ImGui::MenuItem("Show grid", nullptr, &m_showGrid);
             ImGui::EndMenu();
@@ -216,30 +235,25 @@ void TilemapEditor::handleSidebar()
     ImGui::SetNextWindowSizeConstraints(ImVec2(128,wndSize.y-20),ImVec2(wndSize.x,wndSize.y-20) );
     if(ImGui::Begin("content", nullptr,  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar)) {
 
-        float wndHeight = ImGui::GetWindowContentRegionMax().y;
-        static float oldWndHeight = wndHeight;
-        static float size1 = wndHeight*0.3f;
-        static float size2 = wndHeight*0.3f;
-        static float size3 = wndHeight*0.3f;
-        if(wndHeight != oldWndHeight)
-        {
-            size1 = wndHeight * (size1 / oldWndHeight);
-            size2 = wndHeight * (size1 / oldWndHeight);
-            size3 = wndHeight * (size1 / oldWndHeight);
-            oldWndHeight = wndHeight;
-        }
-
+        ImGui::SetNextItemOpen(true,ImGuiCond_Once);
+        if(!m_selectedSprites.empty())
+            ImGui::SetNextItemOpen(true);
         if(ImGui::CollapsingHeader("Sprites")) {
+            ImGui::PushID("sprites");
             for(int i = 0; i < m_sprites.size(); i++)
             {
                 ImGui::PushID(i);
-                if(ImGui::Selectable("##", m_selectedSprite == i, 0, ImVec2(0, previewSize)))
-                    m_selectedSprite = i;
+                if(ImGui::Selectable("##", isSelected(i,m_selectedSprites), ImGuiSelectableFlags_AllowDoubleClick,
+                                     ImVec2(0, previewSize))) {
+                    select(i, m_selectedSprites);
+                    if(ImGui::IsMouseDoubleClicked(0))
+                        editSprite(i);
+                }
 
                 if(ImGui::IsItemHovered(0,0.25))
                 {
                     ImGui::BeginTooltip();
-                    ImGui::Text("Sprite: %s",m_sprites[i].filename.c_str());
+                    ImGui::Text("Sprite: %s",m_sprites[i].filename.stem().c_str());
                     if(!m_sprites[i].data.spritesheet.empty())
                         ImGui::Text("Spritesheet: %s", m_sprites[i].data.spritesheet.c_str());
 
@@ -247,13 +261,26 @@ void TilemapEditor::handleSidebar()
                                  ImVec2(tooltipSize, tooltipSize * m_sprites[i].sprite->getBaseTransform()[1][1] / m_sprites[i].sprite->getBaseTransform()[0][0]),
                                  ImVec2(0,1),ImVec2(1,0));
 
-                    ImGui::Text("Semi-Transparancy: %s", m_sprites[i].data.semiTransparent ? "yes" : "no");
-                    ImGui::Text("World size: %s", glm::to_string(m_sprites[i].data.worldSize).c_str());
-                    ImGui::Text("Pivot: %s", glm::to_string(m_sprites[i].data.pivot).c_str());
-                    ImGui::Text("ForwardDirecton: %f", mpu::deg(m_sprites[i].data.forward));
-                    ImGui::Text("Tileing: %f", m_sprites[i].data.tileFactor);
+                    ImGui::BulletText("Semi-Transparancy: %s", m_sprites[i].data.semiTransparent ? "yes" : "no");
+                    ImGui::BulletText("World size: %s", glm::to_string(m_sprites[i].data.worldSize).c_str());
+                    ImGui::BulletText("Pivot: %s", glm::to_string(m_sprites[i].data.pivot).c_str());
+                    ImGui::BulletText("ForwardDirecton: %f", mpu::deg(m_sprites[i].data.forward));
+                    ImGui::BulletText("Tileing: %f", m_sprites[i].data.tileFactor);
 
                     ImGui::EndTooltip();
+                }
+
+                if(ImGui::BeginPopupContextItem())
+                {
+                    select(i,m_selectedSprites);
+                    if(ImGui::MenuItem("Edit"))
+                        editSprite(i);
+                    if(ImGui::MenuItem("Remove"))
+                        removeSelected();
+                    if(ImGui::MenuItem("Duplicate"))
+                        duplicateSelected();
+
+                    ImGui::EndPopup();
                 }
 
                 ImGui::SameLine();
@@ -261,9 +288,12 @@ void TilemapEditor::handleSidebar()
                              ImVec2(previewSize, previewSize * m_sprites[i].sprite->getBaseTransform()[1][1] / m_sprites[i].sprite->getBaseTransform()[0][0]),
                              ImVec2(0,1),ImVec2(1,0));
                 ImGui::SameLine();
-                ImGui::Text("%s", m_sprites[i].filename.c_str());
+                ImGui::Text("%s", m_sprites[i].filename.stem().c_str());
                 ImGui::PopID();
             }
+            ImGui::PopID();
+        } else {
+            m_selectedSprites.clear();
         }
 
         if(ImGui::CollapsingHeader("Tile types")) {
@@ -289,4 +319,113 @@ void TilemapEditor::handleSidebar()
 //            }
     }
     ImGui::End();
+}
+
+void TilemapEditor::select(int item, std::set<int>& selectedSet)
+{
+    if(ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) {
+        int front = *selectedSet.begin();
+        if(item < front)
+            while(item < front) {
+                selectedSet.insert(item);
+                ++item;
+            }
+        else
+            while(item > front) {
+                selectedSet.insert(item);
+                --item;
+            }
+    } else if(ImGui::IsKeyDown(GLFW_KEY_LEFT_CONTROL) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_CONTROL)) {
+        auto iter = std::find(selectedSet.begin(), selectedSet.end(), item);
+        if(iter == selectedSet.end())
+            selectedSet.insert(item);
+        else
+            selectedSet.erase(iter);
+    } else {
+        selectedSet.clear();
+        selectedSet.insert(item);
+    }
+}
+
+bool TilemapEditor::isSelected(int item, std::set<int>& selectedSet)
+{
+    auto iter = selectedSet.find(item);
+    return iter != selectedSet.end();
+}
+
+void TilemapEditor::duplicateSelected()
+{
+    m_selectionByFilename.clear();
+    for(int i: m_selectedSprites) {
+
+        // check if file exists
+        fs::path target = m_sprites[i].filename;
+        for(int i=0; fs::exists(target); ++i) {
+            target.replace_filename(std::string(target.stem()) + "_copy" + std::string(target.extension()));
+        }
+
+        // copy
+        fs::copy(m_sprites[i].filename, target);
+
+        // prepare selection
+        m_selectionByFilename.insert(target);
+    }
+
+    reloadAssets();
+    applySelectionsfromFilenameList();
+}
+
+void TilemapEditor::removeSelected()
+{
+    if(m_selectedSprites.empty()) return;
+    ImGui::SimpleModal("Remove items?","Delete selected items from disk?\n(also deletes images in workdir)",
+                       {"Yes","No"}, ICON_FA_EXCLAMATION_TRIANGLE, [this](int b){
+        if(b == 0)
+        {
+            // remove sprite files
+            std::vector<std::string> imgFilesToRemove;
+            for(int i: m_selectedSprites) {
+                fs::path sf = m_sprites[i].filename;
+                logINFO("TilemapEditor") << "Removing file " << sf;
+                fs::remove(sf);
+
+                m_sprites[i].filename = "";
+                imgFilesToRemove.push_back(m_sprites[i].data.texture);
+            }
+
+            // remove sprites from internal list
+            m_sprites.erase( remove_if(m_sprites.begin(), m_sprites.end(), [](metaSprite& x){
+                return x.filename.empty();
+            }), m_sprites.end() );
+            m_selectedSprites.clear();
+
+            // remove image files
+            for(const auto& imgf : imgFilesToRemove) {
+                bool isInUse = false;
+                for(const auto& sprite : m_sprites) {
+                    if(sprite.data.texture == imgf)
+                        isInUse = true;
+                }
+                if(!isInUse) {
+                    logINFO("TilemapEditor") << "Removing file " << imgf;
+                    fs::remove(imgf);
+                }
+            }
+
+        }
+    });
+}
+
+void TilemapEditor::applySelectionsfromFilenameList()
+{
+    m_selectedSprites.clear();
+    for(int i=0; i < m_sprites.size(); ++i) {
+        if(m_selectionByFilename.find(m_sprites[i].filename) != m_selectionByFilename.end())
+            m_selectedSprites.insert(i);
+    }
+}
+
+void TilemapEditor::editSprite(int i)
+{
+    logINFO("TilemapEditor") << "edit sprite";
 }
