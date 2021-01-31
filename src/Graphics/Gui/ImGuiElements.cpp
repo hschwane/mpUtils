@@ -16,6 +16,7 @@
 #include <mpUtils/external/imgui/imgui_internal.h>
 #include "mpUtils/Misc/pointPicking.h"
 #include "mpUtils/Graphics/Input.h"
+#include "mpUtils/Log/Log.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 //--------------------
@@ -167,6 +168,10 @@ void SimpleModal(const std::string& header, std::string text, std::vector<std::s
             {
                 auto wndSize = ImGui::getAttatchedWindow().getSize();
                 ImGui::SetNextWindowSize(ImVec2(width,0),ImGuiCond_Always);
+
+                if (!ImGui::IsPopupOpen(uniqueHeader.c_str()))
+                    ImGui::OpenPopup(uniqueHeader.c_str());
+
                 if(ImGui::BeginPopupModal(uniqueHeader.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar))
                 {
                     ImGui::BeginHorizontal("ht",ImVec2(ImGui::GetWindowSize().x,0));
@@ -185,7 +190,6 @@ void SimpleModal(const std::string& header, std::string text, std::vector<std::s
                     ImGui::Spring();
                     ImGui::EndHorizontal();
 
-
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5);
 
                     ImGui::BeginHorizontal("hb",ImVec2(ImGui::GetWindowSize().x,0));
@@ -197,17 +201,13 @@ void SimpleModal(const std::string& header, std::string text, std::vector<std::s
                             if(callback)
                                 callback(j);
                             ImGui::CloseCurrentPopup();
+                            ImGui::getAttatchedWindow().removeFrameBeginCallback(*i);
                         }
                     }
+                    ImGui::SetItemDefaultFocus();
                     ImGui::Spring(0.5);
                     ImGui::EndHorizontal();
                     ImGui::EndPopup();
-                } else if(needOpen)
-                {
-                    ImGui::OpenPopup(uniqueHeader.c_str());
-                    needOpen = false;
-                } else {
-                    ImGui::getAttatchedWindow().removeFrameBeginCallback(*i);
                 }
             });
 }
