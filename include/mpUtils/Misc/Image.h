@@ -62,6 +62,7 @@ public:
 
     // size checking
     int length() const {return m_length;} //!< length of the image in memory (width*height*channels)
+    int numPixels() const {return m_width * m_height;} //!< number of pixels
     int width() const {return m_width;} //!< width of the image in pixel
     int height() const {return m_height;} //!< height of the image in pixel
     int channels() const {return m_channels;} //!< number of channels in the image
@@ -96,8 +97,8 @@ public:
     InternalType* T(int row, size_t col) { return (*this)[col][row];} //!< access pixel as if matrix was transposed
     const InternalType* T(int row, size_t col) const { return (*this)[col][row];} //!< access pixel as if matrix was transposed
 
-    InternalType* operator()(int idx) { return &m_data[idx]; } //!< access value
-    const InternalType* operator()(int idx) const { return &m_data[idx]; } //!< access value
+    InternalType* operator()(int idx) { return &m_data[idx*m_channels]; } //!< access pixel
+    const InternalType* operator()(int idx) const { return &m_data[idx*m_channels]; } //!< access pixel
 
     InternalType* data() {return m_data.data();} //!< direct access to the internal data
     const InternalType* data() const {return m_data.data();} //!< direct access to the internal data

@@ -52,6 +52,7 @@
 #include "mpUtils/Graphics/Gui/ImGuiElements.h"
 #include "mpUtils/Graphics/Gui/ImGuiWindows.h"
 #include "mpUtils/Graphics/Input.h"
+#include "mpUtils/Graphics/ContentCreation/Sprite2DTools.h"
 //--------------------
 
 // graphics resources

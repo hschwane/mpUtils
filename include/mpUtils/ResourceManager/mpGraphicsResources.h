@@ -50,7 +50,7 @@ using Sprite2DRC = ResourceCache<Sprite2D, Sprite2DPreloadData>; //!< resource c
  * @brief function to preload a 2d sprite in the resource manager,
  *          use std::bind to bind a pointer to the image cache component of your resource manager
  */
-std::unique_ptr<Sprite2DPreloadData> preloadSprite(ImageRC*& imgrc, const std::string& data);
+std::unique_ptr<Sprite2DPreloadData> preloadSprite2D(ImageRC*& imgrc, const std::string& data);
 std::unique_ptr<Sprite2D> finalLoadSprite2D(std::unique_ptr<Sprite2DPreloadData> pd); //! function to create an actual sprite from the preloading data
 std::unique_ptr<Sprite2D> getDefaultSprite(); //!< loads a default sprite, shown when sprites are missing
 

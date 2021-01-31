@@ -168,6 +168,7 @@ if (USE_OPENGL)
                     "src/Graphics/Utils/Transform.cpp"
                     "src/Graphics/Utils/Transform2D.cpp"
                     "src/Graphics/Window.cpp"
+                    "src/Graphics/ContentCreation/Sprite2DTools.cpp"
                     "external/snippets/src/imgui/imgui.cpp"
                     "external/snippets/src/imgui/imgui_demo.cpp"
                     "external/snippets/src/imgui/imgui_draw.cpp"

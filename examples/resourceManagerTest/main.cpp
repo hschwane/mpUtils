@@ -62,7 +62,8 @@ int main()
                                                             getDefaultImage(), "Image-8bit"},
                                                 {preloadImage16,finalLoadImage16,MPU_LIB_RESOURCE_PATH,
                                                  getDefaultImage16(), "Image-16bit"},
-                                                 { [&](const std::string& data){ return gph::preloadSprite(imageRc,data); },
+                                                 { [&](const std::string& data){ return gph::preloadSprite2D(imageRc,
+                                                                                                             data); },
                                                   gph::finalLoadSprite2D,
                                                   MPU_LIB_RESOURCE_PATH, gph::getDefaultSprite(), "Sprite2D"} );
     imageRc = &resourceManager.get<Image8>();

@@ -29,7 +29,7 @@ ResourceManagerType& getRM()
             {mpu::preloadImage,mpu::finalLoadImage,"",
              mpu::getDefaultImage(), "Image-8bit"},
             // add support for sprites
-            {[&](const std::string& data){ return mpu::gph::preloadSprite(imgrc,data); },
+            {[&](const std::string& data){ return mpu::gph::preloadSprite2D(imgrc, data); },
              mpu::gph::finalLoadSprite2D,"",
              mpu::gph::getDefaultSprite(), "Sprite2D"}
     );
@@ -67,6 +67,7 @@ TilemapEditor::TilemapEditor(mpu::LogBuffer& buffer)
 
             if(fs::is_regular_file(p) && p.has_extension())
             {
+                // compy image and create sprite
                 if(p.extension() == ".png" || p.extension() == ".jpg" || p.extension() == ".jpeg" ||
                     p.extension() == ".bmp" || p.extension() == ".tga" || p.extension() == ".psd")
                 {
@@ -74,9 +75,14 @@ TilemapEditor::TilemapEditor(mpu::LogBuffer& buffer)
                     fs::path target = "images/";
                     target += p.filename();
                     for(int i=0; fs::exists(target); ++i) {
-                        target.replace_filename(std::string(target.filename()) + "_" + std::to_string(i));
+                        target.replace_filename(std::string(target.stem()) + "_" + std::to_string(i)
+                            + std::string(target.extension()));
                     }
                     fs::copy(p,target);
+
+                    // create sprite
+                    auto sd = mpu::gph::makeSimpleSprite(target);
+                    toml::store( "sprites/" + std::string(target.stem()) + ".sprite", sd.toToml());
 
                 }
                 else if(p.extension() == ".sprite") {
@@ -90,6 +96,7 @@ TilemapEditor::TilemapEditor(mpu::LogBuffer& buffer)
                 }
             }
         }
+        reloadAssets();
     });
 }
 
@@ -237,8 +244,8 @@ void TilemapEditor::handleSidebar()
                         ImGui::Text("Spritesheet: %s", m_sprites[i].data.spritesheet.c_str());
 
                     ImGui::Image((void*)(intptr_t)static_cast<GLuint>(m_sprites[i].sprite->getTexture()),
-                                 ImVec2(tooltipSize, tooltipSize * m_sprites[i].sprite->getBaseTransform()[0][0] / m_sprites[i].sprite->getBaseTransform()[1][1]),
-                                 ImVec2(1,1),ImVec2(0,0));
+                                 ImVec2(tooltipSize, tooltipSize * m_sprites[i].sprite->getBaseTransform()[1][1] / m_sprites[i].sprite->getBaseTransform()[0][0]),
+                                 ImVec2(0,1),ImVec2(1,0));
 
                     ImGui::Text("Semi-Transparancy: %s", m_sprites[i].data.semiTransparent ? "yes" : "no");
                     ImGui::Text("World size: %s", glm::to_string(m_sprites[i].data.worldSize).c_str());
@@ -251,8 +258,8 @@ void TilemapEditor::handleSidebar()
 
                 ImGui::SameLine();
                 ImGui::Image((void*)(intptr_t)static_cast<GLuint>(m_sprites[i].sprite->getTexture()),
-                             ImVec2(previewSize, previewSize * m_sprites[i].sprite->getBaseTransform()[0][0] / m_sprites[i].sprite->getBaseTransform()[1][1]),
-                             ImVec2(1,1),ImVec2(0,0));
+                             ImVec2(previewSize, previewSize * m_sprites[i].sprite->getBaseTransform()[1][1] / m_sprites[i].sprite->getBaseTransform()[0][0]),
+                             ImVec2(0,1),ImVec2(1,0));
                 ImGui::SameLine();
                 ImGui::Text("%s", m_sprites[i].filename.c_str());
                 ImGui::PopID();

@@ -24,7 +24,7 @@ namespace gph {
 //--------------------
 
 std::unique_ptr<Sprite2DPreloadData>
-preloadSprite(ImageRC*& imgrc, const std::string& data)
+preloadSprite2D(ImageRC*& imgrc, const std::string& data)
 {
     Sprite2DData spd(data);
     auto image = imgrc->load(spd.texture);
