@@ -95,6 +95,7 @@ private:
     void duplicateSelected(); //!< duplicate selected files
     void removeSelected(); //!< deletes selected files
     void editSprite(int i); //!< edit a sprite
+    mpu::gph::SpriteEditor m_spriteEditor; //!< sprite editor manages a sprite editor window
 
     // assets
     std::vector<metaSprite> m_sprites;

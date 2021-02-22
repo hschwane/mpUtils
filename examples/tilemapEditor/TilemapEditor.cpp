@@ -118,6 +118,8 @@ void TilemapEditor::run(mpu::gph::Renderer2D& renderer)
     if(m_showDemoWindow) ImGui::ShowDemoWindow(&m_showDemoWindow);
     if(m_showFPS) mpu::gph::showFPSOverlay(1, {5.0, 25.0});
 
+    m_spriteEditor.show();
+
     // handle map interaction
 
     // draw current map

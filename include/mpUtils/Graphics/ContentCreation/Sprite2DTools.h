@@ -14,6 +14,7 @@
 // includes
 //--------------------
 #include "mpUtils/Graphics/Rendering2D/Sprite2D.h"
+#include "mpUtils/Misc/pointPicking.h"
 //--------------------
 
 // namespace
@@ -29,6 +30,35 @@ namespace gph {
  * @return the Sprite2DData datastructure for this sprite
  */
 Sprite2DData makeSimpleSprite(std::string pathToImage, std::string workDir = "");
+
+/**
+ * @brief controls an imgui window that allows sprite and spritesheet editing
+ */
+class SpriteEditor
+{
+public:
+    void show(bool* show = nullptr, bool drawAsChild = false);
+//    void setSprite(std::string filename, Sprite2DData data);
+private:
+    bool m_hasUnsavedChanges{false};
+    void tryLoadTexture();
+    void selectTextureWithFileDlg();
+    void autoDetectTransparancy();
+    void setCropToFullImage();
+    void autoFillAll();
+    void drawImageOverlay(const glm::vec2& previewStartPos, const glm::vec2& previewSize);
+
+    // settings
+    std::string m_workDir;
+    const std::string m_id{"###"+std::to_string(getRanndomSeed())};
+
+    // current sprite data
+    std::string m_filename; //!< current sprites filename
+    Sprite2DData m_data; //!< current sprites data
+    std::unique_ptr<Image8> m_image; //!< the image the texture was loaded from
+    std::unique_ptr<Texture> m_texture; //!< current sprites texture;
+
+};
 
 }}
 #endif //MPUTILS_SPRITE2DTOOLS_H
