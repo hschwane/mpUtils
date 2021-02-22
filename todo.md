@@ -6,8 +6,13 @@
 
 ## medium priority
 
+### license
+- change to MIT license
+
 ### cmake
 - https://cmake.org/pipermail/cmake/2017-December/066768.html
+- split library, so that only necessary parts need to be linked or can be copied
+- use c++17 with cuda 11
 
 ### finish the input manager
 - print used keys
@@ -26,12 +31,14 @@
 - add a rendering animated sprites
 - add 2d particle systems
 - add 2d lighting and shadows
+- add tilemaps
+- add multisprites
 
 ### bugfix
 - make timers use a steady clock
 
 ## low priority / ideas / long term projects
-
+- 2d collision detection and physics
 - add double / triple buffering helper
 - better + safer handling of uniforms for shaders
 - add utility to parse command line input
@@ -53,30 +60,34 @@
 - better floating point comparism modes
 - add macros or constexpr functions for bit manipulation
 
-
-
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
-- resources for 2d sprites as well as 
-- add imgui windows for resource manager, performance, syle selection and the log
-- add resource manager
-- rename incbin resource to embedded data
-- replace cfg handler with toml11
-- add image class for image loading and manipulation
-- add CallbackHandler for all classes that provide callbacks
+- add thread pool (external library)
+- resources for 2d sprites and images
+- add font awesome icons to imgui
+- add imgui windows for resource manager, performance, style selection and the logger
+- some new imgui helper functions
 - add simple imgui popups for messages
-- add texture to imgui helper function
+- add "texture to imgui" helper functions
+- allow inputs to be set active / inactive, also add callbacks to custom modifiers
+- add resource manager, can load resources asynchronously and cache them
+- add remap function to math helper
+- rename incbin resource to embedded data
+- replace cfg file handler with toml11
+- add entt as external dependency
+- add image class for image loading, storing, and manipulation
+- add CallbackHandler for all classes that provide callbacks
 - add state machine class
-- fix window class const correctness
+- various improvements for 2D rendering and interactivity
 - better sprite rendering
 - add 2d camera
-- fix bugs for opengl buffer
+- fix window class const correctness
+- fix bugs in opengl buffer
 - fix bugs in string utils
 - add cuda memory transfer helper functions
 - various bugs fixed in the new cuda memory management
-- add cuda copy helper functions
-- add compare operators to helper math
+- add compare operators to cuda helper math
 - fix bugs in cuda vectors
 
 --- v0.12.0 -- 20.12.2019 

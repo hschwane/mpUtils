@@ -63,7 +63,7 @@ namespace ImGui { // we extend the imgui namespace inside mpu
     #define ICON_END() ImGui::PopFont() //!< ends use of icons by popping icon font from the stack
     extern ImFont* iconFont;
 
-    void pushDisabled(); //!< starts regieon with disabled widgets
+    void pushDisabled(); //!< starts region with disabled widgets
     void popDisabled(); //!< ends region with disabled widgets
 }
 

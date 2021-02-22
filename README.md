@@ -1,12 +1,14 @@
 # mpUtils
-A windows and linux c++ library with some utilities I use in a lot of my projects. It also features support
-for computer graphics applications using openGL and CUDA.
+A windows and linux c++ library with some utilities I use in a lot of my projects. Graphical applications can 
+be created with OpenGL and ImGui. For 2D graphics, a higher level game engine like API is in progress.
+In addition mpUtils also offers some helper functions for CUDA. To see a list of all features go to [features](#features).  
 
 -------------------------
 
 ## installation
 
-To use mpUtils you need to build and install it yourself from sources.
+To use mpUtils you need to build and install it yourself from sources. 
+You can also add it as a submodule to your project.
 
 ### dependencies
 
@@ -115,25 +117,40 @@ also be used in cuda code. Some even in device functions.
 --------------------------
 ## features
 
-
+### graphics
 - c++ wrapper for most openGl and glfw functionality
 - utilities for glsl shader like a c-style preprocessor as well as include files with math functions, rng and noise
-- some utilities for graphics applications like camera handling, image loading and screen filling rendering
+- some utilities for graphics applications like camera handling and screen filling rendering
+- high level 2D rendering with game engine like functionality (work in progress)
 - ImGUI based user interface
-- mouse and keyboard input handling 
-- building with cuda, including cuda support for the clion IDE and some cuda helping functions and utilities
+- mouse and keyboard input handling including 
+- image class to load store and manipulate images
+  
+### cuda
+- building with cuda, and some cuda helping functions and utilities
 - vector and matrix math functions for cuda
-- memory management and glInteroperability wrapper for cuda
+- cuda memory management using std::vector compatible classes
+- cuda <-> OpenGL interoperability
+- the CUB library (see 3rd party code)
+  
+### general
 - highly customisable thread safe logger
-- ini-Style configuration file parser
-- different timers including asynchronous ones
-- template metaprogramming utilities
+- resourceManager with async loading, reference counting, and caching
+- toml (ini-Style) configuration file parser using toml11 (see 3rd paty code)
 - includes compile-time math functions from the gcem-library (see 3rd party code)
 - system specific dialogs (eg file open / save) using tinyfd (see 3rd party code)
 - compile and embed resources into executables using incbin (see 3rd party code)
-- cmake modules for handling versions and cuda code generation
+- the entt entity component system (see 3rd paty code)
+- different timers and stopwatches, including asynchronous ones
+- template metaprogramming and type trait utilities
+- functions for point picking and random number generation
+- copy and movable atomics (copy/move is not atomic in itself)
+- a python like "Range" class
+- a state machine wrapper
+- many more small helper functions and classes
+- cmake modules for handling git versions and cuda code generation
 - doxygen style documentation
-- other small helpers
+
 
 ------------------------
 ## contribution / bugs / missing features
@@ -154,7 +171,7 @@ provided by NVIDIA Corporation.
 
 CUB by nvlabs (https://nvlabs.github.io/cub/)
 
-stb_image (https://github.com/nothings/stb)
+stb_image and stb_image_write (https://github.com/nothings/stb)
 This software contains source code provided by Sean T. Barrett.
 
 Dear ImGui (https://github.com/ocornut/imgui)
