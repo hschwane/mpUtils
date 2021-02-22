@@ -60,6 +60,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+--- v0.13.0 -- 22.02.2021
 - better cuda includes and remove clion helper (clion has native support now)
 - remove the high resolution clock versions of timers
 - add thread pool (external library)
@@ -82,8 +83,10 @@ for motivation, all finished todo entries are moved here instead of being delete
 - better sprite rendering
 - add 2d camera
 - fix window class const correctness
-- fix bugs in opengl buffer
 - fix bugs in string utils
+
+--- v0.12.1 -- 25.04.2020
+- fix bugs in opengl buffer
 - add cuda memory transfer helper functions
 - various bugs fixed in the new cuda memory management
 - add compare operators to cuda helper math
