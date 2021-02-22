@@ -21,11 +21,6 @@
 // includes
 //--------------------
 
-// cuda api
-#include <cuda_runtime_api.h>
-#include <driver_types.h>
-#include <device_launch_parameters.h>
-
 // cuda stuff from the framework
 #include "Cuda/cudaUtils.h"
 #include "mpUtils/external/cuda/helper_math.h"
@@ -39,7 +34,6 @@
 #include "Cuda/DeviceVector.h"
 #include "Cuda/GlBufferMapper.h"
 #include "mpUtils/external/cub/cub.cuh"
-#include "Cuda/clionCudaHelper.h"
 //--------------------
 
 #endif //MPUTILS_MPCUDA_H

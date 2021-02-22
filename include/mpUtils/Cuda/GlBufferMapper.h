@@ -22,7 +22,6 @@
     #include "mpUtils/Graphics/Opengl/Buffer.h"
 #endif
 #include <cuda_gl_interop.h>
-#include "clionCudaHelper.h"
 #include "cudaUtils.h"
 #include "mpUtils/Log/Log.h"
 #include "VectorReference.h"

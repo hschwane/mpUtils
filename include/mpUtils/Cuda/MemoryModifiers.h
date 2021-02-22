@@ -13,7 +13,6 @@
 
 // includes
 //--------------------
-#include "clionCudaHelper.h"
 #include "mpUtils/external/cuda/helper_math.h"
 #include "cudaUtils.h"
 //--------------------

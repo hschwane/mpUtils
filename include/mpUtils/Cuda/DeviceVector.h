@@ -20,7 +20,6 @@
 #include <type_traits>
 #include <iterator>
 #include <memory>
-#include "clionCudaHelper.h"
 #include "cudaUtils.h"
 #include "mpUtils/Misc/templateUtils.h"
 #include "VectorReference.h"
