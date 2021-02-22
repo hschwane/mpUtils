@@ -60,6 +60,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+--- v0.13.0 -- 22.02.2021
 - better cuda includes and remove clion helper (clion has native support now)
 - remove the high resolution clock versions of timers
 - add thread pool (external library)
