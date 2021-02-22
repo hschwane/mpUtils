@@ -137,7 +137,7 @@ namespace {
                 function(wnd);
         }
 
-        mpu::HRTimer doubleTapTimer; //!< timer to be used to time double clicks
+        mpu::SimpleTimer doubleTapTimer; //!< timer to be used to time double clicks
         std::function<void(Window&)> function; //!< function that performs the actual work
     };
 

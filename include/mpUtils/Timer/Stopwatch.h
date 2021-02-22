@@ -9,7 +9,7 @@
  * Implements the Stopwatch class, which can measure Time like a stopwatch.
  *
  * Copyright 2016 Hendrik Schwanekamp
- * 
+ *
  */
 
 #ifndef MPUTILS_STOPWATCH_H
@@ -137,7 +137,6 @@ void basic_Stopwatch<clock>::togglePause()
 // typedefs for the real stopwatch classes
 //--------------------
 typedef basic_Stopwatch<std::chrono::steady_clock> SimpleStopwatch; // simple Stopwatch
-typedef basic_Stopwatch<std::chrono::high_resolution_clock> HRStopwatch; // high resolution Stopwatch
 typedef basic_Stopwatch<cpu_clock> CpuStopwatch; // uses cpu time
 
 }

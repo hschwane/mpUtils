@@ -35,7 +35,6 @@
 - add multisprites
 
 ### bugfix
-- make timers use a steady clock
 
 ## low priority / ideas / long term projects
 - 2d collision detection and physics
@@ -63,6 +62,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- remove the high resolution clock versions of timers
 - add thread pool (external library)
 - resources for 2d sprites and images
 - add font awesome icons to imgui

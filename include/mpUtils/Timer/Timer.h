@@ -9,7 +9,7 @@
  * Implements the Timer class, which provides simple timer functionality.
  *
  * Copyright 2016 Hendrik Schwanekamp
- * 
+ *
  */
 
 #ifndef MPUTILS_TIMER_H
@@ -30,7 +30,7 @@ namespace mpu {
 
 /**
  * class Timer
- * 
+ *
  * usage:
  *
  * Use this Class with a custom "clock" from std::chrono or use SimpleTimer, HRTimer or CpuTimer,
@@ -219,7 +219,6 @@ bool basic_Timer<clock>::isRunning()
 // typedefs for the real timer classes
 //--------------------
 typedef basic_Timer<std::chrono::steady_clock> SimpleTimer; // simple Stopwatch
-typedef basic_Timer<std::chrono::high_resolution_clock> HRTimer; // high resolution Stopwatch
 typedef basic_Timer<cpu_clock> CpuTimer; // uses cpu time
 
 }

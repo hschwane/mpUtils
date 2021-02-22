@@ -281,7 +281,6 @@ void basic_AsyncTimer<clock>::update()
 // typedefs for the real async timer classes
 //--------------------
 typedef basic_AsyncTimer<std::chrono::steady_clock> SimpleAsyncTimer; // simple Stopwatch
-typedef basic_AsyncTimer<std::chrono::high_resolution_clock> HRAsyncTimer; // high resolution Stopwatch
 typedef basic_AsyncTimer<cpu_clock> CpuAsyncTimer; // uses cpu time
 
 }
