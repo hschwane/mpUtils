@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.8)
 
 # create target
-add_executable(devTest main.cpp)
+add_executable(example1 main.cpp)
 
 # set required language standard
-set_target_properties(devTest PROPERTIES
-        CXX_STANDARD 17
+set_target_properties(example1 PROPERTIES
+        CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES
         )
 
 # link libraries
-target_link_libraries(devTest mpUtils::mpUtils)
+target_link_libraries(example1 mpUtils::mpUtils)
 
