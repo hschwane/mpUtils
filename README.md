@@ -1,5 +1,5 @@
 # mpUtils
-A windows and linux c++ library with some utilities I use in a lot of my projects. Graphical applications can 
+A windows and linux C++17 library with some utilities I use in a lot of my projects. Graphical applications can 
 be created with OpenGL and ImGui. For 2D graphics, a higher level game engine like API is in progress.
 In addition mpUtils also offers some helper functions for CUDA. To see a list of all features go to [features](#features).  
 
@@ -13,7 +13,7 @@ You can also add it as a submodule to your project.
 ### dependencies
 
 To install mpUtils you will need:
-- CMake version 3.8 or higher
+- CMake version 3.8+
 - a C++17 compatible compiler, eg gcc8+
 
 To use the graphics functionality you will also need:
@@ -24,7 +24,7 @@ To use the graphics functionality you will also need:
 
 To use the cuda functionality you will need:
 - CUDA-toolkit version 11+
-- CMake 3.18
+- CMake 3.18+
 
 ###### HINT
 If some of the dependencies are missing mpUtils will build and install fine, but give you a warning.

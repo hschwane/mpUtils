@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 
+if(NOT USE_OPENGL)
+    return()
+endif()
+
 # create target
 add_executable(imageTest main.cpp)
 

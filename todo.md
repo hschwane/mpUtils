@@ -59,6 +59,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- re-add basic OpenGL tutorials / examples
 - use C++17 and CUDA 11
 
 --- v0.13.0 -- 22.02.2021

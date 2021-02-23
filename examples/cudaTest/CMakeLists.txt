@@ -5,7 +5,7 @@ if(NOT USE_CUDA)
 endif()
 
 # create target
-add_executable(cudaTest dummy.cpp main.cu)
+add_executable(cudaTest main.cu)
 
 # set required language standard
 set_target_properties(cudaTest PROPERTIES
