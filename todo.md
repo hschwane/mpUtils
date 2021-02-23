@@ -5,7 +5,6 @@
 ## medium priority
 
 ### license
-- change to MIT license
 
 ### cmake
 - https://cmake.org/pipermail/cmake/2017-December/066768.html
@@ -59,6 +58,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- change to MIT license
 - re-add basic OpenGL tutorials / examples
 - use C++17 and CUDA 11
 
