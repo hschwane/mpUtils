@@ -17,7 +17,6 @@
  */
 
 #include <mpUtils/mpUtils.h>
-#include <mpUtils/mpGraphics.h>
 
 using namespace mpu;
 using namespace std;

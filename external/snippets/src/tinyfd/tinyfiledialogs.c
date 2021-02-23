@@ -3987,7 +3987,7 @@ static int python3Present( )
 static int tkinter2Present( )
 {
     static int lTkinter2Present = -1 ;
-        char lPythonCommand[256];
+        char lPythonCommand[512];
         char lPythonParams[256] =
 "-S -c \"try:\n\timport Tkinter;\nexcept:\n\tprint 0;\"";
 
@@ -4009,7 +4009,7 @@ static int tkinter2Present( )
 static int tkinter3Present( )
 {
         static int lTkinter3Present = -1 ;
-        char lPythonCommand[256];
+        char lPythonCommand[512];
         char lPythonParams[256] =
                 "-S -c \"try:\n\timport tkinter;\nexcept:\n\tprint(0);\"";
 
@@ -4030,7 +4030,7 @@ static int tkinter3Present( )
 static int pythonDbusPresent( )
 {
     static int lDbusPresent = -1 ;
-        char lPythonCommand[256];
+        char lPythonCommand[512];
         char lPythonParams[256] =
 "-c \"try:\n\timport dbus;bus=dbus.SessionBus();\
 notif=bus.get_object('org.freedesktop.Notifications','/org/freedesktop/Notifications');\
@@ -4049,7 +4049,7 @@ notify=dbus.Interface(notif,'org.freedesktop.Notifications');\nexcept:\n\tprint(
                 if ( ! lDbusPresent && python3Present() )
                 {
                         strcpy(gPythonName , gPython3Name ) ;
-                        sprintf( lPythonCommand , "%s %s" , gPythonName , lPythonParams ) ;
+                         sprintf( lPythonCommand , "%s %s" , gPythonName , lPythonParams ) ;
                         lDbusPresent = tryCommand(lPythonCommand) ;
                 }
 

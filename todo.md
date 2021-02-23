@@ -10,7 +10,6 @@
 ### cmake
 - https://cmake.org/pipermail/cmake/2017-December/066768.html
 - split library, so that only necessary parts need to be linked or can be copied
-- use c++17 with cuda 11
 
 ### finish the input manager
 - print used keys
@@ -59,6 +58,8 @@
 
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
+
+- use C++17 and CUDA 11
 
 --- v0.13.0 -- 22.02.2021
 - better cuda includes and remove clion helper (clion has native support now)

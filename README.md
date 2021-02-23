@@ -14,7 +14,7 @@ You can also add it as a submodule to your project.
 
 To install mpUtils you will need:
 - CMake version 3.8 or higher
-- a c++ 14 compatible compiler, eg gcc5+
+- a C++17 compatible compiler, eg gcc8+
 
 To use the graphics functionality you will also need:
 - glm
@@ -23,7 +23,8 @@ To use the graphics functionality you will also need:
 - graphics drivers supporting some OpenGL version (preferably 4.5+)
 
 To use the cuda functionality you will need:
-- CUDA-toolkit version 10+
+- CUDA-toolkit version 11+
+- CMake 3.18
 
 ###### HINT
 If some of the dependencies are missing mpUtils will build and install fine, but give you a warning.

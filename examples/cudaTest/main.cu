@@ -16,7 +16,7 @@
  * This is testing features of the matrix class... to be replaced by actual unit tests in the future...
  */
 
-//#include <mpUtils/mpGraphics.h>
+#include <mpUtils/mpGraphics.h>
 #include <mpUtils/mpUtils.h>
 #include <mpUtils/mpCuda.h>
 

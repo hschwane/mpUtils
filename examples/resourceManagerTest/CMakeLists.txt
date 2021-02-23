@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 
+if(NOT USE_OPENGL)
+    return()
+endif()
+
 # create target
 add_executable(resMngrTest main.cpp)
 
@@ -7,8 +11,6 @@ add_executable(resMngrTest main.cpp)
 set_target_properties(resMngrTest PROPERTIES
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED YES
-        CUDA_STANDARD 14
-        CUDA_STANDARD_REQUIRED YES
         )
 
 # link libraries
