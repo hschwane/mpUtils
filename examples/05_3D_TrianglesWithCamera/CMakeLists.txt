@@ -5,16 +5,16 @@ if(NOT USE_OPENGL)
 endif()
 
 # create target
-add_executable(example5 main.cpp)
+add_executable(GLexample5 main.cpp)
 
 # set required language standard
-set_target_properties(example3 PROPERTIES
+set_target_properties(GLexample5 PROPERTIES
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED YES
         )
 
-target_compile_definitions(example5 PRIVATE -DPROJECT_SHADER_PATH="${CMAKE_CURRENT_LIST_DIR}/")
+target_compile_definitions(GLexample5 PRIVATE -DPROJECT_SHADER_PATH="${CMAKE_CURRENT_LIST_DIR}/")
 
 # link libraries
-target_link_libraries(example5 mpUtils::mpUtils)
+target_link_libraries(GLexample5 mpUtils::mpUtils)
 
