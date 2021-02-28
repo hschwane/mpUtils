@@ -34,7 +34,7 @@ namespace gph {
  * When created a sync object is inserted in the openGL command queue it becomes ready when all openGL commands
  * issued before the sync object have been processed.
  * Use check ready to check if the sync object is ready or wait ready to wait until it becomes ready.
- * Don't forget to use glFlush, glSwapBuffers or set flush to true while waiting or the object might not get ready.
+ * Don't forget to use glFlush, glSwapBuffers or set sync to true while waiting or the object might not get ready.
  *
  */
 class SyncObject

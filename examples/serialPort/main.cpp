@@ -26,19 +26,30 @@ int main()
 //    Log myLog( LogLvl::ALL, ConsoleSink());
 //    myLog.printHeader("devTest", MPU_VERSION_STRING, MPU_VERSION_COMMIT, "");
 
-    SerialPort serial("/dev/ttyUSB0",BaudRate::BAUD_57600);
+    std::cout << "available ports" << std::endl;
+    auto a = listAvailableSerialPorts();
+    for(auto&& p : a) {
+        std::cout << p << std::endl;
+    }
 
-    serial.write("Hallo\n",6);
+    SerialPortStream sps("/dev/ttyUSB0",BaudRate::BAUD_9600);
 
-    int i = 0;
-    char b;
+    sps << "Hello Serial\n";
+    sps << "send an integer: \n";
+    int i=-1;
+    sps >> i;
+    sps << "you sent " << i << "\n";
+    sps << "now i will repeat to you line by line. send \"q\" to quit\n";
+
+    std::string s;
     while(true) {
-        std::string s = std::to_string(i) + "\n";
-        serial.write(s.c_str(),s.length());
-        i++;
-//        int n = serial.read(&b,1);
-//        if(n==1)
-//            std::cout << b;
+        std::getline(sps,s);
+        if(s == "q")
+            break;
+        else if(!s.empty()) {
+            sps << s << "\n";
+            std::cout << "received: " << s << "\n";
+        }
     }
 
     return 0;

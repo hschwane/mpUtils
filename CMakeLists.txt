@@ -140,7 +140,6 @@ target_sources(mpUtils PRIVATE
                 "src/Log/FileSink.cpp"
                 "src/Log/ConsoleSink.cpp"
                 "src/Log/BufferedSink.cpp"
-                #"src/Log/SyslogSink.cpp"
                 "src/Log/Log.cpp"
                 "external/snippets/src/stb_image_impl.cpp"
                 "external/snippets/src/stb_image_write_impl.cpp"
@@ -148,7 +147,18 @@ target_sources(mpUtils PRIVATE
                 "src/ResourceManager/mpUtilsResources.cpp"
                 "src/ResourceManager/ResourceCache.cpp"
                 "src/Misc/Image.cpp"
+                "src/IO/SerialPortStream.cpp"
               )
+
+# add OS dependend source files
+if(WIN32)
+#    target_sources(mpUtils PRIVATE)
+elseif(UNIX)
+    target_sources(mpUtils PRIVATE
+            "src/Log/SyslogSink.cpp"
+            "src/IO/posixSerialPort.cpp"
+            )
+endif()
 
 # add optional source files
 if (USE_OPENGL)
@@ -215,12 +225,15 @@ set_target_properties(mpUtils PROPERTIES
 set_target_properties(mpUtils PROPERTIES
                         CXX_STANDARD 17
                         CXX_STANDARD_REQUIRED YES
-                        CUDA_STANDARD 17
-                        CUDA_STANDARD_REQUIRED YES
                      )
 
 # set cuda specific properties and compile options
 if (USE_CUDA)
+    set_target_properties(mpUtils PROPERTIES
+                            CUDA_STANDARD 17
+                            CUDA_STANDARD_REQUIRED YES
+                        )
+
     set_target_properties( mpUtils PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
     target_compile_options( mpUtils PRIVATE

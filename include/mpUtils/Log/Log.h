@@ -174,7 +174,7 @@ public:
     void addSinks(){}
     void removeSink(int index); //!< removes a given sink (be carefull)
     void close(); //!< removes all sinks and closes the logger thread (queue is flushed), is called automatically before open and on destruction
-    void flush(); //!< flush the log without closing it. Quite costly. Mainly used before throwing an exception.
+    void flush(); //!< sync the log without closing it. Quite costly. Mainly used before throwing an exception.
 
     // getter and setter
     void setLogLevel(LogLvl lvl) {logLvl = lvl;} //!< set the current log level

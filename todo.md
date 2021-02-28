@@ -58,6 +58,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add linux serial port and serial port stream
 - change to MIT license
 - re-add basic OpenGL tutorials / examples
 - use C++17 and CUDA 11

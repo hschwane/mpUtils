@@ -75,7 +75,11 @@
 #include "mpUtils/external/threadPool/ThreadPool.h"
 
 // matrix type might be useful without cuda
-#include "Cuda/Matrix.h"
-#include "Cuda/MatrixMath.h"
+#include "mpUtils/Cuda/Matrix.h"
+#include "mpUtils/Cuda/MatrixMath.h"
+
+// io
+#include "mpUtils/IO/SerialPort.h"
+#include "mpUtils/IO/SerialPortStream.h"
 
 #endif //MPUTILS_MPUTILS_H
