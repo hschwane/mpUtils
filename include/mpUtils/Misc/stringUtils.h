@@ -24,6 +24,7 @@
 #include <chrono>
 #include <iomanip>
 #include <string_view>
+#include <vector>
 //--------------------
 
 // namespace
@@ -43,6 +44,22 @@ std::string &escapeString(std::string &s, std::string sToEscape, char cEscapeCha
 std::string &unescapeString(std::string &s, char cEscapeChar = '\\'); //!< removes all cEscapeChars from the string but allow the escapeChar
 size_t findFirstNotEscapedOf(const std::string &s, const std::string &c, size_t pos = 0, const std::string &sEscape = "\\"); //!< returns the position of the first char from c in s after pos which is not escaped by a char from sEscape
 std::string &cutAfterFirst(std::string &s, const std::string &c, const std::string &sEscape = "", size_t pos = 0); //!< cuts the first found char in c after pos and everything after that from s stuff can be escaped by any of the chars in sEscape
+
+/**
+ * @brief tokenize string at any char out of delims, removing the delimiter
+ * @param s string to tokenize
+ * @param delims list of delimiters
+ * @return vector of tokens
+ */
+std::vector<std::string_view> tokenize(std::string_view s, std::string_view delims=whitespace);
+
+/**
+ * @brief tokenize string at delim, removing the delimiter
+ * @param s string to tokenize
+ * @param delim the delimiter
+ * @return vector of tokens
+ */
+std::vector<std::string_view> tokenize(std::string_view s, char delim);
 
 }
 #endif //MPUTILS_MPUTILS_H

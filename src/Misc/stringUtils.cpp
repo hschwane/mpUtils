@@ -99,4 +99,35 @@ std::string &unescapeString(std::string &s, const char cEscapeChar)
     return s;
 }
 
+std::vector<std::string_view> tokenize(std::string_view s, std::string_view delims)
+{
+    std::vector<std::string_view> tokens;
+    auto p1 = s.find_first_not_of(delims);
+    std::string_view::size_type p2;
+
+    while((p2 = s.find_first_of(delims,p1)) != std::string_view::npos) {
+        tokens.emplace_back(s.substr(p1, p2-p1));
+        p1 = s.find_first_not_of(delims,p2+1);
+    }
+    if(p1 != std::string_view::npos)
+        tokens.emplace_back(s.substr(p1));
+    return tokens;
+}
+
+std::vector<std::string_view> tokenize(std::string_view s, char delim)
+{
+    std::vector<std::string_view> tokens;
+    auto p1 = s.find_first_not_of(delim);
+    std::string_view::size_type p2;
+
+    while((p2 = s.find_first_of(delim,p1)) != std::string_view::npos) {
+        tokens.emplace_back(s.substr(p1, p2-p1));
+        p1 = s.find_first_not_of(delim,p2+1);
+    }
+
+    if(p1 != std::string_view::npos)
+        tokens.emplace_back(s.substr(p1));
+    return tokens;
+}
+
 }
