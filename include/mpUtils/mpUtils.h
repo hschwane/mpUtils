@@ -39,7 +39,7 @@
 
 // configuration util
 #include "mpUtils/external/toml/toml.hpp"
-#include "mpUtils/Misc/tomlStore.h"
+#include "mpUtils/Cfg/tomlStore.h"
 
 // resource management
 #include "mpUtils/ResourceManager/readData.h"
