@@ -23,10 +23,10 @@ namespace mpu {
 // general help functions
 //-------------------------------------------------------------------
 
-std::string timestamp(std::string sFormat)
+std::string timestamp(const std::string& sFormat)
 {
     time_t timeRaw = time(nullptr);
-    struct tm timeStruct;
+    struct tm timeStruct{};
 #ifdef __linux__
 	localtime_r(&timeRaw, &timeStruct);
 #elif _WIN32
@@ -38,12 +38,6 @@ std::string timestamp(std::string sFormat)
 	std::ostringstream ss;
 	ss << std::put_time(&timeStruct, cstr);
     return ss.str();
-}
-
-std::string &removeWhite(std::string &s)
-{
-    s.erase(std::remove_if( s.begin(), s.end(), [](char c){ return (c =='\r' || c =='\t' || c == ' ' || c == '\n');}), s.end() );
-    return s;
 }
 
 std::string &cutAfterFirst(std::string &s, const std::string &c, const std::string &sEscape, std::size_t pos)

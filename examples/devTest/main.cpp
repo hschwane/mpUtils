@@ -22,61 +22,40 @@ using namespace mpu;
 using namespace std;
 using namespace std::chrono;
 
-class BaseState
+int main(int argc, const char* argv[])
 {
-public:
-    virtual ~BaseState() = default;
+    struct Opts {
+        bool b{};
+        bool b2{};
+        int i{};
+        float f{};
+        double d{};
+        std::string s{};
+    };
 
-    void onActivation()
-    {
-        logINFO("State") << "activated";
+    auto options = cfg::ArgParser<Opts>::parse(argc,argv,{
+            {"bool","b", &Opts::b, "A bool for testing."},
+            {"bool2","c", &Opts::b2, "A second bool for testing."},
+            {"integer","i", &Opts::i, "An integer for testing."},
+            {"float","f", &Opts::f, "A float for testing."},
+            {"double","d", &Opts::d, "A double for testing."},
+            {"string","s", &Opts::s, "A string for testing."},
+        }, std::string(argv[0]) + " [options] <positional arguments> \nTesting the mpUtils argument parser.",
+        "mpUtils library test v" MPU_VERSION_STRING "\nCopyright: Hendrik Schwanekamp\nProvided under MIT license");
+
+    std::cout << "\n\nFound options:\n"
+              << std::boolalpha << "bool: " << options.b
+              << "\nbool2: " << options.b2
+              << "\nint: " << options.i
+              << "\nfloat: " << options.f
+              << "\ndouble: " << options.d
+              << "\nstring: " << options.s
+              << "\n";
+
+    std::cout << "\npositionals: \n";
+    for(auto&& s : options.positional) {
+        std::cout << s << "\n";
     }
-
-    void onDeactivation()
-    {
-        logINFO("State") << "deactivated";
-    }
-
-    virtual void blub()=0;
-
-    void setStateMachine(mpu::StateMachine<int,BaseState>* sm)
-    {
-
-    }
-};
-
-class S1 : public BaseState
-{
-public:
-    void blub() override
-    {
-        logINFO("") << 1;
-    }
-};
-
-class S2 : public BaseState
-{
-public:
-    void blub() override
-    {
-        logINFO("") << 2;
-    }
-};
-
-int main()
-{
-    Log myLog( LogLvl::ALL, ConsoleSink());
-    myLog.printHeader("devTest", MPU_VERSION_STRING, MPU_VERSION_COMMIT, "");
-
-    mpu::StateMachine<int,BaseState> sm;
-
-    sm.createState<S1>(0);
-    sm.createState<S2>(1);
-
-    sm.switchState(0);
-    sm.getCurrentState()->blub();
-    sm.switchState(1);
-    sm.getCurrentState()->blub();
 
     return 0;
 }

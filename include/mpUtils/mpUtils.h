@@ -32,7 +32,7 @@
 #include "Misc/EmbeddedData.h"
 #include "mpUtils/Misc/CallbackHandler.h"
 #include "mpUtils/Misc/StateMachine.h"
-#include "mpUtils/Misc/CopyMoveAtomic.h"
+#include "mpUtils/Misc/copyMoveWrapper.h"
 
 // image loading
 #include "Misc/Image.h"
@@ -42,7 +42,6 @@
 #include "mpUtils/Cfg/tomlStore.h"
 
 // resource management
-#include "mpUtils/ResourceManager/readData.h"
 #include "mpUtils/ResourceManager/ResourceCache.h"
 #include "mpUtils/ResourceManager/ResourceManager.h"
 #include "mpUtils/ResourceManager/mpUtilsResources.h"
@@ -79,6 +78,7 @@
 #include "mpUtils/Cuda/MatrixMath.h"
 
 // io
+#include "mpUtils/IO/readData.h"
 #include "mpUtils/IO/SerialPort.h"
 #include "mpUtils/IO/SerialPortStream.h"
 

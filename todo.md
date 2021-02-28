@@ -58,6 +58,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- clean up string utils and add some new functionality
 - add linux serial port and serial port stream
 - change to MIT license
 - re-add basic OpenGL tutorials / examples

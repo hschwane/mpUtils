@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef MPUTILS_COPYMOVEATOMIC_H
-#define MPUTILS_COPYMOVEATOMIC_H
+#ifndef MPUTILS_COPYMOVEWRAPPER_H
+#define MPUTILS_COPYMOVEWRAPPER_H
 
 // includes
 //--------------------
@@ -24,9 +24,18 @@
 namespace mpu {
 //--------------------
 
+/**
+ * @brief makes a movable functor copyable using a shared pointer
+ * @tparam F type of functor
+ * @param f functor to make copyable
+ * @return the copyable object
+ */
+template<typename F >
+auto makeFuncCopyable( F&& f );
+
 //-------------------------------------------------------------------
 /**
- * class AtomicWrapper
+ * class CopyMoveAtomic
  *
  * A copy and movable wrapper for an atomic. The copy and move operations semselfs are not atomic!
  * But this way atomics can be stored in a container.
@@ -73,5 +82,18 @@ public:
     }
 };
 
+//-------------------------------------------------------------------
+// function definitions
+template<typename F >
+auto makeFuncCopyable( F&& f )
+{
+    auto spf = std::make_shared<F>(std::forward<F>(f) );
+    return [spf](auto&&... args)->decltype(auto)
+    {
+        return (*spf)( (args)... );
+    };
 }
-#endif //MPUTILS_COPYMOVEATOMIC_H
+
+
+}
+#endif //MPUTILS_COPYMOVEWRAPPER_H

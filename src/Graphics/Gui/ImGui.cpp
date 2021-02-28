@@ -253,7 +253,7 @@ ImFont* loadFont(std::string file, float size, bool addIcons)
 {
     auto io = ImGui::GetIO();
 
-    std::string mapKey = file + "_size_" + mpu::toString(size) + ((addIcons) ? "_wicons" : "");
+    std::string mapKey = file + "_size_" + std::to_string(size) + ((addIcons) ? "_wicons" : "");
 
     auto it = fonts.find(mapKey);
     if(it == fonts.end())

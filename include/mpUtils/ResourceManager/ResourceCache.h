@@ -21,9 +21,9 @@
 #include <atomic>
 #include <mutex>
 #include <shared_mutex>
-#include "mpUtils/ResourceManager/readData.h"
+#include "mpUtils/IO/readData.h"
 #include "mpUtils/Log/Log.h"
-#include "mpUtils/Misc/CopyMoveAtomic.h"
+#include "mpUtils/Misc/copyMoveWrapper.h"
 #include "mpUtils/Misc/timeUtils.h"
 //--------------------
 

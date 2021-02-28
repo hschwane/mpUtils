@@ -79,8 +79,8 @@ void FileSink::rotateLog()
     // rename all existing files deleting the oldest (if logs kept is zero or one this will not be executed at all)
     for(int i=iNumLogsToKeep-1; i >= 1; i--)
     {
-        if(fs::exists( sLogfileName + "." + toString(i)))
-            fs::rename( sLogfileName + "." + toString(i), sLogfileName + "." + toString(i+1));
+        if(fs::exists( sLogfileName + "." + std::to_string(i)))
+            fs::rename( sLogfileName + "." + std::to_string(i), sLogfileName + "." + std::to_string(i+1));
     }
 
     // if we want to keep at least one, move the original
