@@ -40,6 +40,7 @@
 // configuration util
 #include "mpUtils/external/toml/toml.hpp"
 #include "mpUtils/Cfg/tomlStore.h"
+#include "mpUtils/Cfg/ArgParser.h"
 
 // resource management
 #include "mpUtils/ResourceManager/ResourceCache.h"

@@ -1,6 +1,8 @@
 # my todo list
 
 ## high priority
+- fix incbin and windows compatibility
+- add windows serial port
 
 ## medium priority
 
@@ -36,9 +38,7 @@
 - 2d collision detection and physics
 - add double / triple buffering helper
 - better + safer handling of uniforms for shaders
-- add utility to parse command line input
 - add networking capabilities
-- add serial port capabilities
 - timer set for profiling apps
 - jason and/or xml and easy serializing
 - util for handling general settings
@@ -58,6 +58,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- add command line argument parser
 - clean up string utils and add some new functionality
 - add linux serial port and serial port stream
 - change to MIT license
