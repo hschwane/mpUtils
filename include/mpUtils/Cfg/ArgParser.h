@@ -332,6 +332,7 @@ ArgParser<OptionStruct, allowPositional>::parseRecursive(const std::vector<std::
         // setting or positional argument
         return token;
     }
+    return std::string_view();
 }
 
 template <class OptionStruct, bool allowPositional>

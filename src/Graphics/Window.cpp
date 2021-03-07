@@ -17,6 +17,7 @@
 #include "mpUtils/Graphics/Window.h"
 #include <cmath>
 #include "Graphics/InputInternal.h"
+#include <mutex>
 //--------------------
 
 // namespace
@@ -80,29 +81,31 @@ static void glDebugCallback(GLenum source, GLenum type, GLuint id, const GLenum 
 
 // function definitions of the Window class
 //-------------------------------------------------------------------
+void Window::initGLFW()
+{
+    static std::once_flag initGlfwOnce;
+    std::call_once(initGlfwOnce, [&](){
+        int e =glfwInit();
+        if(e  != GL_TRUE)
+        {
+            logFATAL_ERROR("Graphics") << "Error initializing glfw. Returned: " << e ;
+            logFlush();
+            throw std::runtime_error("Could not initializing glfw!");
+        }
+
+        glfwSetErrorCallback([](int code, const char * message){
+            logERROR("GLFW") << "Error code: " << code << "Message: " << message;
+        });
+        logDEBUG("Graphics") << "initialized GLFW.";
+    });
+}
+
 Window::Window(const int width, const int height, const std::string &title, GLFWmonitor *monitor, GLFWwindow *share)
     : m_w(nullptr,[](GLFWwindow* wnd){}), m_origPos(0,0), m_origSize(width-5,height-100),
     m_clearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT), m_cursor(nullptr)
 {
-    // init glfw once
-    static struct GLFWinit
-    {
-        GLFWinit()
-        {
-            int e =glfwInit();
-            if(e  != GL_TRUE)
-            {
-                logFATAL_ERROR("Graphics") << "Error initializing glfw. Returned: " << e ;
-                throw std::runtime_error("Could not initializing glfw!");
-            }
-
-            glfwSetErrorCallback([](int code, const char * message){
-                logERROR("GLFW") << "Error code: " << code << "Message: " << message;
-            });
-            logDEBUG("Graphics") << "initialized GLFW.";
-        }
-        ~GLFWinit() { glfwTerminate(); }
-    } glfwinit;
+    // init glfw if needed
+    initGLFW();
 
     // setting some important default settings
 #ifndef NDEBUG
@@ -193,18 +196,20 @@ void Window::setGlVersion(int major, int minor)
 
 void Window::setWindowHint(int hint, int value)
 {
+    initGLFW();
     glfwWindowHint(hint, value);
 }
 
 void Window::resetWindowHints()
 {
+    initGLFW();
     glfwDefaultWindowHints();
 }
 
 Window Window::headlessContext(std::string title)
 {
     mpu::gph::Window::setWindowHint(GLFW_VISIBLE,false);
-    return std::move(mpu::gph::Window(5,5,title));
+    return mpu::gph::Window(5,5,title);
 }
 
 bool Window::frameBegin()

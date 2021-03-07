@@ -71,6 +71,10 @@ public:
     static void resetWindowHints(); //!< reset window hints to default
     static Window headlessContext(std::string title); //!< create an invisible window for headless rendering
 
+    // glfw init / terminate
+    static void initGLFW(); //!< initializes glfw, usually automatically called by the first function accessing glfw
+    static void terminateGLFW(); //!< terminated glfw, usually called automatically
+
     // constructor
     /**
      * @brief Create a new window. The created window needs still to be made the current context
