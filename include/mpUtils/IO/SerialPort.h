@@ -79,7 +79,7 @@ public:
     bool getDTR() const;
     void setDTR(bool state);
 
-    int bytesAvailable() const; //!< number of bytes available for read
+    int charsAvailable() const; //!< number of bytes available for read
     void sync(); //!< blocks until all output in queue was send
 
     char readChar(); //!< block until character is read

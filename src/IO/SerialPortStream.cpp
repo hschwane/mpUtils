@@ -30,6 +30,7 @@ SerialPortStreambuf::SerialPortStreambuf(const std::string& fileName, BaudRate b
                                          Parity parityType, StopBits stopBits)
     : m_serial(fileName,baudRate,characterSize,flowControlType,parityType,stopBits), m_putback()
 {
+    setg(nullptr, nullptr, nullptr);
 }
 
 void SerialPortStreambuf::open(const std::string& fileName, BaudRate baudRate, CharSize characterSize,
@@ -86,11 +87,13 @@ SerialPortStreambuf::int_type SerialPortStreambuf::sync()
 
 std::streamsize SerialPortStreambuf::showmanyc()
 {
-    return m_serial.bytesAvailable();
+    return m_serial.charsAvailable() + m_putback.size();
 }
 
 std::streamsize SerialPortStreambuf::xsgetn(char_type* __s, std::streamsize __n)
 {
+    setg(nullptr, nullptr, nullptr);
+
     int num=0;
     while(!m_putback.empty() && __n > 0) {
         *__s = m_putback.back();
@@ -223,6 +226,11 @@ SerialPortStreambuf* SerialPortStream::rdbuf()
 const SerialPortStreambuf* SerialPortStream::rdbuf() const
 {
     return &m_streambuf;
+}
+
+int SerialPortStream::charsAvailable()
+{
+    return m_streambuf.in_avail();
 }
 
 void swap(SerialPortStream& first, SerialPortStream& second)

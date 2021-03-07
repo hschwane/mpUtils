@@ -117,6 +117,8 @@ public:
     void close(); //!< automatically closed in destructor
     bool is_open() const; //!< check if serial port is open
 
+    int charsAvailable(); //!< number of characters available for reading
+
     // set / get modem lines
     bool getCTS() const; //!< get state of CTS line
     void setCTS(bool state); //!< set state of CTS line

@@ -210,7 +210,7 @@ void SerialPort::setDTR(bool state)
         throw std::runtime_error(std::strerror(errno));
 }
 
-int SerialPort::bytesAvailable() const
+int SerialPort::charsAvailable() const
 {
     int bytes = 0;
     if(::ioctl(m_fd, FIONREAD, &bytes) < 0)
@@ -241,8 +241,6 @@ char SerialPort::readChar()
 
 size_t SerialPort::read(char* buf, size_t count)
 {
-    std::cout << "blubber" << std::endl;
-
     int r = -1;
     size_t rec = 0;
     while(true) {
