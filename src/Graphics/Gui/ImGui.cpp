@@ -258,7 +258,7 @@ ImFont* loadFont(std::string file, float size, bool addIcons)
     auto it = fonts.find(mapKey);
     if(it == fonts.end())
     {
-        auto ret = fonts.emplace(mapKey,io.Fonts->AddFontFromFileTTF(file.c_str(),15.0));
+        auto ret = fonts.emplace(mapKey,io.Fonts->AddFontFromFileTTF(file.c_str(),size));
         it = ret.first;
 
         if(addIcons)

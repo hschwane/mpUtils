@@ -58,6 +58,8 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+- fix bug where wrong imgui font size is loaded
+- fix bug where window hint was ignored
 - add command line argument parser
 - clean up string utils and add some new functionality
 - add linux serial port and serial port stream
