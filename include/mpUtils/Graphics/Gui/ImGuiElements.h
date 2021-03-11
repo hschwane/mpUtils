@@ -68,6 +68,14 @@ bool IsItemHovered(ImGuiHoveredFlags flags, float time);
  */
 bool ToggleButton(const char* label, bool* v, const ImVec2& size = ImVec2(0,0));
 
+/**
+ * @brief if enabled will automatically scroll to ScrollMaxY. Will disable if user manually scrolls.
+ * @param enable should autoscroll be enabled
+ * @param persistent a boolean that is persistent over multiples calls of the function from the same window. Pass
+ *      different variables for different windows.
+ */
+void AutoscrollToBottom(bool* enable, bool* persistent);
+
 }
 
 #endif  // RAPTOR_IMGUIELEMENTS_H

@@ -452,4 +452,17 @@ bool ToggleButton(const char* label, bool* v, const ImVec2& size)
     return false;
 }
 
+void AutoscrollToBottom(bool* enable, bool* persistent)
+{
+    if(*enable)
+        ImGui::SetScrollY(ImGui::GetScrollMaxY());
+
+    bool isScrollAtEnd = (ImGui::GetScrollY() == ImGui::GetScrollMaxY());
+    if(isScrollAtEnd && !*persistent)
+        *enable = true;
+    if(!isScrollAtEnd && !*persistent)
+        *enable = false;
+    *persistent = isScrollAtEnd;
+}
+
 }
