@@ -297,9 +297,7 @@ std::vector<std::string> listAvailableSerialPorts()
 
     fs::path p("/dev/serial/by-path");
     try {
-        if (!exists(p)) {
-            throw std::runtime_error(p.generic_string() + " does not exist");
-        } else {
+        if (exists(p)) {
             for (const fs::directory_entry &de : fs::directory_iterator(p)) {
                 if (fs::is_symlink(de)) {
                     fs::path linkTarget = fs::read_symlink(de);

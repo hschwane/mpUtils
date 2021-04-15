@@ -63,7 +63,6 @@ enum class BaudRate : speed_t
     BAUD_4000000 = B4000000,
 #endif // __MAX_BAUD
 #endif // __linux__
-    BAUD_INVALID = std::numeric_limits<speed_t>::max()
 };
 
 /**
@@ -75,39 +74,35 @@ enum class CharSize : tcflag_t
     CHAR_SIZE_6 = CS6,
     CHAR_SIZE_7 = CS7,
     CHAR_SIZE_8 = CS8,
-    CHAR_SIZE_INVALID = std::numeric_limits<tcflag_t>::max()
 };
 
 /**
  * @brief list of allowed flow control types
  */
-enum class FlowControl : tcflag_t
+enum class FlowControl
 {
     FLOW_CONTROL_HARDWARE,
     FLOW_CONTROL_SOFTWARE,
     FLOW_CONTROL_NONE,
-    FLOW_CONTROL_INVALID = std::numeric_limits<tcflag_t>::max()
 };
 
 /**
  * @brief list of allowed parity types
  */
-enum class Parity : tcflag_t
+enum class Parity
 {
     PARITY_EVEN,
     PARITY_ODD,
     PARITY_NONE,
-    PARITY_INVALID = std::numeric_limits<tcflag_t>::max() // !< Invalid parity value.
 };
 
 /**
  * @brief list of allowed number of stop bits
  */
-enum class StopBits : tcflag_t
+enum class StopBits
 {
     STOP_BITS_1,
     STOP_BITS_2,
-    STOP_BITS_INVALID = std::numeric_limits<tcflag_t>::max()
 };
 
 //!< type of the serial port descriptor
