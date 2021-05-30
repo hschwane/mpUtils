@@ -50,15 +50,31 @@ public:
                               Parity parityType = Parity::PARITY_NONE,
                               StopBits stopBits = StopBits::STOP_BITS_1);
 
-    //!< open a serial port with some sensible default settings
+    SerialPortStreambuf(const SerialPortStreambuf& other) = delete;
+    SerialPortStreambuf& operator=(const SerialPortStreambuf& other) = delete;
+    SerialPortStreambuf(SerialPortStreambuf&& other) noexcept : m_serial(), m_putback() { *this = std::move(other); };
+    SerialPortStreambuf& operator=(SerialPortStreambuf&& other) noexcept;
+
     void open(const std::string& fileName,
               BaudRate baudRate = BaudRate::BAUD_9600,
               CharSize characterSize = CharSize::CHAR_SIZE_8,
               FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
               Parity parityType = Parity::PARITY_NONE,
-              StopBits stopBits = StopBits::STOP_BITS_1);
+              StopBits stopBits = StopBits::STOP_BITS_1); //!< open a serial port with some sensible default settings
+    void open(SerialDescriptor_t descriptor,
+              BaudRate baudRate = BaudRate::BAUD_9600,
+              CharSize characterSize = CharSize::CHAR_SIZE_8,
+              FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
+              Parity parityType = Parity::PARITY_NONE,
+              StopBits stopBits = StopBits::STOP_BITS_1); //!< open port using existing descriptor
     void close(); //!< automatically called in destructor
     bool is_open() const; //!< check if serial port is open
+
+    void setProperties(BaudRate baudRate = BaudRate::BAUD_9600,
+                       CharSize characterSize = CharSize::CHAR_SIZE_8,
+                       FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
+                       Parity parityType = Parity::PARITY_NONE,
+                       StopBits stopBits = StopBits::STOP_BITS_1); //!< sets serial port properties
 
     // set / get modem lines
     bool getCTS() const; //!< get state of CTS line
@@ -107,15 +123,31 @@ public:
                                  Parity parityType = Parity::PARITY_NONE,
                                  StopBits stopBits = StopBits::STOP_BITS_1);
 
-    //!< open a serial port with some sensible default settings
+    SerialPortStream(const SerialPortStream& other) = delete;
+    SerialPortStream& operator=(const SerialPortStream& other) = delete;
+    SerialPortStream(SerialPortStream&& other) noexcept : m_streambuf() { *this = std::move(other); };
+    SerialPortStream& operator=(SerialPortStream&& other) noexcept;
+
     void open(const std::string& fileName,
               BaudRate baudRate = BaudRate::BAUD_9600,
               CharSize characterSize = CharSize::CHAR_SIZE_8,
               FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
               Parity parityType = Parity::PARITY_NONE,
-              StopBits stopBits = StopBits::STOP_BITS_1);
+              StopBits stopBits = StopBits::STOP_BITS_1); //!< open a serial port with some sensible default settings
+    void open(SerialDescriptor_t descriptor,
+              BaudRate baudRate = BaudRate::BAUD_9600,
+              CharSize characterSize = CharSize::CHAR_SIZE_8,
+              FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
+              Parity parityType = Parity::PARITY_NONE,
+              StopBits stopBits = StopBits::STOP_BITS_1); //!< open port using existing descriptor
     void close(); //!< automatically closed in destructor
     bool is_open() const; //!< check if serial port is open
+
+    void setProperties(BaudRate baudRate = BaudRate::BAUD_9600,
+                       CharSize characterSize = CharSize::CHAR_SIZE_8,
+                       FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
+                       Parity parityType = Parity::PARITY_NONE,
+                       StopBits stopBits = StopBits::STOP_BITS_1); //!< sets serial port properties
 
     int charsAvailable(); //!< number of characters available for reading
 
@@ -131,7 +163,7 @@ public:
     const SerialPortStreambuf* rdbuf() const; //!< return pointer to internal serial port streambuf
     friend void swap(SerialPortStream& first, SerialPortStream& second); //!< swap two serial port streambufs
 
-public:
+private:
     SerialPortStreambuf m_streambuf;
 };
 

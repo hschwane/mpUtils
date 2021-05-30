@@ -39,6 +39,14 @@ void SerialPortStreambuf::open(const std::string& fileName, BaudRate baudRate, C
     m_serial.open(fileName,baudRate,characterSize,flowControlType,parityType,stopBits);
 }
 
+SerialPortStreambuf& SerialPortStreambuf::operator=(SerialPortStreambuf&& other) noexcept
+{
+    using std::swap;
+    swap(other.m_serial, m_serial);
+    swap(other.m_putback, m_putback);
+    return *this;
+}
+
 void SerialPortStreambuf::close()
 {
     m_serial.close();
@@ -47,6 +55,18 @@ void SerialPortStreambuf::close()
 bool SerialPortStreambuf::is_open() const
 {
     return m_serial.is_open();
+}
+
+void SerialPortStreambuf::open(SerialDescriptor_t descriptor, BaudRate baudRate, CharSize characterSize,
+                               FlowControl flowControlType, Parity parityType, StopBits stopBits)
+{
+    m_serial.open(descriptor,baudRate,characterSize,flowControlType,parityType,stopBits);
+}
+
+void SerialPortStreambuf::setProperties(BaudRate baudRate, CharSize characterSize, FlowControl flowControlType,
+                                        Parity parityType, StopBits stopBits)
+{
+    m_serial.setProperties(baudRate,characterSize,flowControlType,parityType,stopBits);
 }
 
 bool SerialPortStreambuf::getCTS() const
@@ -178,6 +198,13 @@ void SerialPortStream::open(const std::string& fileName, BaudRate baudRate, Char
     m_streambuf.open(fileName,baudRate,characterSize,flowControlType,parityType,stopBits);
 }
 
+SerialPortStream& SerialPortStream::operator=(SerialPortStream&& other) noexcept
+{
+    using std::swap;
+    swap(other.m_streambuf, m_streambuf);
+    return *this;
+}
+
 void SerialPortStream::close()
 {
     m_streambuf.close();
@@ -186,6 +213,18 @@ void SerialPortStream::close()
 bool SerialPortStream::is_open() const
 {
     return m_streambuf.is_open();
+}
+
+void SerialPortStream::open(SerialDescriptor_t descriptor, BaudRate baudRate, CharSize characterSize,
+                            FlowControl flowControlType, Parity parityType, StopBits stopBits)
+{
+    m_streambuf.open(descriptor,baudRate,characterSize,flowControlType,parityType,stopBits);
+}
+
+void SerialPortStream::setProperties(BaudRate baudRate, CharSize characterSize, FlowControl flowControlType,
+                                     Parity parityType, StopBits stopBits)
+{
+    m_streambuf.setProperties(baudRate,characterSize,flowControlType,parityType,stopBits);
 }
 
 bool SerialPortStream::getCTS() const

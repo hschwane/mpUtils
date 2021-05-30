@@ -70,9 +70,27 @@ void SerialPort::open(const std::string& fileName, BaudRate baudRate, CharSize c
         throw std::runtime_error("Could not open serial \"" + fileName + "\": " + std::strerror(errno));
 
     if(::ioctl(m_fd, TIOCEXCL) < 0)
-        throw std::runtime_error("Could block serial port \"" + fileName + "\": " + std::strerror(errno));
+        throw std::runtime_error("Could not block serial port \"" + fileName + "\": " + std::strerror(errno));
 
     // settings
+    setProperties(baudRate,characterSize,flowControlType,parityType,stopBits);
+}
+
+void SerialPort::open(SerialDescriptor_t descriptor, BaudRate baudRate, CharSize characterSize,
+                      FlowControl flowControlType, Parity parityType, StopBits stopBits)
+{
+    if(descriptor <= 0)
+        throw std::invalid_argument("Serial port descriptor invalid.");
+    m_fd = descriptor;
+    if(::ioctl(m_fd, TIOCEXCL) < 0)
+        throw std::runtime_error(std::string("Could not block serial port ") + std::strerror(errno));
+
+    setProperties(baudRate,characterSize,flowControlType,parityType,stopBits);
+}
+
+void SerialPort::setProperties(BaudRate baudRate, CharSize characterSize, FlowControl flowControlType,
+                               Parity parityType, StopBits stopBits)
+{
     termios settings{};
 
     // set baud rate
@@ -141,7 +159,7 @@ void SerialPort::open(const std::string& fileName, BaudRate baudRate, CharSize c
             throw std::invalid_argument("invalid stop bit setting");
     }
 
-    // enable read and ignore model control
+    // enable read and ignore modem control
     settings.c_cflag |= CLOCAL | CREAD;
 
     // ignore breaks
@@ -151,7 +169,7 @@ void SerialPort::open(const std::string& fileName, BaudRate baudRate, CharSize c
     settings.c_oflag &= ~OPOST;
 
     if(tcsetattr(m_fd, TCSANOW, &settings) < 0)
-        throw std::runtime_error("Could read serial port \"" + fileName + "\" settings: " + std::strerror(errno));
+        throw std::runtime_error(std::string("Could apply serial port settings: ") + std::strerror(errno));
 }
 
 void SerialPort::close()

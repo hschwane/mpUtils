@@ -61,15 +61,26 @@ public:
     SerialPort(SerialPort&& other) noexcept : m_fd{} { *this = std::move(other); };
     SerialPort& operator=(SerialPort&& other) noexcept;
 
-    //!< open the serial port
     void open(const std::string& fileName,
               BaudRate baudRate = BaudRate::BAUD_9600,
               CharSize characterSize = CharSize::CHAR_SIZE_8,
               FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
               Parity parityType = Parity::PARITY_NONE,
-              StopBits stopBits = StopBits::STOP_BITS_1);
+              StopBits stopBits = StopBits::STOP_BITS_1); //!< open the serial port by name
+    void open(SerialDescriptor_t descriptor,
+              BaudRate baudRate = BaudRate::BAUD_9600,
+              CharSize characterSize = CharSize::CHAR_SIZE_8,
+              FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
+              Parity parityType = Parity::PARITY_NONE,
+              StopBits stopBits = StopBits::STOP_BITS_1); //!< open port using existing descriptor
     void close(); //!< automatically called in destructor
     bool is_open() const; //!< check if serial port is open
+
+    void setProperties(BaudRate baudRate = BaudRate::BAUD_9600,
+                       CharSize characterSize = CharSize::CHAR_SIZE_8,
+                       FlowControl flowControlType = FlowControl::FLOW_CONTROL_NONE,
+                       Parity parityType = Parity::PARITY_NONE,
+                       StopBits stopBits = StopBits::STOP_BITS_1); //!< sets serial port properties
 
     // set / get model lines
     bool getCTS() const;
