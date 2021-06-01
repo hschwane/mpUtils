@@ -52,7 +52,7 @@ public:
 
     SerialPortStreambuf(const SerialPortStreambuf& other) = delete;
     SerialPortStreambuf& operator=(const SerialPortStreambuf& other) = delete;
-    SerialPortStreambuf(SerialPortStreambuf&& other) noexcept : m_serial(), m_putback() { *this = std::move(other); };
+    SerialPortStreambuf(SerialPortStreambuf&& other) noexcept : SerialPortStreambuf("") { *this = std::move(other); };
     SerialPortStreambuf& operator=(SerialPortStreambuf&& other) noexcept;
 
     void open(const std::string& fileName,
@@ -125,7 +125,7 @@ public:
 
     SerialPortStream(const SerialPortStream& other) = delete;
     SerialPortStream& operator=(const SerialPortStream& other) = delete;
-    SerialPortStream(SerialPortStream&& other) noexcept : m_streambuf() { *this = std::move(other); };
+    SerialPortStream(SerialPortStream&& other) noexcept : SerialPortStream("") { *this = std::move(other); };
     SerialPortStream& operator=(SerialPortStream&& other) noexcept;
 
     void open(const std::string& fileName,

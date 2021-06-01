@@ -58,7 +58,7 @@ public:
     // make SerialPort non copyable but movable
     SerialPort(const SerialPort& other) = delete;
     SerialPort& operator=(const SerialPort& other) = delete;
-    SerialPort(SerialPort&& other) noexcept : m_fd{} { *this = std::move(other); };
+    SerialPort(SerialPort&& other) noexcept : SerialPort("") { *this = std::move(other); };
     SerialPort& operator=(SerialPort&& other) noexcept;
 
     void open(const std::string& fileName,

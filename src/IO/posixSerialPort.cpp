@@ -169,7 +169,7 @@ void SerialPort::setProperties(BaudRate baudRate, CharSize characterSize, FlowCo
     settings.c_oflag &= ~OPOST;
 
     if(tcsetattr(m_fd, TCSANOW, &settings) < 0)
-        throw std::runtime_error(std::string("Could apply serial port settings: ") + std::strerror(errno));
+        throw std::runtime_error(std::string("Could not apply serial port settings: ") + std::strerror(errno));
 }
 
 void SerialPort::close()
