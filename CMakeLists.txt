@@ -302,7 +302,7 @@ target_link_libraries(mpUtils PUBLIC Threads::Threads)
 
 # link optional external libs
 if(USE_GLM)
-    target_link_libraries(mpUtils PUBLIC glm)
+    target_link_libraries(mpUtils PUBLIC glm::glm)
 endif()
 
 if(USE_OPENGL)
