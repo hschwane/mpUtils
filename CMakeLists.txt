@@ -341,7 +341,7 @@ set_target_properties(mpCudaSettings PROPERTIES EXPORT_NAME mpCudaSettings)
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/mpUtils)
 
-# configure the paths.h file to point to the installes shaders and resources
+# configure the paths.h file to point to the installers shaders and resources
 install(CODE "
         set(MPU_LIB_SHADER_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/mpUtils/shader)
         set(MPU_LIB_RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/mpUtils/resources)
@@ -416,6 +416,7 @@ export(TARGETS ${LOCAL_EXPOR_TARGETS} NAMESPACE mpUtils:: FILE ${CMAKE_CURRENT_B
 
 if(EXPORT_BUILD_TREE)
 #     register package in users package registry
+    set(CMAKE_EXPORT_PACKAGE_REGISTRY ON FORCE)
     export(PACKAGE mpUtils)
 endif()
 
