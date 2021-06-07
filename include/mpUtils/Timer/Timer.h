@@ -41,7 +41,7 @@ namespace mpu {
  * If you want you can register a function to be called when the timer finishes or set the timer to looping which will make it
  * restart automatically.
  * Start the timer with start() and then call update repeatedly. In the update function the timer checks if it is finished
- * and change it's state. You can also stop the timer manually which prevents the registered function from being called.
+ * and change it's state. Update returns true once, when the timer finishes. You can also stop the timer manually which prevents the registered function from being called.
  * pause(), resume() and togglePause() can be used to pause the timer.
  * However if you call update after the timer was paused it will stop the timer if the time limit was already reached before
  * the call to pause() happened.
@@ -80,7 +80,7 @@ public:
 
     inline void start(); // start (restart if already running) the timer
     inline void stop(); // stop the timer
-    bool update(); // you need to call this repeatedly to check if the timer is finished returns false when the timer stopped running
+    bool update(); // you need to call this repeatedly to check if the timer is finished returns true once, when the timer is done
 
     inline void pause(); // pause the timer
     inline void resume(); // resume the timer
@@ -174,21 +174,20 @@ void basic_Timer<clock>::stop()
 template <typename clock>
 bool basic_Timer<clock>::update()
 {
-    if(!bRunning)
-        return false;
-
-    if(sw.getDuration() >= timerDuration)
+    if(bRunning && sw.getDuration() >= timerDuration)
     {
+        if(finishFunction)
+            finishFunction();
+
         if(bLooping)
             sw.reset();
         else
             bRunning = false;
 
-        if(finishFunction)
-            finishFunction();
+        return true;
     }
 
-    return isRunning();
+    return false;
 }
 
 template <typename clock>
