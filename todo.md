@@ -58,6 +58,7 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+--- v0.14.0 -- 18.09.2022
 - change behavior of timer::update() to make it easier to use
 - fix bug where wrong imgui font size is loaded
 - fix bug where window hint was ignored
