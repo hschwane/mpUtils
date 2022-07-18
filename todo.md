@@ -58,6 +58,9 @@
 # finished
 for motivation, all finished todo entries are moved here instead of being deleted
 
+--- v0.14.2 -- 19.09.2022
+- fix compiling with cuda 11.7
+
 --- v0.14.1 -- 18.09.2022
 - remove unfinished code from build
 
