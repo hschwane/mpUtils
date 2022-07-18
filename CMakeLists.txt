@@ -112,6 +112,7 @@ endif()
 # enable cuda
 # -------------------------------------------------------------
 if (USE_CUDA)
+    set(CMAKE)
     enable_language(CUDA)
 
     include(selectComputeArch)
@@ -287,9 +288,6 @@ if(USE_CUDA)
 #    target_link_libraries(mpUtils PUBLIC libcudart.so)
     include(cudaConvertFlags)
     cuda_convert_flags(Threads::Threads)
-    if(USE_GLM)
-        cuda_convert_flags(glm)
-    endif()
     if(USE_OPENGL)
         cuda_convert_flags(OpenGL::GL)
         cuda_convert_flags(glfw)

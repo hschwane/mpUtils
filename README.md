@@ -132,7 +132,6 @@ also be used in cuda code. Some even in device functions.
 - vector and matrix math functions for cuda
 - cuda memory management using std::vector compatible classes
 - cuda <-> OpenGL interoperability
-- the CUB library (see 3rd party code)
   
 ### general
 - highly customisable thread safe logger
@@ -169,8 +168,6 @@ This product includes software developed by Keith O'Hara (http://www.kthohr.com)
 
 This software contains source code
 provided by NVIDIA Corporation.
-
-CUB by nvlabs (https://nvlabs.github.io/cub/)
 
 stb_image and stb_image_write (https://github.com/nothings/stb)
 This software contains source code provided by Sean T. Barrett.

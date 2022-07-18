@@ -33,7 +33,6 @@
 #include "Cuda/PinnedAllocator.h"
 #include "Cuda/DeviceVector.h"
 #include "Cuda/GlBufferMapper.h"
-#include "mpUtils/external/cub/cub.cuh"
 //--------------------
 
 #endif //MPUTILS_MPCUDA_H
